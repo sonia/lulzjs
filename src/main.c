@@ -3,10 +3,18 @@
 
 #include "System.h"
 
+static JSClass Core_class = {
+    "Core", JSCLASS_GLOBAL_FLAGS,
+    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
+    JSCLASS_NO_OPTIONAL_MEMBERS
+};
+
 typedef struct {
     JSBool     error;
     JSRuntime* runtime;
     JSContext* context;
+    JSObject*  core;
 } Engine;
 
 void reportError (JSContext *cx, const char *message, JSErrorReport *report);
@@ -21,9 +29,10 @@ main (int argc, const char *argv[])
         fprintf(stderr, "An error occurred while initializing the system.\n");
         return 1;
     }
-
-    System_initialize(engine.context);
-
+    if (!System_initialize(engine.context)) {
+        fprintf(stderr, "The System object doesn't exist.\n");
+        return 1;
+    }
     if (!executeScript(engine.context, argv[1])) {
         return 1;
     }
@@ -63,6 +72,16 @@ initEngine (void)
     JS_SetOptions(engine.context, JSOPTION_VAROBJFIX);
     JS_SetErrorReporter(engine.context, reportError);
 
+    engine.core = JS_NewObject(engine.context, &Core_class, NULL, NULL);
+    if (!engine.core) {
+        engine.error = JS_TRUE;
+        return engine;
+    }
+    if (!JS_InitStandardClasses(engine.context, engine.core)) {
+        engine.error = JS_TRUE;
+        return engine;
+    }
+
     return engine;
 }
 
@@ -71,13 +90,13 @@ executeScript (JSContext* context, const char* file)
 {
     JSScript* script;
     jsval     returnValue;
-    JSObject* system = JS_GetGlobalObject(context);
+    JSObject* global = JS_GetGlobalObject(context);
 
-    script = JS_CompileFile(context, system, file);
+    script = JS_CompileFile(context, global, file);
     if (!script) {
         return JS_FALSE;
     }
 
-    return JS_ExecuteScript(context, system, script, &returnValue);
+    return JS_ExecuteScript(context, global, script, &returnValue);
 }
 

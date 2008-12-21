@@ -1,11 +1,11 @@
 #include <js/jsapi.h>
+#include <stdio.h>
 #include <string.h>
 
 static JSClass System_class = {
-    "System", JSCLASS_GLOBAL_FLAGS,
+    "System", 0,
     JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
-    JSCLASS_NO_OPTIONAL_MEMBERS
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
 };
 
 JSObject* System_initialize (JSContext* context);
