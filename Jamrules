@@ -1,0 +1,7 @@
+if $(NT) {
+    CCFLAGS += -DXP_WIN ;
+}
+else if $(UNIX) {
+    LINKLIBS   = -ljs ;
+    CCFLAGS   += -DXP_UNIX ;
+}
