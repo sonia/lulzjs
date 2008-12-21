@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <js/jsapi.h>
 
-#include "Core.h"
-#include "System.h"
+#include "lib/Core.h"
 
 typedef struct {
     JSBool     error;
@@ -21,10 +20,6 @@ main (int argc, const char *argv[])
     Engine engine = initEngine();
     if (engine.error) {
         fprintf(stderr, "An error occurred while initializing the system.\n");
-        return 1;
-    }
-    if (!System_initialize(engine.context)) {
-        fprintf(stderr, "The System object doesn't exist.\n");
         return 1;
     }
     if (!executeScript(engine.context, argv[1])) {

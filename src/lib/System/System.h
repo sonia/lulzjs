@@ -1,4 +1,5 @@
 #include <js/jsapi.h>
+#include "IO/IO.h"
 
 static JSClass System_class = {
     "System", 0,
