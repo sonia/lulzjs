@@ -1,2 +1,2 @@
-Main ljs : src/main.c src/System.c ;
+Main ljs : src/main.c src/Core.c src/System.c src/IO.c ;
 LINKLIBS on ljs = $(LINKLIBS) ;

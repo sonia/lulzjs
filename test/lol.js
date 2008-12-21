@@ -1,1 +1,1 @@
-System.write(System.STDOUT, new Date().toString()+"\n");
+System.IO.write(System.IO.STDOUT, "NIGGER NIGGER NIGGER NIGGER\n");

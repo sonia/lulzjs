@@ -1,14 +1,8 @@
 #include <stdio.h>
 #include <js/jsapi.h>
 
+#include "Core.h"
 #include "System.h"
-
-static JSClass Core_class = {
-    "Core", JSCLASS_GLOBAL_FLAGS,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
-    JSCLASS_NO_OPTIONAL_MEMBERS
-};
 
 typedef struct {
     JSBool     error;
@@ -56,30 +50,18 @@ Engine
 initEngine (void)
 {
     Engine engine;
-    engine.error = JS_FALSE;
+    engine.error = JS_TRUE;
 
-    engine.runtime = JS_NewRuntime(8L * 1024L * 1024L);
-    if (!engine.runtime) {
-        engine.error = JS_TRUE;
-        return engine;
-    }
+    if (engine.runtime = JS_NewRuntime(8L * 1024L * 1024L)) {
+        if (engine.context = JS_NewContext(engine.runtime, 8192)) {
+            JS_SetOptions(engine.context, JSOPTION_VAROBJFIX);
+            JS_SetErrorReporter(engine.context, reportError);
 
-    engine.context = JS_NewContext(engine.runtime, 8192);
-    if (!engine.context) {
-        engine.error = JS_TRUE;
-        return engine;
-    }
-    JS_SetOptions(engine.context, JSOPTION_VAROBJFIX);
-    JS_SetErrorReporter(engine.context, reportError);
-
-    engine.core = JS_NewObject(engine.context, &Core_class, NULL, NULL);
-    if (!engine.core) {
-        engine.error = JS_TRUE;
-        return engine;
-    }
-    if (!JS_InitStandardClasses(engine.context, engine.core)) {
-        engine.error = JS_TRUE;
-        return engine;
+            if (engine.core = Core_initialize(engine.context)) {
+                engine.error = JS_FALSE;
+                return engine;
+            }
+        }
     }
 
     return engine;
