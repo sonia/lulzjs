@@ -1,6 +1,7 @@
 #include "Misc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <libgen.h>
 
 #define LOCAL  1

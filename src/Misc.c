@@ -27,3 +27,18 @@ readFile (const char* file)
 
     return text;
 }
+
+short
+fileExists (const char* file)
+{
+    FILE* check = fopen(file, "r");
+
+    if (check) {
+        fclose(check);
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
