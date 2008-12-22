@@ -1,6 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <js/jsapi.h>
 
+#include "Misc.h"
+#include "Preprocessor.h"
 #include "lib/Core.h"
 
 typedef struct {
@@ -23,6 +26,7 @@ main (int argc, const char *argv[])
         return 1;
     }
     if (!executeScript(engine.context, argv[1])) {
+        fprintf(stderr, "An error occurred while trying to read the file\n");
         return 1;
     }
 
@@ -65,15 +69,15 @@ initEngine (void)
 JSBool
 executeScript (JSContext* context, const char* file)
 {
-    JSScript* script;
-    jsval     returnValue;
+    JSBool    returnValue;
+    jsval     rval;
     JSObject* global = JS_GetGlobalObject(context);
 
-    script = JS_CompileFile(context, global, file);
-    if (!script) {
-        return JS_FALSE;
-    }
+    JSScript* script;
+    char* sources = readFile(file);
 
-    return JS_ExecuteScript(context, global, script, &returnValue);
+    returnValue = JS_EvaluateScript(context, global, sources, length, file, 0, &rval);
+    free(sources);
+    return returnValue;
 }
 
