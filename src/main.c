@@ -74,9 +74,13 @@ executeScript (JSContext* context, const char* file)
     JSObject* global = JS_GetGlobalObject(context);
 
     JSScript* script;
-    char* sources = readFile(file);
+    char* sources = (char*) preprocessSource(readFile(file));
 
-    returnValue = JS_EvaluateScript(context, global, sources, length, file, 0, &rval);
+    if (!sources) {
+        return JS_FALSE;
+    }
+
+    returnValue = JS_EvaluateScript(context, global, sources, strlen(sources), file, 0, &rval);
     free(sources);
     return returnValue;
 }

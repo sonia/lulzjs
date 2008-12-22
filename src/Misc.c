@@ -3,25 +3,25 @@
 const char*
 readFile (const char* file)
 {
-    FILE*  file = fopen(file, "r");
-    char*  text;
-    size_t length;
-    size_t read;
+    FILE*  fp     = fopen(file, "r");
+    char*  text   = NULL;
+    size_t length = 0;
+    size_t read   = 0;
 
-    if (!file) {
+    if (!fp) {
         return NULL;
     }
 
     while (1) {
-        text = realloc(text, (length+=512));
-        read = fread(text+(length-512), sizeof(char), 512, file);
+        text = realloc(text, length+=512);
+        read = fread(text+(length-512), sizeof(char), 512, fp);
 
         if (read < 512) {
-            text = realloc(text, length-=(512-read));
+            text = realloc(text, length-=(512-read-1));
             break;
         }
     }
-    fclose(file);
+    fclose(fp);
 
     return text;
 }

@@ -1,5 +1,7 @@
 #include <js/jsapi.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include "../../../Misc.h"
 #include <string.h>
 
 static JSClass IO_class = {

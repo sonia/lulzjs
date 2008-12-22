@@ -1,6 +1,11 @@
 Main ljs :  src/main.c
+            src/Preprocessor.c
+            src/Misc.c
+
             src/lib/Core.c
+
             src/lib/System/System.c
+            
             src/lib/System/IO/IO.c ;
 
 LINKLIBS on ljs = $(LINKLIBS) ;

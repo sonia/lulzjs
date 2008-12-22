@@ -1,11 +1,3 @@
-System.IO.Console = {
-    write: function (text) {
-        System.IO.write(System.IO.STDOUT, text);
-    },
-
-    writeLine: function (text) {
-        System.IO.write(System.IO.STDOUT, text+"\n");
-    }
-}
+#include "test/Console.js"
 
 System.IO.Console.writeLine("NIGGER NIGGER NIGGER NIGGER");
