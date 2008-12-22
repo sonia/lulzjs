@@ -1,3 +1,3 @@
-#include "test/Console.js"
+#include "Console.js"
 
 System.IO.Console.writeLine("NIGGER NIGGER NIGGER NIGGER");

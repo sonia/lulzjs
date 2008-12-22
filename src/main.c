@@ -74,7 +74,7 @@ executeScript (JSContext* context, const char* file)
     JSObject* global = JS_GetGlobalObject(context);
 
     JSScript* script;
-    char* sources = (char*) preprocessSource(readFile(file));
+    char* sources = (char*) preprocess(readFile(file), file);
 
     if (!sources) {
         return JS_FALSE;
