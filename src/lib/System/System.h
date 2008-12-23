@@ -17,6 +17,8 @@
 ****************************************************************************/
 
 #include <js/jsapi.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 static JSClass System_class = {
     "System", 0,
@@ -27,7 +29,9 @@ static JSClass System_class = {
 extern short  exec (JSContext* context);
 extern short  System_initialize (JSContext* context);
 extern JSBool System_write (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+extern JSBool System_exec (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
 static JSFunctionSpec System_methods[] = {
+    {"exec", System_exec, 0, 0, 0},
     {NULL}
 };

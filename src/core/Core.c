@@ -26,5 +26,8 @@ Core_initialize (JSContext *context)
     if (object && JS_InitStandardClasses(context, object))
         return object;
 
+    JS_DefineFunctions(context, object, Core_methods);
+
     return NULL;
 }
+

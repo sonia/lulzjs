@@ -25,7 +25,7 @@ static JSClass Core_class = {
     JSCLASS_NO_OPTIONAL_MEMBERS
 };
 
-JSObject* Core_initialize (JSContext *context);
+extern JSObject* Core_initialize (JSContext *context);
 
 static JSFunctionSpec Core_methods[] = {
     {NULL}

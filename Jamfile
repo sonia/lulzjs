@@ -14,7 +14,7 @@ Main ljs :  src/core/main.c
 
 LINKLIBS on ljs = -ldl ;
 
-SharedLibrary System$(SUFSHR) : src/lib/System/System.c ;
+#SharedLibrary System$(SUFSHR) : src/lib/System/System.c ;
 
 InstallBin $(BINDIR) : ljs$(SUFEXE) ;
 

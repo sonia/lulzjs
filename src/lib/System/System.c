@@ -36,3 +36,40 @@ System_initialize (JSContext* context)
     return 1;
 }
 
+JSBool
+System_exec (JSContext *context, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+    FILE* pipe;
+    char* output  = NULL;
+    size_t length = 0;
+    size_t read   = 0;
+    const char* command;
+
+    if (!JS_ConvertArguments(context, argc, argv, "s", &command)) {
+        return JS_FALSE;
+    }
+    if (argc != 1) {
+        JS_ReportError(context, "exec needs 1 arguments");
+        return JS_FALSE;
+    }
+
+    if ((pipe = popen(command, "r")) == NULL) {
+        JS_ReportError(context, "command not found");
+        return JS_FALSE;
+    }
+
+    while (1) {
+        output = realloc(output, length+=512);
+        read   = fread(output+(length-512), sizeof(char), 512, pipe);
+
+        if (read < 512) {
+            output = realloc(output, length-=(512-read-1));
+            break;
+        }
+    }
+    pclose(pipe);
+
+    *rval = STRING_TO_JSVAL(JS_NewString(context, output, length));
+    return JS_TRUE;
+}
+
