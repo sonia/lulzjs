@@ -1,8 +1,10 @@
+VERSION = 0.1.1
+
 CC         = gcc
 CXX        = g++
 BINDIR     = /usr/bin
 LJS_LIBDIR = /usr/lib/lulzjs
-CFLAGS    += -DXP_UNIX -D__LJS_LIBRARY_PATH__="\"${LJS_LIBDIR}/\""
+CFLAGS    += -DXP_UNIX -D__LJS_LIBRARY_PATH__="\"${LJS_LIBDIR}/\"" -D__LJS_VERSION__="\"${VERSION}\""
 LDFLAGS   += -ljs
 
 CORE         = src/core/main.o src/core/Core.o src/core/Misc.o src/core/Preprocessor.o

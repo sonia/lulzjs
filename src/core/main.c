@@ -41,6 +41,17 @@ main (int argc, char *argv[])
 {
     int cmd;
     while ((cmd = getopt(argc, argv, "v")) != -1) {
+        switch (cmd) {
+            case 'v':
+            printf("lulzJS %s\n", __LJS_VERSION__);
+            return 0;
+            break;
+
+            default:
+            fprintf(stderr, "Unknown option.\n");
+            return 1;
+            break;
+        }
     }
 
     if (argc < 1 || !fileExists(argv[optind])) {
