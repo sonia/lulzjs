@@ -4,8 +4,12 @@ CC         = gcc
 CXX        = g++
 BINDIR     = /usr/bin
 LJS_LIBDIR = /usr/lib/lulzjs
-CFLAGS    += -DXP_UNIX -D__LJS_LIBRARY_PATH__="\"${LJS_LIBDIR}/\"" -D__LJS_VERSION__="\"${VERSION}\""
-LDFLAGS   += -ljs
+CFLAGS     = -DXP_UNIX -D__LJS_LIBRARY_PATH__="\"${LJS_LIBDIR}/\"" -D__LJS_VERSION__="\"${VERSION}\""
+LDFLAGS    = -ljs
+
+ifdef DEBUG
+CFLAGS += -DDEBUG
+endif
 
 CORE         = src/core/main.o src/core/Core.o src/core/Misc.o src/core/Preprocessor.o
 CORE_CFLAGS  = ${CFLAGS}
@@ -17,6 +21,10 @@ LIB_SYSTEM_LDFLAGS = ${LDFLAGS}
 
 all: core libcore libsystem
 
+debug:
+	CFLAGS="${CFLAGS} -DDEBUG"
+	$(call all)
+
 core: $(CORE)
 	${CC} ${CORE_LDFLAGS} ${CORE_CFLAGS} ${CORE} -o ljs
 
@@ -27,7 +35,7 @@ libcore:
 
 libcore_install:
 	mkdir -p ${LJS_LIBDIR}/Core
-	cp src/core/Core/init.js ${LJS_LIBDIR}/Core/init.js
+	cp -rf src/core/Core/*.js ${LJS_LIBDIR}/Core/
 	
 libsystem: $(LIB_SYSTEM)
 
@@ -55,6 +63,7 @@ uninstall:
 	
 
 clean:
+	rm -f ljs;
 	rm -f src/core/*.o;
 	rm -f src/lib/System/*.*o; rm -f src/lib/System/IO/*.*o
 

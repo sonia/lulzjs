@@ -136,6 +136,11 @@ import (JSContext* context, const char* path)
 
         jsval rval;
         char* sources = (char*)preprocess(context, readFile(path), path);
+
+        #ifdef DEBUG
+        printf("%s:\n----------------------\n%s\n----------------------\n", path, sources);
+        #endif
+
         JS_EvaluateScript(context, JS_GetGlobalObject(context), sources, strlen(sources), path, 0, &rval);
         free(sources);
     }

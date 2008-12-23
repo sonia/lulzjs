@@ -35,10 +35,12 @@ readFile (const char* file)
         read = fread(text+(length-512), sizeof(char), 512, fp);
 
         if (read < 512) {
-            text = realloc(text, length-=(512-read-1));
+            text = realloc(text, length-=(512-read));
             break;
         }
     }
+    text[length-1] = '\0';
+
     fclose(fp);
 
     return text;

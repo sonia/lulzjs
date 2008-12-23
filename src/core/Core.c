@@ -23,10 +23,10 @@ Core_initialize (JSContext *context)
 {
     JSObject* object = JS_NewObject(context, &Core_class, NULL, NULL);
 
-    if (object && JS_InitStandardClasses(context, object))
+    if (object && JS_InitStandardClasses(context, object)) {
+        include(context, "Core", "Core", GLOBAL);
         return object;
-
-    include(context, "Core", "Core", GLOBAL);
+    }
 
     return NULL;
 }
