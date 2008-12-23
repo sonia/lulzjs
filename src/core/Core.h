@@ -17,6 +17,7 @@
 ****************************************************************************/
 
 #include <js/jsapi.h>
+#include "Preprocessor.h"
 
 static JSClass Core_class = {
     "Core", JSCLASS_GLOBAL_FLAGS,
@@ -26,8 +27,4 @@ static JSClass Core_class = {
 };
 
 extern JSObject* Core_initialize (JSContext *context);
-
-static JSFunctionSpec Core_methods[] = {
-    {NULL}
-};
 
