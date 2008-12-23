@@ -16,18 +16,15 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-#include <js/jsapi.h>
+#include "Core.h"
 
-static JSClass System_class = {
-    "System", 0,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
-};
+JSObject*
+Core_initialize (JSContext *context)
+{
+    JSObject* object = JS_NewObject(context, &Core_class, NULL, NULL);
 
-extern short  exec (JSContext* context);
-extern short  System_initialize (JSContext* context);
-extern JSBool System_write (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+    if (object && JS_InitStandardClasses(context, object))
+        return object;
 
-static JSFunctionSpec System_methods[] = {
-    {NULL}
-};
+    return NULL;
+}

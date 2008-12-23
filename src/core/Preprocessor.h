@@ -17,17 +17,17 @@
 ****************************************************************************/
 
 #include <js/jsapi.h>
+#include "Misc.h"
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <libgen.h>
+#include <dlfcn.h>
 
-static JSClass System_class = {
-    "System", 0,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
-};
+#define LOCAL  1
+#define GLOBAL 2
 
-extern short  exec (JSContext* context);
-extern short  System_initialize (JSContext* context);
-extern JSBool System_write (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+const char* preprocess (JSContext* context, const char* source, const char* fileName);
+short include (JSContext* context, const char* from, const char* fileName, int type);
+short import (JSContext* context, const char* path);
 
-static JSFunctionSpec System_methods[] = {
-    {NULL}
-};

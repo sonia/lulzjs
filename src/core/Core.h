@@ -18,16 +18,16 @@
 
 #include <js/jsapi.h>
 
-static JSClass System_class = {
-    "System", 0,
+static JSClass Core_class = {
+    "Core", JSCLASS_GLOBAL_FLAGS,
     JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
+    JSCLASS_NO_OPTIONAL_MEMBERS
 };
 
-extern short  exec (JSContext* context);
-extern short  System_initialize (JSContext* context);
-extern JSBool System_write (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSObject* Core_initialize (JSContext *context);
 
-static JSFunctionSpec System_methods[] = {
+static JSFunctionSpec Core_methods[] = {
     {NULL}
 };
+

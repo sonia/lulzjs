@@ -16,18 +16,45 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-#include <js/jsapi.h>
+#include "Misc.h"
 
-static JSClass System_class = {
-    "System", 0,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
-};
+const char*
+readFile (const char* file)
+{
+    FILE*  fp     = fopen(file, "r");
+    char*  text   = NULL;
+    size_t length = 0;
+    size_t read   = 0;
 
-extern short  exec (JSContext* context);
-extern short  System_initialize (JSContext* context);
-extern JSBool System_write (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+    if (!fp) {
+        return NULL;
+    }
 
-static JSFunctionSpec System_methods[] = {
-    {NULL}
-};
+    while (1) {
+        text = realloc(text, length+=512);
+        read = fread(text+(length-512), sizeof(char), 512, fp);
+
+        if (read < 512) {
+            text = realloc(text, length-=(512-read-1));
+            break;
+        }
+    }
+    fclose(fp);
+
+    return text;
+}
+
+short
+fileExists (const char* file)
+{
+    FILE* check = fopen(file, "r");
+
+    if (check) {
+        fclose(check);
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
