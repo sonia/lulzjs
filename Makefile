@@ -31,7 +31,7 @@ libsystem: $(LIB_SYSTEM)
 
 $(LIB_SYSTEM): $(LIB_SYSTEM:.o=.c)
 	${CC} ${LIB_SYSTEM_LDFLAGS} ${LIB_SYSTEM_CFLAGS} -fPIC -c $*.c -o $*.lo
-	${CC} -shared -Wl,-soname,$*.so -o $*.o $*.lo -lc
+	${CC} -shared -Wl,-soname,`basename $*`.so -o $*.o $*.lo -lc
 
 libsystem_install:
 	mkdir -p ${LJS_LIBDIR}/System
@@ -41,7 +41,16 @@ libsystem_install:
 	cp src/lib/System/IO/IO.o      ${LJS_LIBDIR}/System/IO/IO.so
 	cp src/lib/System/IO/Console.js ${LJS_LIBDIR}/System/IO/Console.js
 
-install: core_install libcore_install libsystem_install
+libsystem_uninstall:
+
+install: all core_install libcore_install libsystem_install
+	chmod -R a+rx ${LJS_LIBDIR}
+	chmod a+rx ${BINDIR}/ljs
+
+uninstall:
+	rm -f ${BINDIR}/ljs
+	rm -rf ${LJS_LIBDIR}
+	
 
 clean:
 	rm -f src/core/*.o;
