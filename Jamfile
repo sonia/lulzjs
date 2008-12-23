@@ -1,8 +1,20 @@
-CCFLAGS = -DXP_UNIX -D__LJS_LIBRARY_PATH__=\\\"/usr/lib/lulzjs/\\\" ;
+BINDIR = /usr/bin ;
+
+LJS_LIBRARY = /usr/lib/lulzjs/ ;
+CCFLAGS     = -DXP_UNIX -D__LJS_LIBRARY_PATH__=\\\"$(LJS_LIBRARY)\\\" ;
+LINKFLAGS   = -ljs ;
+
+COMPILER = gcc ;
+CC       = gcc ;
 
 Main ljs :  src/core/main.c
             src/core/Preprocessor.c
             src/core/Misc.c
             src/core/Core.c ;
 
-LINKLIBS on ljs = -ljs -ldl ;
+LINKLIBS on ljs = -ldl ;
+
+SharedLibrary System$(SUFSHR) : src/lib/System/System.c ;
+
+InstallBin $(BINDIR) : ljs$(SUFEXE) ;
+
