@@ -1,6 +1,8 @@
-Main ljs :  src/main.c
-            src/Preprocessor.c
-            src/Misc.c
-            src/Core.c ;
+CCFLAGS = -DXP_UNIX -D__LJS_LIBRARY_PATH__=\\\"/usr/lib/lulzjs/\\\" ;
 
-LINKLIBS on ljs = $(LINKLIBS) ;
+Main ljs :  src/core/main.c
+            src/core/Preprocessor.c
+            src/core/Misc.c
+            src/core/Core.c ;
+
+LINKLIBS on ljs = -ljs -ldl ;
