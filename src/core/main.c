@@ -33,7 +33,7 @@ typedef struct {
 } Engine;
 
 void reportError (JSContext *cx, const char *message, JSErrorReport *report);
-Engine initEngine (void);
+Engine initEngine (int argc, int optind, char *argv[]);
 JSBool executeScript (JSContext* context, const char* file);
 
 int
@@ -48,7 +48,7 @@ main (int argc, char *argv[])
         return 1;
     }
 
-    Engine engine = initEngine();
+    Engine engine = initEngine(argc, optind, argv);
     if (engine.error) {
         fprintf(stderr, "An error occurred while initializing the system.\n");
         return 1;
@@ -76,7 +76,7 @@ reportError (JSContext *cx, const char *message, JSErrorReport *report)
 }
 
 Engine
-initEngine (void)
+initEngine (int argc, int optind, char *argv[])
 {
     Engine engine;
     engine.error = JS_TRUE;
@@ -87,6 +87,22 @@ initEngine (void)
             JS_SetErrorReporter(engine.context, reportError);
 
             if (engine.core = Core_initialize(engine.context)) {
+                jsval pass;
+                JSObject* arguments = JS_NewArrayObject(engine.context, 0, NULL);
+                pass = OBJECT_TO_JSVAL(arguments);
+                JS_SetProperty(engine.context, engine.core, "arguments", &pass);
+
+                if (optind < argc) {
+                    int i;
+                    jsval rval;
+                    for (i = optind; i < argc; i++) {
+                        pass = STRING_TO_JSVAL(JS_NewString(engine.context, strdup(argv[i]), strlen(argv[i])));
+                        JS_CallFunctionName(
+                            engine.context, arguments, "push",
+                            1, &pass, &rval);
+                    }
+                }
+
                 engine.error = JS_FALSE;
                 return engine;
             }

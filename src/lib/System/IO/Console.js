@@ -38,5 +38,9 @@ System.IO.Console = {
         }
 
         return str;
+    },
+
+    clear: function () {
+        System.exec("clear");
     }
 }

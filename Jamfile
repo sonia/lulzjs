@@ -1,7 +1,7 @@
 BINDIR = /usr/bin ;
 
 LJS_LIBRARY = /usr/lib/lulzjs/ ;
-CCFLAGS     = -DXP_UNIX -D__LJS_LIBRARY_PATH__=\\\"$(LJS_LIBRARY)\\\" ;
+CCFLAGS     = -DXP_UNIX -D__LJS_LIBRARY_PATH__=\\\"$(LJS_LIBRARY)\\\" -g ;
 LINKFLAGS   = -ljs ;
 
 COMPILER = gcc ;
