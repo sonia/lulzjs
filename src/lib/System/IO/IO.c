@@ -69,3 +69,31 @@ IO_write (JSContext *context, JSObject *obj, uintN argc, jsval *argv, jsval *rva
     return JS_TRUE;
 }
 
+JSBool
+IO_read (JSContext *context, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+    const unsigned int fd;
+    const unsigned int size;
+
+    if (!JS_ConvertArguments(context, argc, argv, "uu", &fd, &size)) {
+        return JS_FALSE;
+    }
+    if (argc != 2) {
+        return JS_TRUE;
+    }
+
+    char* string = malloc(size*sizeof(char));
+
+    FILE* fp;
+    switch (fd) {
+        case  0: fp = stdin;            break;
+        case  1: fp = stdout;           break;
+        case  2: fp = stderr;           break;
+        default: fp = fdopen(fd, "r+"); break;
+    }
+
+    fread(string, sizeof(char), size, fp);
+    *rval = STRING_TO_JSVAL(JS_NewString(context, string, size));
+    return JS_TRUE;
+}
+

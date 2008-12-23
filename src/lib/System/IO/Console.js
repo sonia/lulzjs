@@ -23,5 +23,20 @@ System.IO.Console = {
 
     writeLine: function (text) {
         System.IO.write(System.IO.STDOUT, text+"\n");
+    },
+
+    read: function () {
+        return System.IO.read(System.IO.STDIN, 1);
+    },
+
+    readLine: function () {
+        var str = "";
+
+        var ch;
+        while ((ch = this.read()) != '\n') {
+            str += ch;
+        }
+
+        return str;
     }
 }

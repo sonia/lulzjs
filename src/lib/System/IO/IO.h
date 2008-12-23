@@ -30,8 +30,10 @@ static JSClass IO_class = {
 extern short  exec (JSContext* context);
 extern short  IO_initialize (JSContext* context);
 extern JSBool IO_write (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+extern JSBool IO_read (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
 static JSFunctionSpec IO_methods[] = {
     {"write", IO_write, 0, 0, 0},
+    {"read",  IO_read,  0, 0, 0},
     {NULL}
 };

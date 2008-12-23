@@ -146,23 +146,9 @@ import (JSContext* context, const char* path)
 
         void* handle = dlopen(path, RTLD_LAZY|RTLD_GLOBAL);
 
-        #ifdef DEBUG
-        printf("handle: %d [%s]\n", handle, dlerror());
-        #endif
-
         short (*exec)(JSContext*) = dlsym(handle, "exec");
-
-        #ifdef DEBUG
-        printf("function: %d [%s]\n", exec, dlerror());
-        #endif
-
-        if(!(*exec)(context)) {
+        if(!(*exec)(context))
             return 0;
-        }
-
-        #ifdef DEBUG
-        printf("executed\n");
-        #endif
     }
     else {
         #ifdef DEBUG
