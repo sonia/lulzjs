@@ -132,18 +132,19 @@ import (JSContext* context, const char* path)
         printf("handle: %d [%s]\n", handle, dlerror());
         #endif
 
-        void (*exec)(JSContext*) = dlsym(handle, "exec");
+        short (*exec)(JSContext*) = dlsym(handle, "exec");
 
         #ifdef DEBUG
         printf("function: %d [%s]\n", exec, dlerror());
         #endif
 
-        (*exec)(context);
+        if(!(*exec)(context)) {
+            return 0;
+        }
 
         #ifdef DEBUG
-        printf("executed");
+        printf("executed\n");
         #endif
-        dlclose(handle);
     }
     else {
         #ifdef DEBUG

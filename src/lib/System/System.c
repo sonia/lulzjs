@@ -1,8 +1,8 @@
 #include "System.h"
 
-void exec (JSContext* context) { System_initialize(context); }
+short exec (JSContext* context) { return System_initialize(context); }
 
-JSObject*
+short
 System_initialize (JSContext* context)
 {
     JSObject* object = JS_DefineObject(
@@ -11,10 +11,10 @@ System_initialize (JSContext* context)
         JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE);
 
     if (!object)
-        return NULL;
+        return 0;
 
     JS_DefineFunctions(context, object, System_methods);
 
-    return object;
+    return 1;
 }
 

@@ -9,9 +9,9 @@ static JSClass IO_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
 };
 
-extern void      exec (JSContext* context);
-JSObject* IO_initialize (JSContext* context);
-JSBool    IO_write (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+extern short  exec (JSContext* context);
+extern short  IO_initialize (JSContext* context);
+extern JSBool IO_write (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
 static JSFunctionSpec IO_methods[] = {
     {"write", IO_write, 0, 0, 0},

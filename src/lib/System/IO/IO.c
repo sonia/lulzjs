@@ -1,8 +1,8 @@
 #include "IO.h"
 
-void exec (JSContext* context) { IO_initialize(context); }
+short exec (JSContext* context) { return IO_initialize(context); }
 
-JSObject*
+short
 IO_initialize (JSContext* context)
 {
     jsval jsParent;
@@ -15,7 +15,7 @@ IO_initialize (JSContext* context)
         JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE);
 
     if (!object)
-        return NULL;
+        return 0;
 
     JS_DefineProperty(context, object, "STDIN",  INT_TO_JSVAL(fileno(stdin)),  NULL, NULL, JSPROP_READONLY);
     JS_DefineProperty(context, object, "STDOUT", INT_TO_JSVAL(fileno(stdout)), NULL, NULL, JSPROP_READONLY);
@@ -23,7 +23,7 @@ IO_initialize (JSContext* context)
 
     JS_DefineFunctions(context, object, IO_methods);
 
-    return object;
+    return 1;
 }
 
 JSBool
