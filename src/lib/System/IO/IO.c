@@ -1,8 +1,14 @@
 #include "IO.h"
 
+void exec (JSContext* context) { IO_initialize(context); }
+
 JSObject*
-IO_initialize (JSContext* context, JSObject* parent)
+IO_initialize (JSContext* context)
 {
+    jsval jsParent;
+    JS_GetProperty(context, JS_GetGlobalObject(context), "System", &jsParent);
+    JSObject* parent = JSVAL_TO_OBJECT(jsParent);
+
     JSObject* object = JS_DefineObject(
         context, parent,
         IO_class.name, &IO_class, NULL, 

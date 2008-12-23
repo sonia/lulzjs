@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <getopt.h>
 #include <js/jsapi.h>
 
 #include "Misc.h"
 #include "Preprocessor.h"
-#include "lib/Core.h"
+#include "Core.h"
 
 typedef struct {
     JSBool     error;
@@ -18,21 +19,32 @@ Engine initEngine (void);
 JSBool executeScript (JSContext* context, const char* file);
 
 int
-main (int argc, const char *argv[])
+main (int argc, char *argv[])
 {
+    int cmd;
+    while ((cmd = getopt(argc, argv, "v")) != -1) {
+    }
+
+    if (argc < 1 || !fileExists(argv[optind])) {
+        fprintf(stderr, "You have to pass a source.\n");
+        return 1;
+    }
+
     Engine engine = initEngine();
     if (engine.error) {
         fprintf(stderr, "An error occurred while initializing the system.\n");
         return 1;
     }
-    if (!executeScript(engine.context, argv[1])) {
-        fprintf(stderr, "An error occurred while trying to read the file\n");
+
+    if (!executeScript(engine.context, argv[optind])) {
+        fprintf(stderr, "The script couldn't be executed.\n");
         return 1;
     }
-
+    
     JS_DestroyContext(engine.context);
     JS_DestroyRuntime(engine.runtime);
     JS_ShutDown();
+
     return 0;
 }
 
@@ -74,7 +86,7 @@ executeScript (JSContext* context, const char* file)
     JSObject* global = JS_GetGlobalObject(context);
 
     JSScript* script;
-    char* sources = (char*) preprocess(readFile(file), file);
+    char* sources = (char*) preprocess(context, readFile(file), file);
 
     if (!sources) {
         return JS_FALSE;

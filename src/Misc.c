@@ -12,8 +12,6 @@ readFile (const char* file)
         return NULL;
     }
 
-
-
     while (1) {
         text = realloc(text, length+=512);
         read = fread(text+(length-512), sizeof(char), 512, fp);

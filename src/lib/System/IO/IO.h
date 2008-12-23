@@ -1,7 +1,6 @@
 #include <js/jsapi.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "../../../Misc.h"
 #include <string.h>
 
 static JSClass IO_class = {
@@ -10,8 +9,9 @@ static JSClass IO_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
 };
 
-JSObject* IO_initialize (JSContext* context, JSObject* parent);
-JSBool IO_write (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+extern void      exec (JSContext* context);
+JSObject* IO_initialize (JSContext* context);
+JSBool    IO_write (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
 static JSFunctionSpec IO_methods[] = {
     {"write", IO_write, 0, 0, 0},

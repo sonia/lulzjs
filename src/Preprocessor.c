@@ -1,7 +1,7 @@
 #include "Preprocessor.h"
 
 const char*
-preprocess (const char* source, const char* fileName)
+preprocess (JSContext* context, const char* source, const char* fileName)
 {
 #ifdef DEBUG
     printf("Preprocessing %s\n", fileName);
@@ -15,8 +15,8 @@ preprocess (const char* source, const char* fileName)
     char*  finalSource = malloc(1*sizeof(char));finalSource[0]='\0';
     size_t finalLength = 1;
 
-    char*  includeName = NULL;
-    size_t includeLength  = 0;
+    char*  includeName   = NULL;
+    size_t includeLength = 0;
 
     size_t i;
     for (i = 0; i < sourceLength; i++) {
@@ -44,18 +44,9 @@ preprocess (const char* source, const char* fileName)
                         includeName[includeLength-1] = '\0';
                         i++;
 
-                        char* included = (char*) include(fileName, includeName, (source[i-1]=='"'?LOCAL:GLOBAL));
-                        if (included == NULL) {
-                            fprintf(stderr, "Included file (%s) on line %d couldn't be found.\n", includeName, line);
-                        }
-                        else if (included == (char*)-1) {
-                            free(includeName);
-                        }
-                        else {
-                            finalSource = realloc(finalSource, (finalLength+=strlen(included))*sizeof(char));
-                            strcat(finalSource, included);
-                            free(included);
-                            free(includeName);
+                        if (!include(context, fileName, includeName, (source[i-1]=='"'?LOCAL:GLOBAL))) {
+                            fprintf(stderr, "%s:%d > %s not found.\n", fileName, line, includeName);
+                            return NULL;
                         }
                     }
                 }
@@ -70,24 +61,14 @@ preprocess (const char* source, const char* fileName)
 
         if (source[i] == '\n') {
             newLine = 1;
-#ifdef DEBUG
-            printf("finalSource:%d-%d > %s\n", finalLength, strlen(finalSource), finalSource);
-#endif
-        }
-        else {
-            newLine = 0;
         }
     }
-    
-#ifdef DEBUG
-    printf("%s:\n----------\n%s\n-----------\n", fileName, finalSource);
-#endif
 
     return finalSource;
 }
 
-const char*
-include (const char* from, const char* fileName, int type)
+short
+include (JSContext* context, const char* from, const char* fileName, int type)
 {
 #ifdef DEBUG
     printf("Including %s from %s\n", fileName, from);
@@ -107,27 +88,78 @@ include (const char* from, const char* fileName, int type)
         /* Copying the base to the path and then adding the relative path to
          * the file to import
          */
-        path = malloc(strlen(base)*sizeof(char));
-        strcpy(path, base);
+        path = strdup(base);
         path = realloc(path, (strlen(path)+strlen(fileName))*sizeof(char));
         strcat(path, fileName);
         free(base);
     }
+    else {
+        path = strdup(__LJS_LIBRARY_PATH__);
+        path = realloc(path, strlen(path)+strlen(fileName));
+        strcat(path, fileName);
+    }
 
-    return import(path);
+    return import(context, path);
 }
 
-const char*
-import (const char* path)
+// TODO: Keep track of imported stuff.
+short
+import (JSContext* context, const char* path)
 {
+
     if (!fileExists(path)) {
-        return NULL;
+        return 0;
     }
 
     if (strstr(path, ".js") == &path[strlen(path)-3]) {
-        return preprocess(readFile(path), path);
+        #ifdef DEBUG
+        printf("(javascript) path: %s\n", path);
+        #endif
+
+        jsval rval;
+        char* sources = (char*)preprocess(context, readFile(path), path);
+        JS_EvaluateScript(context, JS_GetGlobalObject(context), sources, strlen(sources), path, 0, &rval);
+        free(sources);
+    }
+    else if (strstr(path, ".so") == &path[strlen(path)-3]) {
+        #ifdef DEBUG
+        printf("(object) path: %s\n", path);
+        #endif
+
+        void* handle = dlopen(path, RTLD_LAZY|RTLD_GLOBAL);
+
+        #ifdef DEBUG
+        printf("handle: %d [%s]\n", handle, dlerror());
+        #endif
+
+        void (*exec)(JSContext*) = dlsym(handle, "exec");
+
+        #ifdef DEBUG
+        printf("function: %d [%s]\n", exec, dlerror());
+        #endif
+
+        (*exec)(context);
+
+        #ifdef DEBUG
+        printf("executed");
+        #endif
+        dlclose(handle);
     }
     else {
-        return (char*)-1;
+        #ifdef DEBUG
+        printf("(module) path: %s\n", path);
+        #endif
+
+        char* newPath = strdup(path);
+        newPath = realloc(newPath, strlen(newPath)+strlen("/init.js"));
+        strcat(newPath, "/init.js");
+
+        if (!fileExists(newPath))
+            return 0;
+        
+        import(context, newPath);
+        free(newPath);
     }
+
+    return 1;
 }

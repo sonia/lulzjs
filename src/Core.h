@@ -1,5 +1,4 @@
 #include <js/jsapi.h>
-#include "System/System.h"
 
 static JSClass Core_class = {
     "Core", JSCLASS_GLOBAL_FLAGS,

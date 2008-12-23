@@ -1,4 +1,4 @@
 #! /usr/bin/ljs
-#include "Console.js";
+#include <System>
 
-System.IO.Console.writeLine("NIGGER NIGGER NIGGER NIGGER");
+//System.IO.Console.writeLine("NIGGER NIGGER NIGGER NIGGER");

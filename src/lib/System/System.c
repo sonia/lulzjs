@@ -1,5 +1,7 @@
 #include "System.h"
 
+void exec (JSContext* context) { System_initialize(context); }
+
 JSObject*
 System_initialize (JSContext* context)
 {
@@ -12,9 +14,6 @@ System_initialize (JSContext* context)
         return NULL;
 
     JS_DefineFunctions(context, object, System_methods);
-
-    if (!IO_initialize(context, object))
-        return NULL;
 
     return object;
 }
