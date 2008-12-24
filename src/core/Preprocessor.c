@@ -124,12 +124,14 @@ include (JSContext* context, const char* from, const char* fileName, int type)
 short
 import (JSContext* context, const char* path)
 {
-
-    if (!fileExists(path)) {
-        return 0;
-    }
-
     if (strstr(path, ".js") == &path[strlen(path)-3]) {
+        if (!fileExists(path)) {
+            #ifdef DEBUG
+            printf("(javascript) File not found (%s)\n", path);
+            #endif
+            return 0;
+        }
+
         #ifdef DEBUG
         printf("(javascript) path: %s\n", path);
         #endif
@@ -144,6 +146,13 @@ import (JSContext* context, const char* path)
         free(sources);
     }
     else if (strstr(path, ".so") == &path[strlen(path)-3]) {
+        if (!fileExists(path)) {
+            #ifdef DEBUG
+            printf("(object) File not found (%s)\n", path);
+            #endif
+            return 0;
+        }
+
         #ifdef DEBUG
         printf("(object) path: %s\n", path);
         #endif
