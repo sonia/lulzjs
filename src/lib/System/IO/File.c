@@ -52,7 +52,7 @@ File_initialize (JSContext* context)
     data->mode       = NULL;
     JS_SetPrivate(context, file, data);
 
-    // Create STDOU special File object.
+    // Create STDOUT special File object.
     file = JS_DefineObject(
         context, parent,
         "STDOUT", &File_class, NULL,

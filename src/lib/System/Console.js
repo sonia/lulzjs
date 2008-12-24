@@ -18,7 +18,7 @@
 
 System.Console = {
     write: function (text) {
-        System.IO.File.STDOUT.write(text);
+        System.IO.STDOUT.write(text);
     },
 
     writeLine: function (text) {

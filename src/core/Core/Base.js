@@ -158,6 +158,12 @@ Object.extend(Function.prototype, {
       return __method.apply(object, [event || window.event].concat(args));
     }
   },
+
+  clone: function() {
+    if (!arguments.length) return this;
+    var __method = this, args = $A(arguments);
+
+  },
   
   curry: function() {
     if (!arguments.length) return this;

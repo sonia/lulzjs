@@ -46,7 +46,7 @@ extern JSBool File_isEnd (JSContext* context, JSObject* object, uintN argc, jsva
 extern JSBool File_static_exists (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 static JSFunctionSpec File_methods[] = {
-    {"read", File_read, 0, 0, 0},
+    {"read",  File_read,  0, 0, 0},
     {"write", File_write, 0, 0, 0},
     {"isEnd", File_isEnd, 0, 0, 0},
     {NULL}
