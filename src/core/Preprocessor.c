@@ -107,13 +107,13 @@ include (JSContext* context, const char* from, const char* fileName, int type)
          * the file to import
          */
         path = strdup(base);
-        path = realloc(path, (strlen(path)+strlen(fileName))*sizeof(char));
+        path = realloc(path, (strlen(path)+strlen(fileName)+1)*sizeof(char));
         strcat(path, fileName);
         free(base);
     }
     else {
         path = strdup(__LJS_LIBRARY_PATH__);
-        path = realloc(path, strlen(path)+strlen(fileName));
+        path = realloc(path, (strlen(path)+strlen(fileName)+1)*sizeof(char));
         strcat(path, fileName);
     }
 
@@ -178,7 +178,7 @@ import (JSContext* context, const char* path)
         #endif
 
         char* newPath = strdup(path);
-        newPath = realloc(newPath, strlen(newPath)+strlen("/init.js"));
+        newPath = realloc(newPath, (strlen(newPath)+strlen("/init.js")+1)*sizeof(char));
         strcat(newPath, "/init.js");
 
         import(context, newPath);
