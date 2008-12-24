@@ -35,10 +35,6 @@ IO_initialize (JSContext* context)
     if (!object)
         return 0;
 
-    JS_DefineProperty(context, object, "STDIN",  INT_TO_JSVAL(fileno(stdin)),  NULL, NULL, JSPROP_READONLY);
-    JS_DefineProperty(context, object, "STDOUT", INT_TO_JSVAL(fileno(stdout)), NULL, NULL, JSPROP_READONLY);
-    JS_DefineProperty(context, object, "STDERR", INT_TO_JSVAL(fileno(stderr)), NULL, NULL, JSPROP_READONLY);
-
     JS_DefineFunctions(context, object, IO_methods);
 
     return 1;
@@ -47,25 +43,25 @@ IO_initialize (JSContext* context)
 JSBool
 IO_write (JSContext *context, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-    const unsigned int fd;
-    const char*        string;
+    JSObject*   file;
+    const char* string;
 
-    if (!JS_ConvertArguments(context, argc, argv, "us", &fd, &string)) {
+    if (!JS_ConvertArguments(context, argc, argv, "os", &file, &string)) {
         return JS_FALSE;
     }
     if (argc != 2) {
         return JS_TRUE;
     }
 
-    FILE* fp;
-    switch (fd) {
-        case  0: fp = stdin;            break;
-        case  1: fp = stdout;           break;
-        case  2: fp = stderr;           break;
-        default: fp = fdopen(fd, "r+"); break;
+    JSClass* class        = JS_GET_CLASS(context, file);
+    FileInformation* data = JS_GetPrivate(context, file);
+
+    if (strcmp(class->name, "File") != 0) {
+        JS_ReportError(context, "You have to pass a File object.");
+        return JS_FALSE;
     }
 
-    *rval = INT_TO_JSVAL(fwrite(string, sizeof(*string), strlen(string), fp));
+    *rval = INT_TO_JSVAL(fwrite(string, sizeof(*string), strlen(string), data->descriptor));
     return JS_TRUE;
 }
 

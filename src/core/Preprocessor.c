@@ -63,7 +63,7 @@ preprocess (JSContext* context, const char* source, const char* fileName)
                         i++;
 
                         if (!include(context, fileName, includeName, (source[i-1]=='"'?LOCAL:GLOBAL))) {
-                            fprintf(stderr, "%s:%d > %s not found.\n", fileName, line, includeName);
+                            fprintf(stderr, "%s:%d > %s threw an error.\n", fileName, line, includeName);
                             return NULL;
                         }
                     }
@@ -137,9 +137,8 @@ import (JSContext* context, const char* path)
         jsval rval;
         char* sources = (char*)preprocess(context, readFile(path), path);
 
-        #ifdef DEBUG
-        printf("%s:\n----------------------\n%s\n----------------------\n", path, sources);
-        #endif
+        if (!sources)
+            return 0;
 
         JS_EvaluateScript(context, JS_GetGlobalObject(context), sources, strlen(sources), path, 0, &rval);
         free(sources);
@@ -150,10 +149,19 @@ import (JSContext* context, const char* path)
         #endif
 
         void* handle = dlopen(path, RTLD_LAZY|RTLD_GLOBAL);
+        char* error = dlerror();
+
+        if (error) {
+            fprintf(stderr, "%s\n", error);
+            return 0;
+        }
 
         short (*exec)(JSContext*) = dlsym(handle, "exec");
-        if(!(*exec)(context))
+
+        if(!(*exec)(context)) {
+            fprintf(stderr, "The initialization of the module failed.\n");
             return 0;
+        }
     }
     else {
         #ifdef DEBUG

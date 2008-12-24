@@ -8,14 +8,14 @@ CFLAGS     = -DXP_UNIX -D__LJS_LIBRARY_PATH__="\"${LJS_LIBDIR}/\"" -D__LJS_VERSI
 LDFLAGS    = -ljs
 
 ifdef DEBUG
-CFLAGS += -DDEBUG
+CFLAGS += -DDEBUG -g
 endif
 
 CORE         = src/core/main.o src/core/Core.o src/core/Misc.o src/core/Preprocessor.o
 CORE_CFLAGS  = ${CFLAGS}
 CORE_LDFLAGS = ${LDFLAGS} -ldl
 
-LIB_SYSTEM         = src/lib/System/System.o src/lib/System/IO/IO.o
+LIB_SYSTEM         = src/lib/System/System.o src/lib/System/IO/IO.o src/lib/System/IO/File.o
 LIB_SYSTEM_CFLAGS  = ${CFLAGS}
 LIB_SYSTEM_LDFLAGS = ${LDFLAGS}
 
@@ -47,8 +47,9 @@ libsystem_install:
 	mkdir -p ${LJS_LIBDIR}/System
 	mkdir -p ${LJS_LIBDIR}/System/IO
 	cp src/lib/System/init.js       ${LJS_LIBDIR}/System/init.js
-	cp src/lib/System/System.o     ${LJS_LIBDIR}/System/System.so
-	cp src/lib/System/IO/IO.o      ${LJS_LIBDIR}/System/IO/IO.so
+	cp src/lib/System/System.o      ${LJS_LIBDIR}/System/System.so
+	cp src/lib/System/IO/IO.o       ${LJS_LIBDIR}/System/IO/IO.so
+	cp src/lib/System/IO/File.o     ${LJS_LIBDIR}/System/IO/File.so
 	cp src/lib/System/IO/Console.js ${LJS_LIBDIR}/System/IO/Console.js
 
 libsystem_uninstall:

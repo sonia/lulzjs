@@ -24,19 +24,24 @@
 #include "File_private.h"
 
 extern short exec (JSContext* context);
-extern short IO_initialize (JSContext* context);
+extern short File_initialize (JSContext* context);
+extern void  File_finalize (JSContext* context, JSObject* object); 
 
-static JSClass IO_class = {
-    "IO", 0,
+static JSClass File_class = {
+    "File", JSCLASS_HAS_PRIVATE,
     JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, File_finalize
 };
 
-extern JSBool IO_write (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern JSBool IO_read (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool File_constructor (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool File_static_exists (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
-static JSFunctionSpec IO_methods[] = {
-    {"write", IO_write, 0, 0, 0},
-    {"read",  IO_read,  0, 0, 0},
+static JSFunctionSpec File_methods[] = {
     {NULL}
 };
+
+static JSFunctionSpec File_static_methods[] = {
+    {"exists", File_static_exists, 0, 0 ,0},
+    {NULL}
+};
+

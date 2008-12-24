@@ -1,6 +1,9 @@
 #! /usr/bin/ljs
 #include <System>
 
-for (var i = 0; i < arguments.length; i++) {
-    System.IO.Console.writeLine(i+": "+arguments[i]);
-}
+arguments.each(function (value, index) {
+    System.IO.Console.writeLine("{index}: {value}".format({
+        index: index,
+        value: value
+    }));
+});
