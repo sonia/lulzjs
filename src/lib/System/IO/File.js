@@ -23,10 +23,13 @@
         },
 
         readLine: function () {
-            var str = "";
+            if (this.isEnd()) {
+                return null;
+            }
 
+            var str = "";
             var ch;
-            while ((ch = this.read(1)) != '\n') {
+            while ((ch = this.read(1)) != '\n' && !this.isEnd()) {
                 str += ch;
             }
 
@@ -35,3 +38,22 @@
     });
 });
 
+Object.extend(System.IO.File.prototype, {
+    readToEnd: function () {
+        var str = "";
+
+        var line;
+        while ((line = this.readLine()) != null) {
+            str += line+"\n";
+        }
+
+        str = str.substr(0, str.length-2);
+
+        return str;
+
+    },
+
+    readAll: function () {
+        return this.readToEnd().split(/\n/);
+    }
+});

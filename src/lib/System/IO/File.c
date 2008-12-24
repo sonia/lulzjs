@@ -78,6 +78,9 @@ File_initialize (JSContext* context)
     data->mode       = NULL;
     JS_SetPrivate(context, file, data);
 
+    // Default properties
+    jsval property;
+
     return 1;
 }
 
@@ -151,10 +154,24 @@ File_read (JSContext *context, JSObject *object, uintN argc, jsval *argv, jsval 
 
     FileInformation* data = JS_GetPrivate(context, object);
 
+    if (feof(data->descriptor)) {
+        *rval = JSVAL_FALSE;
+        return JS_TRUE;
+    }
+
     char* string = malloc(size*sizeof(char));
     fread(string, sizeof(char), size, data->descriptor);
 
     *rval = STRING_TO_JSVAL(JS_NewString(context, string, size));
+    return JS_TRUE;
+}
+
+JSBool
+File_isEnd (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    FileInformation* data = JS_GetPrivate(context, object);
+
+    *rval = BOOLEAN_TO_JSVAL(feof(data->descriptor));
     return JS_TRUE;
 }
 
