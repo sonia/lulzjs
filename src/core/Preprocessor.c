@@ -181,9 +181,6 @@ import (JSContext* context, const char* path)
         newPath = realloc(newPath, strlen(newPath)+strlen("/init.js"));
         strcat(newPath, "/init.js");
 
-        if (!fileExists(newPath))
-            return 0;
-        
         import(context, newPath);
         free(newPath);
     }
