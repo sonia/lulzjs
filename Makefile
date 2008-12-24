@@ -1,10 +1,11 @@
-VERSION = 0.1.1
+VERSION = 0.1.4
+SPIDERMONKEY = /usr/include/js
 
 CC         = gcc
 CXX        = g++
 BINDIR     = /usr/bin
 LJS_LIBDIR = /usr/lib/lulzjs
-CFLAGS     = -DXP_UNIX -D__LJS_LIBRARY_PATH__="\"${LJS_LIBDIR}/\"" -D__LJS_VERSION__="\"${VERSION}\""
+CFLAGS     = -DXP_UNIX -D__LJS_LIBRARY_PATH__="\"${LJS_LIBDIR}/\"" -D__LJS_VERSION__="\"${VERSION}\"" -I${SPIDERMONKEY}
 LDFLAGS    = -ljs
 
 ifdef DEBUG

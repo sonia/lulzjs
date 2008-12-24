@@ -16,7 +16,7 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-#include <js/jsapi.h>
+#include "jsapi.h"
 #include "Preprocessor.h"
 
 static JSClass Core_class = {

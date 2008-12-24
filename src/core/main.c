@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
-#include <js/jsapi.h>
+#include "jsapi.h"
 
 #include "Misc.h"
 #include "Preprocessor.h"
