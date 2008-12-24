@@ -21,8 +21,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "File_private.h"
-
 extern short exec (JSContext* context);
 extern short File_initialize (JSContext* context);
 extern void  File_finalize (JSContext* context, JSObject* object); 
@@ -33,10 +31,22 @@ static JSClass File_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, File_finalize
 };
 
+typedef struct {
+    char* name;
+    FILE* descriptor;
+    char* mode;
+} FileInformation;
+
 extern JSBool File_constructor (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
+extern JSBool File_read (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool File_write (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
 extern JSBool File_static_exists (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 static JSFunctionSpec File_methods[] = {
+    {"read", File_read, 0, 0, 0},
+    {"write", File_write, 0, 0, 0},
     {NULL}
 };
 

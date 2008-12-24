@@ -46,11 +46,12 @@ $(LIB_SYSTEM): $(LIB_SYSTEM:.o=.c)
 libsystem_install:
 	mkdir -p ${LJS_LIBDIR}/System
 	mkdir -p ${LJS_LIBDIR}/System/IO
-	cp src/lib/System/init.js       ${LJS_LIBDIR}/System/init.js
-	cp src/lib/System/System.o      ${LJS_LIBDIR}/System/System.so
-	cp src/lib/System/IO/IO.o       ${LJS_LIBDIR}/System/IO/IO.so
-	cp src/lib/System/IO/File.o     ${LJS_LIBDIR}/System/IO/File.so
-	cp src/lib/System/IO/Console.js ${LJS_LIBDIR}/System/IO/Console.js
+	cp src/lib/System/init.js    ${LJS_LIBDIR}/System/init.js
+	cp src/lib/System/System.o   ${LJS_LIBDIR}/System/System.so
+	cp src/lib/System/IO/IO.o    ${LJS_LIBDIR}/System/IO/IO.so
+	cp src/lib/System/IO/File.o  ${LJS_LIBDIR}/System/IO/File.so
+	cp src/lib/System/IO/File.js ${LJS_LIBDIR}/System/IO/File.js
+	cp src/lib/System/Console.js ${LJS_LIBDIR}/System/Console.js
 
 libsystem_uninstall:
 

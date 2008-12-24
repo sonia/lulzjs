@@ -39,33 +39,39 @@ File_initialize (JSContext* context)
     JSObject* file;
     FileInformation* data;
 
+    // Create STDIN special File object.
     file = JS_DefineObject(
         context, parent,
         "STDIN", &File_class, NULL,
         JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
-    );
+    ); JS_DefineFunctions(context, file, File_methods);
+
     data = (FileInformation*) malloc(sizeof(FileInformation));
     data->name       = strdup("stdin");
     data->descriptor = stdin;
     data->mode       = NULL;
     JS_SetPrivate(context, file, data);
 
+    // Create STDOU special File object.
     file = JS_DefineObject(
         context, parent,
         "STDOUT", &File_class, NULL,
         JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
-    );
+    ); JS_DefineFunctions(context, file, File_methods);
+
     data = (FileInformation*) malloc(sizeof(FileInformation));
     data->name       = strdup("stdout");
     data->descriptor = stdout;
     data->mode       = NULL;
     JS_SetPrivate(context, file, data);
   
+    // Create STDERR special file object.
     file = JS_DefineObject(
         context, parent,
         "STDERR", &File_class, NULL,
         JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
-    );
+    ); JS_DefineFunctions(context, file, File_methods);
+
     data = (FileInformation*) malloc(sizeof(FileInformation));
     data->name       = strdup("stderr");
     data->descriptor = stderr;
@@ -96,12 +102,81 @@ File_finalize (JSContext* context, JSObject* object)
 JSBool
 File_constructor (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
+    const char* fileName;
+    const char* mode;
+
+    if (argc != 2 || !JS_ConvertArguments(context, argc, argv, "ss", &fileName, &mode)) {
+        JS_ReportError(context, "File requires the path and the mode as arguments.");
+        return JS_FALSE;
+    }
+
+    FileInformation* data = malloc(sizeof(FileInformation));
+    data->name       = strdup(fileName);
+    data->mode       = strdup(mode);
+    data->descriptor = fopen(data->name, data->mode);
+    JS_SetPrivate(context, object, data);
+
+    if (!data->descriptor) {
+        JS_ReportError(context, "An error occurred while opening the file.");
+        return JS_FALSE;
+    }
+
+    return JS_TRUE;
+}
+
+JSBool
+File_write (JSContext *context, JSObject *object, uintN argc, jsval *argv, jsval *rval)
+{
+    const char* string;
+
+    if (argc != 1 || !JS_ConvertArguments(context, argc, argv, "s", &string)) {
+        return JS_FALSE;
+    }
+
+    FileInformation* data = JS_GetPrivate(context, object);
+
+    *rval = INT_TO_JSVAL(fwrite(string, sizeof(*string), strlen(string), data->descriptor));
+    return JS_TRUE;
+}
+
+JSBool
+File_read (JSContext *context, JSObject *object, uintN argc, jsval *argv, jsval *rval)
+{
+    const unsigned int size;
+
+    if (argc != 1 || !JS_ConvertArguments(context, argc, argv, "u", &size)) {
+        JS_ReportError(context, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    FileInformation* data = JS_GetPrivate(context, object);
+
+    char* string = malloc(size*sizeof(char));
+    fread(string, sizeof(char), size, data->descriptor);
+
+    *rval = STRING_TO_JSVAL(JS_NewString(context, string, size));
     return JS_TRUE;
 }
 
 JSBool
 File_static_exists (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
+    const char* name;
+
+    if (argc != 1 || !JS_ConvertArguments(context, argc, argv, "s", &name)) {
+        JS_ReportError(context, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    FILE* file = fopen(name, "r");
+    if (file) {
+        *rval = JSVAL_TRUE;
+        fclose(file);
+    }
+    else {
+        *rval = JSVAL_FALSE;
+    }
+
     return JS_TRUE;
 }
 

@@ -16,28 +16,21 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-System.IO.Console = {
+System.Console = {
     write: function (text) {
-        System.IO.write(System.IO.STDOUT, text);
+        System.IO.File.STDOUT.write(text);
     },
 
     writeLine: function (text) {
-        System.IO.write(System.IO.STDOUT, text+"\n");
+        System.IO.STDOUT.writeLine(text);
     },
 
     read: function () {
-        return System.IO.read(System.IO.STDIN, 1);
+        return System.IO.STDIN.read(1);
     },
 
     readLine: function () {
-        var str = "";
-
-        var ch;
-        while ((ch = this.read()) != '\n') {
-            str += ch;
-        }
-
-        return str;
+        return System.IO.STDIN.readLine();
     },
 
     clear: function () {

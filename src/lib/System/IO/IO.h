@@ -21,8 +21,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "File_private.h"
-
 extern short exec (JSContext* context);
 extern short IO_initialize (JSContext* context);
 
@@ -32,11 +30,6 @@ static JSClass IO_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
 };
 
-extern JSBool IO_write (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern JSBool IO_read (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-
 static JSFunctionSpec IO_methods[] = {
-    {"write", IO_write, 0, 0, 0},
-    {"read",  IO_read,  0, 0, 0},
     {NULL}
 };

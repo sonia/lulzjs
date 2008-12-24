@@ -16,9 +16,22 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-typedef struct {
-    char* name;
-    FILE* descriptor;
-    char* mode;
-} FileInformation;
+[System.IO.File.prototype, System.IO.STDIN, System.IO.STDOUT, System.IO.STDERR].each(function (obj) {
+    Object.extend(obj, {
+        writeLine: function (str) {
+            this.write(str+"\n");
+        },
+
+        readLine: function () {
+            var str = "";
+
+            var ch;
+            while ((ch = this.read(1)) != '\n') {
+                str += ch;
+            }
+
+            return str;
+        }
+    });
+});
 
