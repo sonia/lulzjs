@@ -21,13 +21,13 @@ LIB_SYSTEM         = src/lib/System/System.o src/lib/System/IO/IO.o src/lib/Syst
 LIB_SYSTEM_CFLAGS  = ${CFLAGS}
 LIB_SYSTEM_LDFLAGS = ${LDFLAGS}
 
-all: core libcore libsystem
+all: ljs libcore libsystem
 
 debug:
 	CFLAGS="${CFLAGS} -DDEBUG"
 	$(call all)
 
-core: $(CORE)
+ljs: $(CORE)
 	${CC} ${CORE_LDFLAGS} ${CORE_CFLAGS} ${CORE} -o ljs
 
 core_install:
