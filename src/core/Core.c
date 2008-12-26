@@ -43,6 +43,37 @@ Core_include (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
         return JS_FALSE;
     }
 
+    char* path = __Core_getPath(cx, fileName);
+    *rval = BOOLEAN_TO_JSVAL(__Core_include(cx, path));
+    free(path);
+
+    return JS_TRUE;
+}
+
+JSBool
+Core_require (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+    const char* fileName;
+
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "s", &fileName)) {
+        JS_ReportError(cx, "You must pass only the module/file to include.");
+        return JS_FALSE;
+    }
+
+    char* path = __Core_getPath(cx, fileName);
+    if (!__Core_include(cx, path)) {
+        JS_ReportError(cx, "%s couldn't be included.", path);
+        return JS_FALSE;
+    }
+    free(path);
+
+    *rval = JSVAL_NULL;
+    return JS_TRUE;
+}
+
+char*
+__Core_getPath (JSContext* cx, const char* fileName)
+{
     JSStackFrame* fp = NULL;
     fp = JS_FrameIterator(cx, &fp); fp = JS_FrameIterator(cx, &fp);
     JSScript* script = JS_GetFrameScript(cx, fp);
@@ -70,23 +101,9 @@ Core_include (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
         strcat(path, "/");
         path = realloc(path, (strlen(path)+strlen(fileName)+1)*sizeof(char));
         strcat(path, fileName);
-
-        if (!fileExists(path)) {
-            #ifdef DEBUG
-            printf("%s doesn't exist.\n", path);
-            #endif
-
-            free(path);
-            JS_ReportError(cx, "The module/file couldn't be found.");
-            return JS_FALSE;
-        }
     }
 
-    __Core_include(cx, path);
-    free(path);
-
-    *rval = JSVAL_TRUE;
-    return JS_TRUE;
+    return path;
 }
 
 short

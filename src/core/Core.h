@@ -19,6 +19,7 @@
 #include "jsapi.h"
 #include "jsdbgapi.h"
 #include "Misc.h"
+#include <libgen.h>
 #include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,10 +35,14 @@ static JSClass Core_class = {
 extern JSObject* Core_initialize (JSContext *cx);
 
 extern JSBool Core_include (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval); 
-       short  __Core_include (JSContext* cx, const char* path);
+extern JSBool Core_require (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+
+short __Core_include (JSContext* cx, const char* path);
+char* __Core_getPath (JSContext* cx, const char* fileName);
 
 static JSFunctionSpec Core_methods[] = {
     {"include", Core_include, 0, 0, 0},
+    {"require", Core_require, 0, 0, 0},
     {NULL}
 };
 
