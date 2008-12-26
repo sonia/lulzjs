@@ -114,6 +114,13 @@ __Core_include (JSContext* cx, const char* path)
         printf("(javascript) path: %s\n", path);
         #endif
 
+        if (!fileExists(path)) {
+            #ifdef DEBUG
+            printf("(javascript) %s not found.\n", path);
+            #endif
+            return 0;
+        }
+
         jsval rval;
         char* sources = stripComments(readFile(path));
         JS_EvaluateScript(cx, JS_GetGlobalObject(cx), sources, strlen(sources), path, 0, &rval);
@@ -123,6 +130,13 @@ __Core_include (JSContext* cx, const char* path)
         #ifdef DEBUG
         printf("(object) path: %s\n", path);
         #endif
+
+        if (!fileExists(path)) {
+            #ifdef DEBUG
+            printf("(object) %s not found.\n", path);
+            #endif
+            return 0;
+        }
 
         void* handle = dlopen(path, RTLD_LAZY|RTLD_GLOBAL);
         char* error = dlerror();
