@@ -26,8 +26,8 @@ Core_initialize (JSContext *cx)
     if (object && JS_InitStandardClasses(cx, object)) {
         JS_DefineFunctions(cx, object, Core_methods);
 
-        __Core_include(cx, __LJS_LIBRARY_PATH__ "/Core");
-        return object;
+        if (__Core_include(cx, __LJS_LIBRARY_PATH__ "/Core"))
+            return object;
     }
 
     return NULL;

@@ -1,5 +1,4 @@
 #! /usr/bin/ljs
-include("System");
-require("nigguz");
+require("System");
 
 System.Console.writeLine("nigguz");
