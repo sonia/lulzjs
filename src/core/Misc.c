@@ -18,7 +18,7 @@
 
 #include "Misc.h"
 
-const char*
+char*
 readFile (const char* file)
 {
     FILE*  fp     = fopen(file, "r");

@@ -51,9 +51,10 @@ Core_include (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
      * Getting the dirname of the file from the other file is included
      * then copying it and getting the path to the dir.
      */
-    char* dir  = dirname((char*)JS_GetScriptFilename(cx, script));
+    char* from = strdup(JS_GetScriptFilename(cx, script));
+    char* dir  = dirname(from);
     char* path = malloc((strlen(dir)+2)*sizeof(char));
-    strcpy(path, dir); strcat(path, "/");
+    strcpy(path, dir); strcat(path, "/"); free(from);
     
     /*
      * Copying the base to the path and then adding the relative path to
@@ -130,7 +131,7 @@ __Core_include (JSContext* cx, const char* path)
         newPath = realloc(newPath, (strlen(newPath)+strlen("/init.js")+1)*sizeof(char));
         strcat(newPath, "/init.js");
 
-        return Preprocessor_import(cx, newPath);
+        return __Core_include(cx, newPath);
         free(newPath);
     }
 

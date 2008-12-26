@@ -22,7 +22,6 @@
 #include "jsapi.h"
 
 #include "Misc.h"
-#include "Preprocessor.h"
 #include "Core.h"
 
 typedef struct {
@@ -130,7 +129,7 @@ executeScript (JSContext* context, const char* file)
     JSObject* global = JS_GetGlobalObject(context);
 
     JSScript* script;
-    char* sources = stripComments(readFile(file));
+    char* sources = stripComments((char*)readFile(file));
 
     if (!sources) {
         return JS_FALSE;

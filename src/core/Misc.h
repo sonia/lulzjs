@@ -20,6 +20,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-const char* readFile (const char* file);
+char* readFile (const char* file);
 short fileExists (const char* file);
 char* stripComments (char* text);

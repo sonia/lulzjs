@@ -13,7 +13,7 @@ ifdef DEBUG
 CFLAGS += -DDEBUG -g
 endif
 
-CORE         = src/core/main.o src/core/Core.o src/core/Misc.o src/core/Preprocessor.o
+CORE         = src/core/main.o src/core/Core.o src/core/Misc.o
 CORE_CFLAGS  = ${CFLAGS}
 CORE_LDFLAGS = ${LDFLAGS} -ldl
 

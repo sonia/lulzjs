@@ -17,8 +17,12 @@
 ****************************************************************************/
 
 #include "jsapi.h"
-#include "jsdbgapi.h" 
-#include "Preprocessor.h"
+#include "jsdbgapi.h"
+#include "Misc.h"
+#include <dlfcn.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 static JSClass Core_class = {
     "Core", JSCLASS_GLOBAL_FLAGS,
