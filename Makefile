@@ -1,4 +1,4 @@
-VERSION = 0.1.4
+VERSION = 0.1.5
 SPIDERMONKEY_HEADERS = /usr/include/js
 SPIDERMONKEY_LIB     = -ljs
 
@@ -6,7 +6,7 @@ CC         = gcc
 CXX        = g++
 BINDIR     = /usr/bin
 LJS_LIBDIR = /usr/lib/lulzjs
-CFLAGS     = -DXP_UNIX -D__LJS_LIBRARY_PATH__="\"${LJS_LIBDIR}/\"" -D__LJS_VERSION__="\"${VERSION}\"" -I${SPIDERMONKEY_HEADERS}
+CFLAGS     = -DXP_UNIX -D__LJS_LIBRARY_PATH__="\"${LJS_LIBDIR}\"" -D__LJS_VERSION__="\"${VERSION}\"" -I${SPIDERMONKEY_HEADERS}
 LDFLAGS    = ${SPIDERMONKEY_LIB}
 
 ifdef DEBUG

@@ -60,3 +60,37 @@ fileExists (const char* file)
     }
 }
 
+char*
+stripComments (char* text)
+{
+    size_t textLength = strlen(text);
+
+    char* stripped = NULL;
+    size_t length  = 0;
+    short newLine  = 1;
+
+    size_t i;
+    for (i = 0; i < textLength; i++) {
+        if (newLine) {
+            newLine = 0;
+            if (text[i] == '#') {
+                while (i < textLength && text[i] != '\n') {
+                    i++;
+                }
+                i++;
+                newLine = 1;
+            }
+        }
+
+        stripped = realloc(stripped, (++length)*sizeof(char));
+        stripped[length-1] = text[i];
+        
+        if (text[i] == '\n')
+            newLine = 1;
+    }
+    stripped = realloc(stripped, (++length)*sizeof(char));
+    stripped[length-1] = '\0';
+    free(text);
+
+    return stripped;
+}

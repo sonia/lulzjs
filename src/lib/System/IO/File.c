@@ -128,17 +128,53 @@ File_constructor (JSContext* context, JSObject* object, uintN argc, jsval* argv,
 }
 
 JSBool
-File_write (JSContext *context, JSObject *object, uintN argc, jsval *argv, jsval *rval)
+File_write (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
-    const char* string;
+    JSObject* passed;
+    char*     string;
 
-    if (argc != 1 || !JS_ConvertArguments(context, argc, argv, "s", &string)) {
+    if (argc != 1 || !JS_ConvertArguments(context, argc, argv, "o", &passed)) {
         return JS_FALSE;
     }
 
     FileInformation* data = JS_GetPrivate(context, object);
 
-    *rval = INT_TO_JSVAL(fwrite(string, sizeof(*string), strlen(string), data->descriptor));
+    if (strcmp(((JSClass*)JS_GET_CLASS(context, passed))->name, "Array") == 0) {
+        jsval part;
+        int   written = 0;
+
+        do {
+            JS_CallFunctionName(context, passed, "shift", 0, NULL, &part);
+
+            if (JSVAL_IS_STRING(part)) {
+                string = strdup(JS_GetStringBytes(JSVAL_TO_STRING(OBJECT_TO_JSVAL(passed))));
+                written += fwrite(string, sizeof(*string), strlen(string), data->descriptor);
+            }
+            else if (JSVAL_IS_NUMBER(part)) {
+                int piece = JSVAL_TO_INT(part);
+                written += fwrite(&piece, sizeof(int), 1, data->descriptor);
+            }
+            else {
+                JS_ReportError(context, "You can put only Strings and Numbers into the passed Array.");
+                return JS_FALSE;
+            }
+        } while (!JSVAL_IS_NULL(part));
+
+        *rval = INT_TO_JSVAL(written);
+    }
+    else if (strcmp(((JSClass*)JS_GET_CLASS(context, passed))->name, "String") == 0) {
+        jsval jsstr;
+        jsval params[1]; params[0] = INT_TO_JSVAL(0);
+        JS_CallFunctionName(context, passed, "substr", 1, params, &jsstr);
+
+        string = strdup(JS_GetStringBytes(JSVAL_TO_STRING(jsstr)));
+        *rval  = INT_TO_JSVAL(fwrite(string, sizeof(*string), strlen(string), data->descriptor));
+    }
+    else {
+        JS_ReportError(context, "You can pass only Strings and Arrays.");
+        return JS_FALSE;
+    }
+
     return JS_TRUE;
 }
 

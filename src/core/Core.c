@@ -19,15 +19,121 @@
 #include "Core.h"
 
 JSObject*
-Core_initialize (JSContext *context)
+Core_initialize (JSContext *cx)
 {
-    JSObject* object = JS_NewObject(context, &Core_class, NULL, NULL);
+    JSObject* object = JS_NewObject(cx, &Core_class, NULL, NULL);
 
-    if (object && JS_InitStandardClasses(context, object)) {
-        include(context, "Core", "Core", GLOBAL);
+    if (object && JS_InitStandardClasses(cx, object)) {
+        JS_DefineFunctions(cx, object, Core_methods);
+
+        __Core_include(cx, __LJS_LIBRARY_PATH__ "/Core");
         return object;
     }
 
     return NULL;
+}
+
+JSBool
+Core_include (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+    const char* fileName;
+
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "s", &fileName)) {
+        JS_ReportError(cx, "You must pass only the module/file to include.");
+        return JS_FALSE;
+    }
+
+    JSStackFrame* fp = NULL;
+    fp = JS_FrameIterator(cx, &fp); fp = JS_FrameIterator(cx, &fp);
+    JSScript* script = JS_GetFrameScript(cx, fp);
+
+    /*
+     * Getting the dirname of the file from the other file is included
+     * then copying it and getting the path to the dir.
+     */
+    char* dir  = dirname((char*)JS_GetScriptFilename(cx, script));
+    char* path = malloc((strlen(dir)+2)*sizeof(char));
+    strcpy(path, dir); strcat(path, "/");
+    
+    /*
+     * Copying the base to the path and then adding the relative path to
+     * the file to import
+     */
+    path = realloc(path, (strlen(path)+strlen(fileName)+1)*sizeof(char));
+    strcat(path, fileName);
+
+    if (!fileExists(path)) {
+        free(path);
+        path = strdup(__LJS_LIBRARY_PATH__);
+        path = realloc(path, (strlen(path)+2)*sizeof(char));
+        strcat(path, "/");
+        path = realloc(path, (strlen(path)+strlen(fileName)+1)*sizeof(char));
+        strcat(path, fileName);
+
+        if (!fileExists(path)) {
+            #ifdef DEBUG
+            printf("%s doesn't exist.\n", path);
+            #endif
+
+            free(path);
+            JS_ReportError(cx, "The module/file couldn't be found.");
+            return JS_FALSE;
+        }
+    }
+
+    __Core_include(cx, path);
+    free(path);
+
+    *rval = JSVAL_TRUE;
+    return JS_TRUE;
+}
+
+short
+__Core_include (JSContext* cx, const char* path)
+{
+    if (strstr(path, ".js") == &path[strlen(path)-3]) {
+        #ifdef DEBUG
+        printf("(javascript) path: %s\n", path);
+        #endif
+
+        jsval rval;
+        char* sources = stripComments(readFile(path));
+        JS_EvaluateScript(cx, JS_GetGlobalObject(cx), sources, strlen(sources), path, 0, &rval);
+        free(sources);
+    }
+    else if (strstr(path, ".so") == &path[strlen(path)-3]) {
+        #ifdef DEBUG
+        printf("(object) path: %s\n", path);
+        #endif
+
+        void* handle = dlopen(path, RTLD_LAZY|RTLD_GLOBAL);
+        char* error = dlerror();
+
+        if (error) {
+            fprintf(stderr, "%s\n", error);
+            return 0;
+        }
+
+        short (*exec)(JSContext*) = dlsym(handle, "exec");
+
+        if(!(*exec)(cx)) {
+            fprintf(stderr, "The initialization of the module failed.\n");
+            return 0;
+        }
+    }
+    else {
+        #ifdef DEBUG
+        printf("(module) path: %s\n", path);
+        #endif
+
+        char* newPath = strdup(path);
+        newPath = realloc(newPath, (strlen(newPath)+strlen("/init.js")+1)*sizeof(char));
+        strcat(newPath, "/init.js");
+
+        return Preprocessor_import(cx, newPath);
+        free(newPath);
+    }
+
+    return 1;
 }
 

@@ -26,8 +26,8 @@ static JSClass System_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
 };
 
-extern short  exec (JSContext* context);
-extern short  System_initialize (JSContext* context);
+extern short  exec (JSContext* cx);
+extern short  System_initialize (JSContext* cx);
 extern JSBool System_write (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 extern JSBool System_exec (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
@@ -35,3 +35,4 @@ static JSFunctionSpec System_methods[] = {
     {"exec", System_exec, 0, 0, 0},
     {NULL}
 };
+

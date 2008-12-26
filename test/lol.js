@@ -1,4 +1,4 @@
 #! /usr/bin/ljs
-#include <System>
+include("System");
 
-System.Console.writeLine("lol");
+System.Console.writeLine("nigguz");

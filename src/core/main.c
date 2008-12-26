@@ -48,7 +48,6 @@ main (int argc, char *argv[])
             break;
 
             default:
-            fprintf(stderr, "Unknown option.\n");
             return 1;
             break;
         }
@@ -131,7 +130,7 @@ executeScript (JSContext* context, const char* file)
     JSObject* global = JS_GetGlobalObject(context);
 
     JSScript* script;
-    char* sources = (char*) preprocess(context, readFile(file), file);
+    char* sources = stripComments(readFile(file));
 
     if (!sources) {
         return JS_FALSE;

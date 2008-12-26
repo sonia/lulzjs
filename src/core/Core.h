@@ -17,6 +17,7 @@
 ****************************************************************************/
 
 #include "jsapi.h"
+#include "jsdbgapi.h" 
 #include "Preprocessor.h"
 
 static JSClass Core_class = {
@@ -26,5 +27,13 @@ static JSClass Core_class = {
     JSCLASS_NO_OPTIONAL_MEMBERS
 };
 
-extern JSObject* Core_initialize (JSContext *context);
+extern JSObject* Core_initialize (JSContext *cx);
+
+extern JSBool Core_include (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval); 
+       short  __Core_include (JSContext* cx, const char* path);
+
+static JSFunctionSpec Core_methods[] = {
+    {"include", Core_include, 0, 0, 0},
+    {NULL}
+};
 

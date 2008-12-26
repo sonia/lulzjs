@@ -63,10 +63,11 @@ System_exec (JSContext *context, JSObject *obj, uintN argc, jsval *argv, jsval *
         read   = fread(output+(length-512), sizeof(char), 512, pipe);
 
         if (read < 512) {
-            output = realloc(output, length-=(512-read-1));
+            output = realloc(output, length-=(512-read));
             break;
         }
     }
+    output[length-1] = '\0';
     pclose(pipe);
 
     *rval = STRING_TO_JSVAL(JS_NewString(context, output, length));
