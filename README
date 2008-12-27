@@ -1,1 +1,6 @@
-:O
+A simple javascript interpreter based on SpiderMonkey and Prototype.
+
+To make the project just execute
+make SPIDERMONKEY_HEADERS=/path/to/jsapi SPIDERMONKEY_LIB=liblinking
+
+(liblinking is like -ljs or -lmozjs)
