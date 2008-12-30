@@ -16,34 +16,20 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-Object.extend(System.IO.File.prototype, {
-    readLine: function () {
-        if (this.isEnd())
-            return null;
-
-        var str = "";
-        var ch;
-        while ((ch = this.read(1)) != '\n' && !this.isEnd()) {
-            str += ch;
+[System.IO.Stream, System.IO.STDOUT, System.IO.STDIN, System.IO.STDERR].each(function(obj){
+    Object.extend(obj, {
+        writeLine: function (str) {
+            this.write(str+"\n");
+        },
+    
+        readLine: function () {
+            var str = "";
+            var ch;
+            while ((ch = this.read(1)) != '\n') {
+                str += ch;
+            }
+    
+            return str;
         }
-
-        return str;
-    },
-
-    readToEnd: function () {
-        var str = "";
-
-        var line;
-        while ((line = this.readLine()) != null) {
-            str += line+"\n";
-        }
-        str = str.substr(0, str.length-2);
-
-        return str;
-
-    },
-
-    readAll: function () {
-        return this.readToEnd().split(/\n/);
-    }
+    });
 });

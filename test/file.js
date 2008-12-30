@@ -1,4 +1,6 @@
 #! /usr/bin/ljs
-#include <System>
+require("System");
 
-System.Console.writeLine(new System.IO.File("file.js", "r").readToEnd());
+var file = new System.IO.File("file.js", "r");
+
+System.Console.writeLine(file.readToEnd());

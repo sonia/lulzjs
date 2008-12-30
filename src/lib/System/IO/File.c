@@ -18,7 +18,7 @@
 
 #include "File.h"
 
-short exec (JSContext* context) { return File_initialize(context); }
+extern short exec (JSContext* context) { return File_initialize(context); }
 
 short
 File_initialize (JSContext* context)
@@ -28,55 +28,16 @@ File_initialize (JSContext* context)
     JS_GetProperty(context, JSVAL_TO_OBJECT(jsParent), "IO", &jsParent);
     JSObject* parent = JSVAL_TO_OBJECT(jsParent);
 
+    jsval jsSuper;
+    JS_GetProperty(context, parent, "Stream", &jsSuper);
+
     JSObject* object = JS_InitClass(
-        context, parent, NULL, &File_class,
+        context, parent, JSVAL_TO_OBJECT(jsSuper), &File_class,
         File_constructor, 2, NULL, File_methods, NULL, File_static_methods
     );
 
     if (!object)
         return 0;
-
-    JSObject* file;
-    FileInformation* data;
-
-    // Create STDIN special File object.
-    file = JS_DefineObject(
-        context, parent,
-        "STDIN", &File_class, NULL,
-        JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
-    ); JS_DefineFunctions(context, file, File_methods);
-
-    data = (FileInformation*) malloc(sizeof(FileInformation));
-    data->name       = strdup("stdin");
-    data->descriptor = stdin;
-    data->mode       = NULL;
-    JS_SetPrivate(context, file, data);
-
-    // Create STDOUT special File object.
-    file = JS_DefineObject(
-        context, parent,
-        "STDOUT", &File_class, NULL,
-        JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
-    ); JS_DefineFunctions(context, file, File_methods);
-
-    data = (FileInformation*) malloc(sizeof(FileInformation));
-    data->name       = strdup("stdout");
-    data->descriptor = stdout;
-    data->mode       = NULL;
-    JS_SetPrivate(context, file, data);
-  
-    // Create STDERR special file object.
-    file = JS_DefineObject(
-        context, parent,
-        "STDERR", &File_class, NULL,
-        JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
-    ); JS_DefineFunctions(context, file, File_methods);
-
-    data = (FileInformation*) malloc(sizeof(FileInformation));
-    data->name       = strdup("stderr");
-    data->descriptor = stderr;
-    data->mode       = NULL;
-    JS_SetPrivate(context, file, data);
 
     // Default properties
     jsval property;
@@ -90,14 +51,19 @@ File_finalize (JSContext* context, JSObject* object)
     FileInformation* data = JS_GetPrivate(context, object);
 
     if (data) {
-        if (data->name) {
-            free(data->name);
+        if (data->path) {
+            free(data->path);
         }
 
         if (data->mode) {
-            fclose(data->descriptor);
+            fclose(data->stream->descriptor);
             free(data->mode);
         }
+
+        if (data->stream) {
+            free(data->stream);
+        }
+
         free(data);
     }
 }
@@ -113,13 +79,14 @@ File_constructor (JSContext* context, JSObject* object, uintN argc, jsval* argv,
         return JS_FALSE;
     }
 
-    FileInformation* data = malloc(sizeof(FileInformation));
-    data->name       = strdup(fileName);
-    data->mode       = strdup(mode);
-    data->descriptor = fopen(data->name, data->mode);
+    FileInformation* data    = malloc(sizeof(FileInformation));
+    data->path               = strdup(fileName);
+    data->mode               = strdup(mode);
+    data->stream             = (StreamInformation*) malloc(sizeof(StreamInformation));
+    data->stream->descriptor = fopen(data->path, data->mode);
     JS_SetPrivate(context, object, data);
 
-    if (!data->descriptor) {
+    if (!data->stream->descriptor) {
         JS_ReportError(context, "An error occurred while opening the file.");
         return JS_FALSE;
     }
@@ -138,7 +105,7 @@ File_write (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval
 
     FileInformation* data = JS_GetPrivate(context, object);
 
-    *rval  = INT_TO_JSVAL(fwrite(string, sizeof(*string), strlen(string), data->descriptor));
+    *rval = INT_TO_JSVAL(fwrite(string, sizeof(*string), strlen(string), data->stream->descriptor));
     return JS_TRUE;
 }
 
@@ -154,13 +121,13 @@ File_read (JSContext *context, JSObject *object, uintN argc, jsval *argv, jsval 
 
     FileInformation* data = JS_GetPrivate(context, object);
 
-    if (feof(data->descriptor)) {
+    if (feof(data->stream->descriptor)) {
         *rval = JSVAL_FALSE;
         return JS_TRUE;
     }
 
     char* string = malloc(size*sizeof(char));
-    fread(string, sizeof(char), size, data->descriptor);
+    fread(string, sizeof(char), size, data->stream->descriptor);
 
     *rval = STRING_TO_JSVAL(JS_NewString(context, string, size));
     return JS_TRUE;
@@ -171,21 +138,21 @@ File_isEnd (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval
 {
     FileInformation* data = JS_GetPrivate(context, object);
 
-    *rval = BOOLEAN_TO_JSVAL(feof(data->descriptor));
+    *rval = BOOLEAN_TO_JSVAL(feof(data->stream->descriptor));
     return JS_TRUE;
 }
 
 JSBool
 File_static_exists (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
-    const char* name;
+    const char* path;
 
-    if (argc != 1 || !JS_ConvertArguments(context, argc, argv, "s", &name)) {
+    if (argc != 1 || !JS_ConvertArguments(context, argc, argv, "s", &path)) {
         JS_ReportError(context, "Not enough parameters.");
         return JS_FALSE;
     }
 
-    FILE* file = fopen(name, "r");
+    FILE* file = fopen(path, "r");
     if (file) {
         *rval = JSVAL_TRUE;
         fclose(file);

@@ -25,8 +25,10 @@ System.Console = {
         System.IO.STDOUT.writeLine(text);
     },
 
-    read: function () {
-        return System.IO.STDIN.read(1);
+    read: function (size) {
+        size = size || 1;
+
+        return System.IO.STDIN.read(size);
     },
 
     readLine: function () {
@@ -36,4 +38,5 @@ System.Console = {
     clear: function () {
         System.exec("clear");
     }
-}
+};
+

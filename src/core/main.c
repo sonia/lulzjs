@@ -24,6 +24,8 @@
 #include "Misc.h"
 #include "Core.h"
 
+#include "Interactive.h"
+
 typedef struct {
     JSBool     error;
     JSRuntime* runtime;
@@ -45,16 +47,7 @@ main (int argc, char *argv[])
             printf("lulzJS %s\n", __LJS_VERSION__);
             return 0;
             break;
-
-            default:
-            return 1;
-            break;
         }
-    }
-
-    if (argc < 1 || !fileExists(argv[optind])) {
-        fprintf(stderr, "You have to pass a source.\n");
-        return 1;
     }
 
     Engine engine = initEngine(argc, optind, argv);
@@ -63,9 +56,19 @@ main (int argc, char *argv[])
         return 1;
     }
 
-    if (!executeScript(engine.context, argv[optind])) {
-        fprintf(stderr, "The script couldn't be executed.\n");
-        return 1;
+    if (argc == 1) {
+        Interactive_start();
+    }
+    else {
+        if (!fileExists(argv[optind])) {
+            fprintf(stderr, "The file doesnt't exist.\n");
+            return 1;
+        }
+
+        if (!executeScript(engine.context, argv[optind])) {
+            fprintf(stderr, "The script couldn't be executed.\n");
+            return 1;
+        }
     }
     
     JS_DestroyContext(engine.context);
@@ -79,9 +82,10 @@ void
 reportError (JSContext *cx, const char *message, JSErrorReport *report)
 {
     fprintf(stderr, "%s:%u > %s\n",
-            report->filename ? report->filename : "<no filename>",
-            (unsigned int) report->lineno,
-            message);
+        report->filename ? report->filename : "<no filename>",
+        (unsigned int) report->lineno,
+        message
+    );
 }
 
 Engine
@@ -129,11 +133,7 @@ executeScript (JSContext* context, const char* file)
     JSObject* global = JS_GetGlobalObject(context);
 
     JSScript* script;
-    char* sources = stripComments((char*)readFile(file));
-
-    if (!sources) {
-        return JS_FALSE;
-    }
+    char* sources = stripRemainder((char*) readFile(file));
 
     returnValue = JS_EvaluateScript(context, global, sources, strlen(sources), file, 0, &rval);
     free(sources);

@@ -1,8 +1,11 @@
-include("System.so")
+require("System.so")
 
-include("IO/IO.so")
+require("IO/IO.so")
 
-include("IO/File.so")
-include("IO/File.js")
+require("IO/Stream.so")
+require("IO/Stream.js")
 
-include("Console.js")
+require("IO/File.so")
+require("IO/File.js")
+
+require("Console.js")

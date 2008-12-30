@@ -16,6 +16,9 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
+#ifndef _CORE_H
+#define _CORE_H
+
 #include "jsapi.h"
 #include "jsdbgapi.h"
 #include "Misc.h"
@@ -46,3 +49,4 @@ static JSFunctionSpec Core_methods[] = {
     {NULL}
 };
 
+#endif

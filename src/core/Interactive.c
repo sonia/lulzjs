@@ -16,34 +16,9 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-Object.extend(System.IO.File.prototype, {
-    readLine: function () {
-        if (this.isEnd())
-            return null;
+void
+Interactive_start (void)
+{
 
-        var str = "";
-        var ch;
-        while ((ch = this.read(1)) != '\n' && !this.isEnd()) {
-            str += ch;
-        }
+}
 
-        return str;
-    },
-
-    readToEnd: function () {
-        var str = "";
-
-        var line;
-        while ((line = this.readLine()) != null) {
-            str += line+"\n";
-        }
-        str = str.substr(0, str.length-2);
-
-        return str;
-
-    },
-
-    readAll: function () {
-        return this.readToEnd().split(/\n/);
-    }
-});

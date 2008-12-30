@@ -1,4 +1,4 @@
 #! /usr/bin/ljs
 require("System");
 
-System.Console.writeLine("nigguz");
+System.Console.writeLine("NIGGUZ");

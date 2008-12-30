@@ -1,8 +1,8 @@
 #! /usr/bin/ljs
-#include <System>
+require("System");
 
-System.IO.Console.write("Insert a number: ");
-var a = parseInt(System.IO.Console.readLine());
-System.IO.Console.write("Insert another number: ");
-var b = parseInt(System.IO.Console.readLine());
-System.IO.Console.writeLine("\nThe sum is: "+(a+b));
+System.Console.write("Insert a number: ");
+var a = parseInt(System.Console.readLine());
+System.Console.write("Insert another number: ");
+var b = parseInt(System.Console.readLine());
+System.Console.writeLine("\nThe sum is: "+(a+b));

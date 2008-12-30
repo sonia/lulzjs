@@ -13,19 +13,15 @@ ifdef DEBUG
 CFLAGS += -DDEBUG -g
 endif
 
-CORE         = src/core/main.o src/core/Core.o src/core/Misc.o
+CORE         = src/core/main.o src/core/Core.o src/core/Misc.o src/core/Interactive.c
 CORE_CFLAGS  = ${CFLAGS}
 CORE_LDFLAGS = ${LDFLAGS} -ldl
 
-LIB_SYSTEM         = src/lib/System/System.o src/lib/System/IO/IO.o src/lib/System/IO/File.o
+LIB_SYSTEM         = src/lib/System/System.o src/lib/System/IO/IO.o src/lib/System/IO/Stream.o src/lib/System/IO/File.o
 LIB_SYSTEM_CFLAGS  = ${CFLAGS}
 LIB_SYSTEM_LDFLAGS = ${LDFLAGS}
 
 all: ljs libcore libsystem
-
-debug:
-	CFLAGS="${CFLAGS} -DDEBUG"
-	$(call all)
 
 ljs: $(CORE)
 	${CC} ${CORE_LDFLAGS} ${CORE_CFLAGS} ${CORE} -o ljs
@@ -48,12 +44,14 @@ $(LIB_SYSTEM): $(LIB_SYSTEM:.o=.c)
 libsystem_install:
 	mkdir -p ${LJS_LIBDIR}/System
 	mkdir -p ${LJS_LIBDIR}/System/IO
-	cp src/lib/System/init.js    ${LJS_LIBDIR}/System/init.js
-	cp src/lib/System/System.o   ${LJS_LIBDIR}/System/System.so
-	cp src/lib/System/IO/IO.o    ${LJS_LIBDIR}/System/IO/IO.so
-	cp src/lib/System/IO/File.o  ${LJS_LIBDIR}/System/IO/File.so
-	cp src/lib/System/IO/File.js ${LJS_LIBDIR}/System/IO/File.js
-	cp src/lib/System/Console.js ${LJS_LIBDIR}/System/Console.js
+	cp src/lib/System/init.js      ${LJS_LIBDIR}/System/init.js
+	cp src/lib/System/System.o     ${LJS_LIBDIR}/System/System.so
+	cp src/lib/System/IO/IO.o      ${LJS_LIBDIR}/System/IO/IO.so
+	cp src/lib/System/IO/Stream.o  ${LJS_LIBDIR}/System/IO/Stream.so
+	cp src/lib/System/IO/Stream.js ${LJS_LIBDIR}/System/IO/Stream.js
+	cp src/lib/System/IO/File.o    ${LJS_LIBDIR}/System/IO/File.so
+	cp src/lib/System/IO/File.js   ${LJS_LIBDIR}/System/IO/File.js
+	cp src/lib/System/Console.js   ${LJS_LIBDIR}/System/Console.js
 
 libsystem_uninstall:
 

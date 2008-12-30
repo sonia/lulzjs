@@ -16,34 +16,32 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-Object.extend(System.IO.File.prototype, {
-    readLine: function () {
-        if (this.isEnd())
-            return null;
+#ifndef _SYSTEM_IO_STREAM_H
+#define _SYSTEM_IO_STREAM_H
 
-        var str = "";
-        var ch;
-        while ((ch = this.read(1)) != '\n' && !this.isEnd()) {
-            str += ch;
-        }
+#include "jsapi.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-        return str;
-    },
+extern short exec (JSContext* cx);
+extern short Stream_initialize (JSContext* cx);
 
-    readToEnd: function () {
-        var str = "";
+static JSClass Stream_class = {
+    "Stream", JSCLASS_HAS_PRIVATE,
+    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
+};
 
-        var line;
-        while ((line = this.readLine()) != null) {
-            str += line+"\n";
-        }
-        str = str.substr(0, str.length-2);
+#include "Stream_private.h"
 
-        return str;
+extern JSBool Stream_read (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool Stream_write (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
-    },
+static JSFunctionSpec Stream_methods[] = {
+    {"read",   Stream_read,  0, 0, 0},
+    {"write",  Stream_write, 0, 0, 0},
+    {NULL}
+};
 
-    readAll: function () {
-        return this.readToEnd().split(/\n/);
-    }
-});
+#endif

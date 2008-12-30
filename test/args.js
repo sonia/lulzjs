@@ -1,5 +1,5 @@
 #! /usr/bin/ljs
-#include <System>
+require("System");
 
 arguments.each(function (value, index) {
     System.Console.writeLine("{index}: {value}".format({

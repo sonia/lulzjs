@@ -16,6 +16,9 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
+#ifndef _SYSTEM_IO_FILE_H
+#define _SYSTEM_IO_FILE_H
+
 #include "jsapi.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,11 +34,7 @@ static JSClass File_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, File_finalize
 };
 
-typedef struct {
-    char* name;
-    FILE* descriptor;
-    char* mode;
-} FileInformation;
+#include "File_private.h"
 
 extern JSBool File_constructor (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
@@ -46,14 +45,15 @@ extern JSBool File_isEnd (JSContext* context, JSObject* object, uintN argc, jsva
 extern JSBool File_static_exists (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 static JSFunctionSpec File_methods[] = {
-    {"read",  File_read,  0, 0, 0},
-    {"write", File_write, 0, 0, 0},
-    {"isEnd", File_isEnd, 0, 0, 0},
+    {"read",   File_read,   0, 0, 0},
+    {"write",  File_write,  0, 0, 0},
+    {"isEnd",  File_isEnd,  0, 0, 0},
     {NULL}
 };
 
 static JSFunctionSpec File_static_methods[] = {
-    {"exists", File_static_exists, 0, 0 ,0},
+    {"exists", File_static_exists, 0, 0, 0},
     {NULL}
 };
 
+#endif

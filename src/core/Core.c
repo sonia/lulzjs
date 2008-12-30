@@ -61,8 +61,11 @@ Core_require (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
     }
 
     char* path = __Core_getPath(cx, fileName);
-    if (!__Core_include(cx, path)) {
+    short ok = __Core_include(cx, path);
+
+    if (!ok) {
         JS_ReportError(cx, "%s couldn't be included.", path);
+        free(path);
         return JS_FALSE;
     }
     free(path);
@@ -85,6 +88,7 @@ __Core_getPath (JSContext* cx, const char* fileName)
     char* from = strdup(JS_GetScriptFilename(cx, script));
     char* dir  = dirname(from);
     char* path = malloc((strlen(dir)+2)*sizeof(char));
+
     strcpy(path, dir); strcat(path, "/"); free(from);
     
     /*
@@ -122,9 +126,11 @@ __Core_include (JSContext* cx, const char* path)
         }
 
         jsval rval;
-        char* sources = stripComments(readFile(path));
-        JS_EvaluateScript(cx, JS_GetGlobalObject(cx), sources, strlen(sources), path, 0, &rval);
+        char* sources = (char*) stripRemainder((char*) readFile(path));
+
+        short result = (short) JS_EvaluateScript(cx, JS_GetGlobalObject(cx), sources, strlen(sources), path, 0, &rval);
         free(sources);
+        return result;
     }
     else if (strstr(path, ".so") == &path[strlen(path)-3]) {
         #ifdef DEBUG
@@ -162,8 +168,9 @@ __Core_include (JSContext* cx, const char* path)
         newPath = realloc(newPath, (strlen(newPath)+strlen("/init.js")+1)*sizeof(char));
         strcat(newPath, "/init.js");
 
-        return __Core_include(cx, newPath);
+        short result = __Core_include(cx, newPath);
         free(newPath);
+        return result;
     }
 
     return 1;

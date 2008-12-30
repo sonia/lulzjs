@@ -16,10 +16,15 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
+#ifndef _MISC_H
+#define _MISC_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-char* readFile (const char* file);
-short fileExists (const char* file);
-char* stripComments (char* text);
+const char* readFile (const char* file);
+short       fileExists (const char* file);
+const char* stripRemained (char* text);
+
+#endif
