@@ -89,8 +89,8 @@ Stream_write (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* r
     }
 
     StreamInformation* data = JS_GetPrivate(cx, object);
-
     *rval = INT_TO_JSVAL(fwrite(string, sizeof(*string), strlen(string), data->descriptor));
+
     return JS_TRUE;
 }
 

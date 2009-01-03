@@ -44,7 +44,7 @@ main (int argc, char *argv[])
     while ((cmd = getopt(argc, argv, "v")) != -1) {
         switch (cmd) {
             case 'v':
-            printf("lulzJS %s\n", __LJS_VERSION__);
+            puts("lulzJS " __LJS_VERSION__ "\n");
             return 0;
             break;
         }

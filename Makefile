@@ -1,4 +1,4 @@
-VERSION = 0.1.5
+VERSION = 0.1.6
 SPIDERMONKEY_HEADERS = /usr/include/js
 SPIDERMONKEY_LIB     = -ljs
 
@@ -17,7 +17,11 @@ CORE         = src/core/main.o src/core/Core.o src/core/Misc.o src/core/Interact
 CORE_CFLAGS  = ${CFLAGS}
 CORE_LDFLAGS = ${LDFLAGS} -ldl
 
-LIB_SYSTEM         = src/lib/System/System.o src/lib/System/IO/IO.o src/lib/System/IO/Stream.o src/lib/System/IO/File.o
+LIB_SYSTEM = \
+	src/lib/System/System.o \
+	src/lib/System/IO/IO.o src/lib/System/IO/Stream.o src/lib/System/IO/File.o \
+	src/lib/System/Net/Net.o src/lib/System/Net/Socket.o
+
 LIB_SYSTEM_CFLAGS  = ${CFLAGS}
 LIB_SYSTEM_LDFLAGS = ${LDFLAGS}
 

@@ -20,9 +20,6 @@
 #define _SYSTEM_IO_H
 
 #include "jsapi.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 extern short exec (JSContext* context);
 extern short IO_initialize (JSContext* context);

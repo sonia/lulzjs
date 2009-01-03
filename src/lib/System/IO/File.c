@@ -18,7 +18,7 @@
 
 #include "File.h"
 
-extern short exec (JSContext* context) { return File_initialize(context); }
+short exec (JSContext* context) { return File_initialize(context); }
 
 short
 File_initialize (JSContext* context)
