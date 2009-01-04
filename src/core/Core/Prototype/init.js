@@ -16,9 +16,6 @@ var Prototype = {
   K: function(x) { return x }
 };
 
-if (Prototype.Browser.MobileSafari)
-  Prototype.BrowserFeatures.SpecificElementExtensions = false;
-  
 var Abstract = { };
 
 var Try = {

@@ -36,39 +36,83 @@ Core_initialize (JSContext *cx)
 JSBool
 Core_include (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-    const char* fileName;
+    JSObject* files;
 
-    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "s", &fileName)) {
-        JS_ReportError(cx, "You must pass only the module/file to include.");
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "o", &files)) {
+        JS_ReportError(cx, "You must pass only the modules/files to include.");
         return JS_FALSE;
     }
 
-    char* path = __Core_getPath(cx, fileName);
-    *rval = BOOLEAN_TO_JSVAL(__Core_include(cx, path));
-    free(path);
+    if (JS_IsArrayObject(cx, files)) {
+        JSObject* retArray = JS_NewArrayObject(cx, 0, NULL);
 
+        jsuint length;
+        JS_GetArrayLength(cx, files, &length);
+
+        size_t i;
+        for (i = 0; i < length; i++) {
+            jsval fileName;
+            JS_GetElement(cx, files, i, &fileName);
+
+            char* path = __Core_getPath(cx, JS_GetStringBytes(JS_ValueToString(cx, OBJECT_TO_JSVAL(fileName))));
+            jsval ret = BOOLEAN_TO_JSVAL(__Core_include(cx, path));
+
+            JS_SetElement(cx, retArray, i, &ret);
+            free(path);
+        }
+
+        *rval = OBJECT_TO_JSVAL(retArray);
+    }
+    else {
+        char* path = __Core_getPath(cx, JS_GetStringBytes(JS_ValueToString(cx, OBJECT_TO_JSVAL(files))));
+        *rval = BOOLEAN_TO_JSVAL(__Core_include(cx, path));
+        free(path);
+    }
+    
     return JS_TRUE;
 }
 
 JSBool
 Core_require (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-    const char* fileName;
+    JSObject* files;
 
-    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "s", &fileName)) {
-        JS_ReportError(cx, "You must pass only the module/file to include.");
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "o", &files)) {
+        JS_ReportError(cx, "You must pass only the modules/files to include.");
         return JS_FALSE;
     }
 
-    char* path = __Core_getPath(cx, fileName);
-    short ok = __Core_include(cx, path);
+    short ok;
 
-    if (!ok) {
-        JS_ReportError(cx, "%s couldn't be included.", path);
+    if (JS_IsArrayObject(cx, files)) {
+        jsuint length;
+        JS_GetArrayLength(cx, files, &length);
+
+        size_t i;
+        for (i = 0; i < length; i++) {
+            jsval fileName;
+            JS_GetElement(cx, files, i, &fileName);
+
+            char* path = __Core_getPath(cx, JS_GetStringBytes(JS_ValueToString(cx, OBJECT_TO_JSVAL(fileName))));
+            if (!__Core_include(cx, path)) {
+                JS_ReportError(cx, "%s couldn't be included.", path);
+                free(path);
+                return JS_FALSE;
+            }
+            free(path);
+        }
+    }
+    else {
+        char* path = __Core_getPath(cx, JS_GetStringBytes(JS_ValueToString(cx, OBJECT_TO_JSVAL(files))));
+        ok = __Core_include(cx, path);
+
+        if (!ok) {
+            JS_ReportError(cx, "%s couldn't be included.", path);
+            free(path);
+            return JS_FALSE;
+        }
         free(path);
-        return JS_FALSE;
     }
-    free(path);
 
     *rval = JSVAL_NULL;
     return JS_TRUE;
