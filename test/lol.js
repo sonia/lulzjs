@@ -1,4 +1,4 @@
 #! /usr/bin/ljs
 require("System");
 
-System.IO.STDOUT.write([0x23]);
+System.IO.STDOUT.writeLine("LOL");

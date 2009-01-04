@@ -68,7 +68,7 @@ Core_include (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
         *rval = BOOLEAN_TO_JSVAL(__Core_include(cx, path));
         free(path);
     }
-    
+
     return JS_TRUE;
 }
 
@@ -97,6 +97,7 @@ Core_require (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
             if (!__Core_include(cx, path)) {
                 JS_ReportError(cx, "%s couldn't be included.", path);
                 free(path);
+
                 return JS_FALSE;
             }
             free(path);
@@ -109,6 +110,7 @@ Core_require (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
         if (!ok) {
             JS_ReportError(cx, "%s couldn't be included.", path);
             free(path);
+
             return JS_FALSE;
         }
         free(path);
@@ -174,6 +176,11 @@ __Core_include (JSContext* cx, const char* path)
 
         short result = (short) JS_EvaluateScript(cx, JS_GetGlobalObject(cx), sources, strlen(sources), path, 0, &rval);
         free(sources);
+
+        while (JS_IsExceptionPending(cx)) {
+            JS_ReportPendingException(cx);
+        }
+
         return result;
     }
     else if (strstr(path, ".so") == &path[strlen(path)-3]) {

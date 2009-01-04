@@ -246,19 +246,3 @@ Object.extend(String.prototype, (function() {
   };
 })());
 
-if (Prototype.Browser.WebKit || Prototype.Browser.IE) Object.extend(String.prototype, {
-  escapeHTML: function() {
-    return this.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  },
-  unescapeHTML: function() {
-    return this.stripTags().replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>');
-  }
-});
-
-Object.extend(String.prototype.escapeHTML, {
-  div:  document.createElement('div'),
-  text: document.createTextNode('')
-});
-
-String.prototype.escapeHTML.div.appendChild(String.prototype.escapeHTML.text);
-

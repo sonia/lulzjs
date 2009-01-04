@@ -28,5 +28,5 @@ Object.extend(String.prototype, {
     
         return formatted;
     }
-};
+});
 

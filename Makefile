@@ -31,13 +31,14 @@ ljs: $(CORE)
 	${CC} ${CORE_LDFLAGS} ${CORE_CFLAGS} ${CORE} -o ljs
 
 core_install:
-	cp ljs ${BINDIR}/
+	mkdir -p ${LJS_LIBDIR}
+	cp -f ljs ${BINDIR}/
 
 libcore:
 
 libcore_install:
-	mkdir -p ${LJS_LIBDIR}/Core
-	cp -rf src/core/Core/*.js ${LJS_LIBDIR}/Core/
+	mkdir -p ${LJS_LIBDIR}
+	cp -rf src/core/Core ${LJS_LIBDIR}/Core
 	
 libsystem: $(LIB_SYSTEM)
 
@@ -46,16 +47,17 @@ $(LIB_SYSTEM): $(LIB_SYSTEM:.o=.c)
 	${CC} -shared -Wl,-soname,`basename $*`.so -o $*.o $*.lo -lc
 
 libsystem_install:
+	mkdir -p ${LJS_LIBDIR}
 	mkdir -p ${LJS_LIBDIR}/System
 	mkdir -p ${LJS_LIBDIR}/System/IO
-	cp src/lib/System/init.js      ${LJS_LIBDIR}/System/init.js
-	cp src/lib/System/System.o     ${LJS_LIBDIR}/System/System.so
-	cp src/lib/System/IO/IO.o      ${LJS_LIBDIR}/System/IO/IO.so
-	cp src/lib/System/IO/Stream.o  ${LJS_LIBDIR}/System/IO/Stream.so
-	cp src/lib/System/IO/Stream.js ${LJS_LIBDIR}/System/IO/Stream.js
-	cp src/lib/System/IO/File.o    ${LJS_LIBDIR}/System/IO/File.so
-	cp src/lib/System/IO/File.js   ${LJS_LIBDIR}/System/IO/File.js
-	cp src/lib/System/Console.js   ${LJS_LIBDIR}/System/Console.js
+	cp -f src/lib/System/init.js      ${LJS_LIBDIR}/System/init.js
+	cp -f src/lib/System/System.o     ${LJS_LIBDIR}/System/System.so
+	cp -f src/lib/System/IO/IO.o      ${LJS_LIBDIR}/System/IO/IO.so
+	cp -f src/lib/System/IO/Stream.o  ${LJS_LIBDIR}/System/IO/Stream.so
+	cp -f src/lib/System/IO/Stream.js ${LJS_LIBDIR}/System/IO/Stream.js
+	cp -f src/lib/System/IO/File.o    ${LJS_LIBDIR}/System/IO/File.so
+	cp -f src/lib/System/IO/File.js   ${LJS_LIBDIR}/System/IO/File.js
+	cp -f src/lib/System/Console.js   ${LJS_LIBDIR}/System/Console.js
 
 libsystem_uninstall:
 
