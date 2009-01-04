@@ -16,22 +16,32 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-// Global library object
-require("System.so")
+#ifndef _SYSTEM_IO_STREAM_H
+#define _SYSTEM_IO_STREAM_H
 
-// Input output modules
-require("IO/IO.so")
+#include "jsapi.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-require("IO/Stream.so")
-require("IO/Stream.js")
+extern short exec (JSContext* cx);
+extern short Stream_initialize (JSContext* cx);
 
-require("IO/File.so")
-require("IO/File.js")
+static JSClass Stream_class = {
+    "Stream", JSCLASS_HAS_PRIVATE,
+    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
+};
 
-// Networking modules
-require("Net/Net.so");
+#include "private.h"
 
-require("Net/Socket.so");
+extern JSBool Stream_read (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool Stream_write (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
-// Console module
-require("Console/Console.js")
+static JSFunctionSpec Stream_methods[] = {
+    {"read",   Stream_read,  0, 0, 0},
+    {"write",  Stream_write, 0, 0, 0},
+    {NULL}
+};
+
+#endif

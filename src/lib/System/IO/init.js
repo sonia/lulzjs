@@ -16,15 +16,12 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-#ifndef _SYSTEM_IO_FILE_PRIVATE_H
-#define _SYSTEM_IO_FILE_PRIVATE_H
+require("System/System.so");
 
-#include "Stream_private.h"
+require("IO.so");
 
-typedef struct {
-    char* path;
-    StreamInformation* stream;
-    char* mode;
-} FileInformation;
+require(["Stream/Stream.so", "Stream/Stream.js"]);
+require(["File/File.so", "File/File.js"]);
 
-#endif
+var IO = System.IO;
+

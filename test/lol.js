@@ -1,4 +1,4 @@
 #! /usr/bin/ljs
-require("System");
+require("System/Console");
 
-System.IO.STDOUT.writeLine("LOL");
+Console.writeLine("LOL");

@@ -16,22 +16,40 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-// Global library object
-require("System.so")
+#ifndef _SYSTEM_IO_FILE_H
+#define _SYSTEM_IO_FILE_H
 
-// Input output modules
-require("IO/IO.so")
+#include "jsapi.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-require("IO/Stream.so")
-require("IO/Stream.js")
+extern short exec (JSContext* context);
+extern short File_initialize (JSContext* context);
+extern void  File_finalize (JSContext* context, JSObject* object); 
 
-require("IO/File.so")
-require("IO/File.js")
+static JSClass File_class = {
+    "File", JSCLASS_HAS_PRIVATE,
+    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, File_finalize
+};
 
-// Networking modules
-require("Net/Net.so");
+#include "private.h"
 
-require("Net/Socket.so");
+extern JSBool File_constructor (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
-// Console module
-require("Console/Console.js")
+extern JSBool File_isEnd (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
+extern JSBool File_static_exists (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
+static JSFunctionSpec File_methods[] = {
+    {"isEnd",  File_isEnd,  0, 0, 0},
+    {NULL}
+};
+
+static JSFunctionSpec File_static_methods[] = {
+    {"exists", File_static_exists, 0, 0, 0},
+    {NULL}
+};
+
+#endif

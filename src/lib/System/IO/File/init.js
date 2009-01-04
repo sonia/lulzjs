@@ -16,32 +16,12 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-#ifndef _SYSTEM_IO_STREAM_H
-#define _SYSTEM_IO_STREAM_H
+require("System/System.so");
 
-#include "jsapi.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+require("System/IO/IO.so");
 
-extern short exec (JSContext* cx);
-extern short Stream_initialize (JSContext* cx);
+require(["System/IO/Stream/Stream.so", "System/IO/Stream/Stream.js"]);
 
-static JSClass Stream_class = {
-    "Stream", JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
-};
+require(["File.so", "File.js"]);
 
-#include "Stream_private.h"
-
-extern JSBool Stream_read (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern JSBool Stream_write (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-
-static JSFunctionSpec Stream_methods[] = {
-    {"read",   Stream_read,  0, 0, 0},
-    {"write",  Stream_write, 0, 0, 0},
-    {NULL}
-};
-
-#endif
+var File = System.IO.File;

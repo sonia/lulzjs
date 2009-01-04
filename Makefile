@@ -19,8 +19,8 @@ CORE_LDFLAGS = ${LDFLAGS} -ldl
 
 LIB_SYSTEM = \
 	src/lib/System/System.o \
-	src/lib/System/IO/IO.o src/lib/System/IO/Stream.o src/lib/System/IO/File.o \
-	src/lib/System/Net/Net.o src/lib/System/Net/Socket.o
+	src/lib/System/IO/IO.o src/lib/System/IO/Stream/Stream.o src/lib/System/IO/File/File.o \
+	src/lib/System/Net/Net.o src/lib/System/Net/Socket/Socket.o
 
 LIB_SYSTEM_CFLAGS  = ${CFLAGS}
 LIB_SYSTEM_LDFLAGS = ${LDFLAGS}
@@ -49,15 +49,29 @@ $(LIB_SYSTEM): $(LIB_SYSTEM:.o=.c)
 libsystem_install:
 	mkdir -p ${LJS_LIBDIR}
 	mkdir -p ${LJS_LIBDIR}/System
+	mkdir -p ${LJS_LIBDIR}/System/Console
 	mkdir -p ${LJS_LIBDIR}/System/IO
-	cp -f src/lib/System/init.js      ${LJS_LIBDIR}/System/init.js
-	cp -f src/lib/System/System.o     ${LJS_LIBDIR}/System/System.so
-	cp -f src/lib/System/IO/IO.o      ${LJS_LIBDIR}/System/IO/IO.so
-	cp -f src/lib/System/IO/Stream.o  ${LJS_LIBDIR}/System/IO/Stream.so
-	cp -f src/lib/System/IO/Stream.js ${LJS_LIBDIR}/System/IO/Stream.js
-	cp -f src/lib/System/IO/File.o    ${LJS_LIBDIR}/System/IO/File.so
-	cp -f src/lib/System/IO/File.js   ${LJS_LIBDIR}/System/IO/File.js
-	cp -f src/lib/System/Console.js   ${LJS_LIBDIR}/System/Console.js
+	mkdir -p ${LJS_LIBDIR}/System/IO/Stream
+	mkdir -p ${LJS_LIBDIR}/System/IO/File
+	mkdir -p ${LJS_LIBDIR}/System/Net
+	mkdir -p ${LJS_LIBDIR}/System/Net/Socket
+########
+	cp -f src/lib/System/init.js				${LJS_LIBDIR}/System/init.js
+	cp -f src/lib/System/System.o				${LJS_LIBDIR}/System/System.so
+########
+	cp -f src/lib/System/IO/init.js				${LJS_LIBDIR}/System/IO/init.js
+	cp -f src/lib/System/IO/IO.o				${LJS_LIBDIR}/System/IO/IO.so
+########
+	cp -f src/lib/System/IO/Stream/init.js		${LJS_LIBDIR}/System/IO/Stream/init.js
+	cp -f src/lib/System/IO/Stream/Stream.o		${LJS_LIBDIR}/System/IO/Stream/Stream.so
+	cp -f src/lib/System/IO/Stream/Stream.js	${LJS_LIBDIR}/System/IO/Stream/Stream.js
+########
+	cp -f src/lib/System/IO/File/init.js		${LJS_LIBDIR}/System/IO/File/init.js
+	cp -f src/lib/System/IO/File/File.o			${LJS_LIBDIR}/System/IO/File/File.so
+	cp -f src/lib/System/IO/File/File.js		${LJS_LIBDIR}/System/IO/File/File.js
+########
+	cp -f src/lib/System/Console/init.js		${LJS_LIBDIR}/System/Console/init.js
+	cp -f src/lib/System/Console/Console.js		${LJS_LIBDIR}/System/Console/Console.js
 
 libsystem_uninstall:
 

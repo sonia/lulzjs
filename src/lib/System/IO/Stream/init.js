@@ -16,22 +16,14 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-// Global library object
-require("System.so")
+require("System/System.so");
 
-// Input output modules
-require("IO/IO.so")
+require("System/IO/IO.so");
 
-require("IO/Stream.so")
-require("IO/Stream.js")
+require(["Stream.so", "Stream.js"]);
 
-require("IO/File.so")
-require("IO/File.js")
+var Stream = System.IO.Stream;
+var STDIN  = System.IO.STDIN;
+var STDOUT = System.IO.STDOUT;
+var STDERR = System.IO.STDERR;
 
-// Networking modules
-require("Net/Net.so");
-
-require("Net/Socket.so");
-
-// Console module
-require("Console/Console.js")

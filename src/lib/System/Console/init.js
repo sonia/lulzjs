@@ -16,40 +16,12 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-#ifndef _SYSTEM_IO_FILE_H
-#define _SYSTEM_IO_FILE_H
+require("System/System.so");
 
-#include "jsapi.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+require("System/IO/IO.so");
 
-extern short exec (JSContext* context);
-extern short File_initialize (JSContext* context);
-extern void  File_finalize (JSContext* context, JSObject* object); 
+require(["System/IO/Stream/Stream.so", "System/IO/Stream/Stream.js"]);
 
-static JSClass File_class = {
-    "File", JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, File_finalize
-};
+require("Console.js");
 
-#include "File_private.h"
-
-extern JSBool File_constructor (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-
-extern JSBool File_isEnd (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-
-extern JSBool File_static_exists (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-
-static JSFunctionSpec File_methods[] = {
-    {"isEnd",  File_isEnd,  0, 0, 0},
-    {NULL}
-};
-
-static JSFunctionSpec File_static_methods[] = {
-    {"exists", File_static_exists, 0, 0, 0},
-    {NULL}
-};
-
-#endif
+var Console = System.Console;

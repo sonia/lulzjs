@@ -16,22 +16,15 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-// Global library object
-require("System.so")
+#ifndef _SYSTEM_IO_FILE_PRIVATE_H
+#define _SYSTEM_IO_FILE_PRIVATE_H
 
-// Input output modules
-require("IO/IO.so")
+#include "../Stream/private.h"
 
-require("IO/Stream.so")
-require("IO/Stream.js")
+typedef struct {
+    char* path;
+    StreamInformation* stream;
+    char* mode;
+} FileInformation;
 
-require("IO/File.so")
-require("IO/File.js")
-
-// Networking modules
-require("Net/Net.so");
-
-require("Net/Socket.so");
-
-// Console module
-require("Console/Console.js")
+#endif
