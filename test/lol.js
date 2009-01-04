@@ -1,4 +1,5 @@
 #! /usr/bin/ljs
 require("System/Console");
+require("System/IO/File");
 
-Console.writeLine("LOL");
+Console.writeLine(new File("test/lol.js", "r").readLine());

@@ -51,19 +51,10 @@ File_finalize (JSContext* context, JSObject* object)
     FileInformation* data = JS_GetPrivate(context, object);
 
     if (data) {
-        if (data->path) {
-            free(data->path);
-        }
-
-        if (data->mode) {
-            fclose(data->stream->descriptor);
-            free(data->mode);
-        }
-
-        if (data->stream) {
-            free(data->stream);
-        }
-
+        free(data->path);
+        free(data->mode);
+        fclose(data->stream->descriptor);
+        free(data->stream);
         free(data);
     }
 }
@@ -121,10 +112,12 @@ File_read (JSContext *context, JSObject *object, uintN argc, jsval *argv, jsval 
 
     FileInformation* data = JS_GetPrivate(context, object);
 
+    printf("%d\n", data->stream->descriptor);
     if (feof(data->stream->descriptor)) {
         *rval = JSVAL_FALSE;
         return JS_TRUE;
     }
+    printf("%d\n", data->stream->descriptor);
 
     char* string = malloc(size*sizeof(char));
     fread(string, sizeof(char), size, data->stream->descriptor);

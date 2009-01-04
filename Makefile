@@ -72,6 +72,12 @@ libsystem_install:
 ########
 	cp -f src/lib/System/Console/init.js		${LJS_LIBDIR}/System/Console/init.js
 	cp -f src/lib/System/Console/Console.js		${LJS_LIBDIR}/System/Console/Console.js
+#######
+	cp -f src/lib/System/Net/init.js			${LJS_LIBDIR}/System/Net/init.js
+	cp -f src/lib/System/Net/Net.o				${LJS_LIBDIR}/System/Net/Net.so
+#######
+	cp -f src/lib/System/Net/Socket/init.js		${LJS_LIBDIR}/System/Net/Socket/init.js
+	cp -f src/lib/System/Net/Socket/Socket.o	${LJS_LIBDIR}/System/Net/Socket/Socket.so
 
 libsystem_uninstall:
 
@@ -86,6 +92,5 @@ uninstall:
 
 clean:
 	rm -f ljs;
-	rm -f src/core/*.o;
-	rm -f src/lib/System/*.*o; rm -f src/lib/System/IO/*.*o
+	find .|egrep "\.l?o"|xargs rm
 

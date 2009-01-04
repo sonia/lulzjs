@@ -16,22 +16,39 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-// Global library object
-require("System.so")
+#ifndef _SYSTEM_NET_SOCKET_H
+#define _SYSTEM_NET_SOCKET_H
 
-// Input output modules
-require("IO/IO.so")
+#include "jsapi.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-require("IO/Stream/Stream.so")
-require("IO/Stream/Stream.js")
+extern short exec (JSContext* context);
+extern short Socket_initialize (JSContext* context);
+extern void  Socket_finalize (JSContext* context, JSObject* object); 
 
-require("IO/File/File.so")
-require("IO/File/File.js")
+static JSClass Socket_class = {
+    "Socket", JSCLASS_HAS_PRIVATE,
+    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, Socket_finalize
+};
 
-// Networking modules
-require("Net/Net.so");
+#include "private.h"
 
-require("Net/Socket/Socket.so");
+extern JSBool Socket_constructor (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
-// Console module
-require("Console/Console.js")
+extern JSBool Socket_read (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool Socket_write (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
+static JSFunctionSpec Socket_methods[] = {
+    {"read",   Socket_read,   0, 0, 0},
+    {"write",  Socket_write,  0, 0, 0},
+    {NULL}
+};
+
+static JSFunctionSpec Socket_static_methods[] = {
+    {NULL}
+};
+
+#endif

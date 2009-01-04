@@ -16,22 +16,27 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-// Global library object
-require("System.so")
+#include "Net.h"
 
-// Input output modules
-require("IO/IO.so")
+short exec (JSContext* context) { return Net_initialize(context); }
 
-require("IO/Stream/Stream.so")
-require("IO/Stream/Stream.js")
+short
+Net_initialize (JSContext* context)
+{
+    jsval jsParent;
+    JS_GetProperty(context, JS_GetGlobalObject(context), "System", &jsParent);
+    JSObject* parent = JSVAL_TO_OBJECT(jsParent);
 
-require("IO/File/File.so")
-require("IO/File/File.js")
+    JSObject* object = JS_DefineObject(
+        context, parent,
+        Net_class.name, &Net_class, NULL, 
+        JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE);
 
-// Networking modules
-require("Net/Net.so");
+    if (!object)
+        return 0;
 
-require("Net/Socket/Socket.so");
+    JS_DefineFunctions(context, object, Net_methods);
 
-// Console module
-require("Console/Console.js")
+    return 1;
+}
+
