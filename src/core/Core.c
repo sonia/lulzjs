@@ -26,6 +26,9 @@ Core_initialize (JSContext *cx, const char* script)
     if (object && JS_InitStandardClasses(cx, object)) {
         JS_DefineFunctions(cx, object, Core_methods);
 
+        // Properties
+        jsval property;
+
         char* rootPath = __Core_getRootPath(cx, script);
         jsval paths[] = {
             STRING_TO_JSVAL(JS_NewString(cx, JS_strdup(cx, "./"), strlen("./"))),
@@ -33,9 +36,11 @@ Core_initialize (JSContext *cx, const char* script)
             STRING_TO_JSVAL(JS_NewString(cx, JS_strdup(cx, __LJS_LIBRARY_PATH__), strlen(__LJS_LIBRARY_PATH__)))
         };
         JSObject* path = JS_NewArrayObject(cx, 3, paths);
-        jsval jsPath   = OBJECT_TO_JSVAL(path);
-        JS_SetProperty(cx, JS_GetGlobalObject(cx), "PATH", &jsPath);
+        property       = OBJECT_TO_JSVAL(path);
+        JS_SetProperty(cx, JS_GetGlobalObject(cx), "__PATH__", &property);
 
+        property = STRING_TO_JSVAL(JS_NewString(cx, JS_strdup(cx, __LJS_VERSION__), strlen(__LJS_VERSION__)));
+        JS_SetProperty(cx, JS_GetGlobalObject(cx), "__VERSION__", &property);
 
         if (__Core_include(cx, __LJS_LIBRARY_PATH__ "/Core"))
             return object;
