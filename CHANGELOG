@@ -1,2 +1,21 @@
+0.1.6:
+  - Added the check for already included files, so the inclusion is avoided.
+  - Added the var __VERSION__ that contains the lulzJS version being used.
+  - Added the var __PATH__ that contains the paths checked by lulzJS while including a file.
+  - The new __PATH__ variable brings on a best practice way of including, by using the root
+    directory of the main script as main path, so this means no local inclusions but pseudo
+    absolute inclusions.
+
+    Something like:
+    main.js
+    includes/file.js
+    includes/file2.js
+
+    main.js does include("includes/file.js");
+    includes/file.js does include("includes/file2.js");
+
+    This is permitted because the interpreter after checking for a local file it checks for a
+    program root dir file and then for a system library file.
+
 0.1.5:
   - Replaced the #include statement with 2 Core functions: include and require.
