@@ -45,7 +45,7 @@ Stream_initialize (JSContext* cx)
         "STDIN", &Stream_class, object,
         JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
     );
-    data = (StreamInformation*) malloc(sizeof(StreamInformation));
+    data = (StreamInformation*) JS_malloc(cx, sizeof(StreamInformation));
     data->descriptor = stdin;
     JS_SetPrivate(cx, stream, data);
 
@@ -55,7 +55,7 @@ Stream_initialize (JSContext* cx)
         "STDOUT", &Stream_class, object,
         JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
     );
-    data = (StreamInformation*) malloc(sizeof(StreamInformation));
+    data = (StreamInformation*) JS_malloc(cx, sizeof(StreamInformation));
     data->descriptor = stdout;
     JS_SetPrivate(cx, stream, data);
   
@@ -65,7 +65,7 @@ Stream_initialize (JSContext* cx)
         "STDERR", &Stream_class, object,
         JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
     );
-    data = (StreamInformation*) malloc(sizeof(StreamInformation));
+    data = (StreamInformation*) JS_malloc(cx, sizeof(StreamInformation));
     data->descriptor = stderr;
     JS_SetPrivate(cx, stream, data);
 
@@ -108,7 +108,7 @@ Stream_read (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval *rv
         return JS_TRUE;
     }
 
-    char* string = malloc(size*sizeof(char));
+    char* string = JS_malloc(cx, size*sizeof(char));
     fread(string, sizeof(char), size, data->descriptor);
 
     *rval = STRING_TO_JSVAL(JS_NewString(cx, string, size));

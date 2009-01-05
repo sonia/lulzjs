@@ -59,11 +59,11 @@ System_exec (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
     }
 
     while (1) {
-        output = realloc(output, length+=512);
+        output = JS_realloc(cx, output, length+=512);
         read   = fread(output+(length-512), sizeof(char), 512, pipe);
 
         if (read < 512) {
-            output = realloc(output, length-=(512-read));
+            output = JS_realloc(cx, output, length-=(512-read));
             break;
         }
     }

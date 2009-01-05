@@ -45,17 +45,6 @@ Socket_initialize (JSContext* cx)
     return 1;
 }
 
-void
-Socket_finalize (JSContext* cx, JSObject* object)
-{
-    SocketInformation* data = JS_GetPrivate(cx, object);
-
-    if (data) {
-
-        free(data);
-    }
-}
-
 JSBool
 Socket_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
@@ -67,11 +56,23 @@ Socket_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
         return JS_FALSE;
     }
 
-    SocketInformation* data = malloc(sizeof(SocketInformation));
+    SocketInformation* data = JS_malloc(cx, sizeof(SocketInformation));
     JS_SetPrivate(cx, object, data);
 
     return JS_TRUE;
 }
+
+void
+Socket_finalize (JSContext* cx, JSObject* object)
+{
+    SocketInformation* data = JS_GetPrivate(cx, object);
+
+    if (data) {
+        JS_free(cx, data);
+    }
+}
+
+
 
 JSBool
 Socket_write (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)

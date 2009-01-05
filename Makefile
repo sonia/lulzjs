@@ -7,7 +7,7 @@ CXX        = g++
 BINDIR     = /usr/bin
 LJS_LIBDIR = /usr/lib/lulzjs
 CFLAGS     = -DXP_UNIX -D__LJS_LIBRARY_PATH__="\"${LJS_LIBDIR}\"" -D__LJS_VERSION__="\"${VERSION}\"" -I${SPIDERMONKEY_HEADERS}
-LDFLAGS    = ${SPIDERMONKEY_LIB}
+LDFLAGS    = ${SPIDERMONKEY_LIB} 
 
 ifdef DEBUG
 CFLAGS += -DDEBUG -g
@@ -15,7 +15,7 @@ endif
 
 CORE         = src/core/main.o src/core/Core.o src/core/Misc.o src/core/Interactive.c
 CORE_CFLAGS  = ${CFLAGS}
-CORE_LDFLAGS = ${LDFLAGS} -ldl
+CORE_LDFLAGS = ${LDFLAGS} -ldl -lreadline
 
 LIB_SYSTEM = \
 	src/lib/System/System.o \

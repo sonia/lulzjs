@@ -19,12 +19,23 @@
 #include "Core.h"
 
 JSObject*
-Core_initialize (JSContext *cx)
+Core_initialize (JSContext *cx, const char* script)
 {
     JSObject* object = JS_NewObject(cx, &Core_class, NULL, NULL);
 
     if (object && JS_InitStandardClasses(cx, object)) {
         JS_DefineFunctions(cx, object, Core_methods);
+
+        char* rootPath = __Core_getRootPath(cx, script);
+        jsval paths[] = {
+            STRING_TO_JSVAL(JS_NewString(cx, JS_strdup(cx, "./"), strlen("./"))),
+            STRING_TO_JSVAL(JS_NewString(cx, rootPath, strlen(rootPath))),
+            STRING_TO_JSVAL(JS_NewString(cx, JS_strdup(cx, __LJS_LIBRARY_PATH__), strlen(__LJS_LIBRARY_PATH__)))
+        };
+        JSObject* path = JS_NewArrayObject(cx, 3, paths);
+        jsval jsPath   = OBJECT_TO_JSVAL(path);
+        JS_SetProperty(cx, JS_GetGlobalObject(cx), "PATH", &jsPath);
+
 
         if (__Core_include(cx, __LJS_LIBRARY_PATH__ "/Core"))
             return object;
@@ -58,7 +69,7 @@ Core_include (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
             jsval ret = BOOLEAN_TO_JSVAL(__Core_include(cx, path));
 
             JS_SetElement(cx, retArray, i, &ret);
-            free(path);
+            JS_free(cx, path);
         }
 
         *rval = OBJECT_TO_JSVAL(retArray);
@@ -66,7 +77,7 @@ Core_include (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
     else {
         char* path = __Core_getPath(cx, JS_GetStringBytes(JS_ValueToString(cx, OBJECT_TO_JSVAL(files))));
         *rval = BOOLEAN_TO_JSVAL(__Core_include(cx, path));
-        free(path);
+        JS_free(cx, path);
     }
 
     return JS_TRUE;
@@ -96,11 +107,11 @@ Core_require (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
             char* path = __Core_getPath(cx, JS_GetStringBytes(JS_ValueToString(cx, OBJECT_TO_JSVAL(fileName))));
             if (!__Core_include(cx, path)) {
                 JS_ReportError(cx, "%s couldn't be included.", path);
-                free(path);
+                JS_free(cx, path);
 
                 return JS_FALSE;
             }
-            free(path);
+            JS_free(cx, path);
         }
     }
     else {
@@ -109,15 +120,54 @@ Core_require (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
 
         if (!ok) {
             JS_ReportError(cx, "%s couldn't be included.", path);
-            free(path);
+            JS_free(cx, path);
 
             return JS_FALSE;
         }
-        free(path);
+        JS_free(cx, path);
     }
 
     *rval = JSVAL_NULL;
     return JS_TRUE;
+}
+
+JSBool
+Core_GC (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+    JS_MaybeGC(cx);
+
+    *rval = JSVAL_NULL;
+
+    return JS_TRUE;
+}
+
+JSBool
+Core_ENV (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+    char* env;
+
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "s", &env)) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    char* value = getenv(env);
+
+    if (value == NULL) {
+        *rval = JSVAL_NULL;
+    }
+    else {
+        value = JS_strdup(cx, value);
+        *rval = STRING_TO_JSVAL(JS_NewString(cx, value, strlen(value)));
+    }
+
+    return JS_TRUE;
+}
+
+char*
+__Core_getRootPath (JSContext* cx, const char* fileName)
+{
+    return JS_strdup(cx, "/");
 }
 
 char*
@@ -131,34 +181,38 @@ __Core_getPath (JSContext* cx, const char* fileName)
      * Getting the dirname of the file from the other file is included
      * then copying it and getting the path to the dir.
      */
-    char* from = strdup(JS_GetScriptFilename(cx, script));
+    char* from = JS_strdup(cx, JS_GetScriptFilename(cx, script));
     char* dir  = dirname(from);
-    char* path = malloc((strlen(dir)+2)*sizeof(char));
+    char* path = JS_malloc(cx, (strlen(dir)+2)*sizeof(char));
 
-    strcpy(path, dir); strcat(path, "/"); free(from);
+    strcpy(path, dir); strcat(path, "/"); JS_free(cx, from);
     
     /*
      * Copying the base to the path and then adding the relative path to
      * the file to import
      */
-    path = realloc(path, (strlen(path)+strlen(fileName)+1)*sizeof(char));
+    path = JS_realloc(cx, path, (strlen(path)+strlen(fileName)+1)*sizeof(char));
     strcat(path, fileName);
 
     if (!fileExists(path)) {
-        free(path);
-        path = strdup(__LJS_LIBRARY_PATH__);
-        path = realloc(path, (strlen(path)+2)*sizeof(char));
+        JS_free(cx, path);
+        path = JS_strdup(cx, __LJS_LIBRARY_PATH__);
+        path = JS_realloc(cx, path, (strlen(path)+2)*sizeof(char));
         strcat(path, "/");
-        path = realloc(path, (strlen(path)+strlen(fileName)+1)*sizeof(char));
+        path = JS_realloc(cx, path, (strlen(path)+strlen(fileName)+1)*sizeof(char));
         strcat(path, fileName);
     }
 
     return path;
 }
 
-short
+JSBool
 __Core_include (JSContext* cx, const char* path)
 {
+    if (__Core_isIncluded(path)) {
+        return JS_TRUE;
+    }
+
     if (strstr(path, ".js") == &path[strlen(path)-3]) {
         #ifdef DEBUG
         printf("(javascript) path: %s\n", path);
@@ -168,14 +222,14 @@ __Core_include (JSContext* cx, const char* path)
             #ifdef DEBUG
             printf("(javascript) %s not found.\n", path);
             #endif
-            return 0;
+            return JS_FALSE;
         }
 
         jsval rval;
-        char* sources = (char*) stripRemainder((char*) readFile(path));
+        char* sources = stripRemainder(cx, readFile(cx, path));
 
-        short result = (short) JS_EvaluateScript(cx, JS_GetGlobalObject(cx), sources, strlen(sources), path, 0, &rval);
-        free(sources);
+        JSBool result = (short) JS_EvaluateScript(cx, JS_GetGlobalObject(cx), sources, strlen(sources), path, 0, &rval);
+        JS_free(cx, sources);
 
         while (JS_IsExceptionPending(cx)) {
             JS_ReportPendingException(cx);
@@ -192,7 +246,7 @@ __Core_include (JSContext* cx, const char* path)
             #ifdef DEBUG
             printf("(object) %s not found.\n", path);
             #endif
-            return 0;
+            return JS_FALSE;
         }
 
         void* handle = dlopen(path, RTLD_LAZY|RTLD_GLOBAL);
@@ -200,14 +254,14 @@ __Core_include (JSContext* cx, const char* path)
 
         if (error) {
             fprintf(stderr, "%s\n", error);
-            return 0;
+            return JS_FALSE;
         }
 
         short (*exec)(JSContext*) = dlsym(handle, "exec");
 
         if(!(*exec)(cx)) {
             fprintf(stderr, "The initialization of the module failed.\n");
-            return 0;
+            return JS_FALSE;
         }
     }
     else {
@@ -215,15 +269,30 @@ __Core_include (JSContext* cx, const char* path)
         printf("(module) path: %s\n", path);
         #endif
 
-        char* newPath = strdup(path);
-        newPath = realloc(newPath, (strlen(newPath)+strlen("/init.js")+1)*sizeof(char));
+        char* newPath = JS_strdup(cx, path);
+        newPath = JS_realloc(cx, newPath, (strlen(newPath)+strlen("/init.js")+1)*sizeof(char));
         strcat(newPath, "/init.js");
 
-        short result = __Core_include(cx, newPath);
-        free(newPath);
+        JSBool result = __Core_include(cx, newPath);
+        JS_free(cx, newPath);
         return result;
     }
 
-    return 1;
+    included = JS_realloc(cx, included, ++includedNumber*sizeof(char*));
+    included[includedNumber-1] = JS_strdup(cx, path);
+
+    return JS_TRUE;
 }
 
+JSBool
+__Core_isIncluded (const char* path)
+{
+    size_t i;
+    for (i = 0; i < includedNumber; i++) {
+        if (strcmp(included[i], path) == 0) {
+            return JS_TRUE;
+        }
+    }
+
+    return JS_FALSE;
+}

@@ -28,6 +28,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+static char** included       = NULL;
+static size_t includedNumber = 0;
+
 static JSClass Core_class = {
     "Core", JSCLASS_GLOBAL_FLAGS,
     JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
@@ -35,17 +38,25 @@ static JSClass Core_class = {
     JSCLASS_NO_OPTIONAL_MEMBERS
 };
 
-extern JSObject* Core_initialize (JSContext *cx);
+extern JSObject* Core_initialize (JSContext *cx, const char* script);
 
 extern JSBool Core_include (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval); 
 extern JSBool Core_require (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+extern JSBool Core_GC (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
-short __Core_include (JSContext* cx, const char* path);
+extern JSBool Core_ENV (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+
+char* __Core_getRootPath (JSContext* cx, const char* fileName);
 char* __Core_getPath (JSContext* cx, const char* fileName);
+JSBool __Core_include (JSContext* cx, const char* path);
+JSBool __Core_isIncluded (const char* path);
 
 static JSFunctionSpec Core_methods[] = {
     {"include", Core_include, 0, 0, 0},
     {"require", Core_require, 0, 0, 0},
+    {"GC",      Core_GC,      0, 0, 0},
+
+    {"ENV", Core_ENV, 0, 0, 0},
     {NULL}
 };
 

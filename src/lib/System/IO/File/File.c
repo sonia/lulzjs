@@ -54,11 +54,11 @@ File_finalize (JSContext* cx, JSObject* object)
     FileInformation* data = JS_GetPrivate(cx, object);
 
     if (data) {
-        free(data->path);
-        free(data->mode);
+        JS_free(cx, data->path);
+        JS_free(cx, data->mode);
         fclose(data->stream->descriptor);
-        free(data->stream);
-        free(data);
+        JS_free(cx, data->stream);
+        JS_free(cx, data);
     }
 }
 
@@ -73,10 +73,10 @@ File_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsva
         return JS_FALSE;
     }
 
-    FileInformation* data    = malloc(sizeof(FileInformation));
-    data->path               = strdup(fileName);
-    data->mode               = strdup(mode);
-    data->stream             = (StreamInformation*) malloc(sizeof(StreamInformation));
+    FileInformation* data    = JS_malloc(cx, sizeof(FileInformation));
+    data->path               = JS_strdup(cx, fileName);
+    data->mode               = JS_strdup(cx, mode);
+    data->stream             = (StreamInformation*) JS_malloc(cx, sizeof(StreamInformation));
     data->stream->descriptor = fopen(data->path, data->mode);
     JS_SetPrivate(cx, object, data);
 
@@ -120,7 +120,7 @@ File_read (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval *rval
         return JS_TRUE;
     }
 
-    char* string = malloc(size*sizeof(char));
+    char* string = JS_malloc(cx, size*sizeof(char));
     fread(string, sizeof(char), size, data->stream->descriptor);
 
     *rval = STRING_TO_JSVAL(JS_NewString(cx, string, size));

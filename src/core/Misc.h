@@ -19,13 +19,15 @@
 #ifndef _MISC_H
 #define _MISC_H
 
+#include "jsapi.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-      char* readLine (void);
-const char* readFile (const char* file);
+char* JS_strdup (JSContext* cx, const char* string);
+
+const char* readFile (JSContext* cx, const char* file);
       short fileExists (const char* file);
-const char* stripRemained (char* text);
+const char* stripRemained (JSContext* cx, char* text);
 
 #endif

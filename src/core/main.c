@@ -35,7 +35,7 @@ typedef struct {
 
 void reportError (JSContext *cx, const char *message, JSErrorReport *report);
 Engine initEngine (int argc, int optind, char *argv[]);
-JSBool executeScript (JSContext* context, const char* file);
+JSBool executeScript (JSContext* cx, const char* file);
 
 int
 main (int argc, char *argv[])
@@ -57,7 +57,7 @@ main (int argc, char *argv[])
     }
 
     if (argc == 1) {
-        Interactive_start(engine.context, engine.core);
+        Interactive(engine.context, engine.core);
     }
     else {
         if (!fileExists(argv[optind])) {
@@ -99,7 +99,7 @@ initEngine (int argc, int optind, char *argv[])
             JS_SetOptions(engine.context, JSOPTION_VAROBJFIX);
             JS_SetErrorReporter(engine.context, reportError);
 
-            if (engine.core = Core_initialize(engine.context)) {
+            if (engine.core = Core_initialize(engine.context, argv[optind])) {
                 jsval pass;
                 JSObject* arguments = JS_NewArrayObject(engine.context, 0, NULL);
                 pass = OBJECT_TO_JSVAL(arguments);
@@ -109,7 +109,7 @@ initEngine (int argc, int optind, char *argv[])
                     int i;
                     jsval rval;
                     for (i = optind; i < argc; i++) {
-                        pass = STRING_TO_JSVAL(JS_NewString(engine.context, strdup(argv[i]), strlen(argv[i])));
+                        pass = STRING_TO_JSVAL(JS_NewString(engine.context, JS_strdup(engine.context, argv[i]), strlen(argv[i])));
                         JS_CallFunctionName(
                             engine.context, arguments, "push",
                             1, &pass, &rval);
@@ -126,17 +126,17 @@ initEngine (int argc, int optind, char *argv[])
 }
 
 JSBool
-executeScript (JSContext* context, const char* file)
+executeScript (JSContext* cx, const char* file)
 {
     JSBool    returnValue;
     jsval     rval;
-    JSObject* global = JS_GetGlobalObject(context);
+    JSObject* global = JS_GetGlobalObject(cx);
 
     JSScript* script;
-    char* sources = (char*) stripRemainder((char*) readFile(file));
+    char* sources = stripRemainder(cx, readFile(cx, file));
 
-    returnValue = JS_EvaluateScript(context, global, sources, strlen(sources), file, 0, &rval);
-    free(sources);
+    returnValue = JS_EvaluateScript(cx, global, sources, strlen(sources), file, 0, &rval);
+    JS_free(cx, sources);
     return returnValue;
 }
 

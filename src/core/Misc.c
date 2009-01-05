@@ -19,28 +19,21 @@
 #include "Misc.h"
 
 char*
-readLine (void)
+JS_strdup (JSContext* cx, const char* string)
 {
-    char* string  = malloc(256*sizeof(char));
-    size_t length = 0;
-    
-    do {
-        if ((length+1) % 256) { //definisci %
-            string = realloc(string, (length+256+1)*sizeof(char));
-        }
-        
-        string[length] = (char) getchar();
-    } while (string[(++length)-1] != '\n');
-    
-    string[length-1] = '\0';
-    string = realloc(string, length*sizeof(char));
-    
-    return string;
+    char* new = JS_malloc(cx, strlen(string)*sizeof(char)+1);
 
+    size_t i;
+    for (i = 0; i < strlen(string); i++) {
+        new[i] = string[i];
+    }
+    new[i] = '\0';
+
+    return new;
 }
 
 const char*
-readFile (const char* file)
+readFile (JSContext* cx, const char* file)
 {
     FILE*  fp     = fopen(file, "r");
     char*  text   = NULL;
@@ -52,11 +45,11 @@ readFile (const char* file)
     }
 
     while (1) {
-        text = realloc(text, length+=256);
+        text = JS_realloc(cx, text, length+=256);
         read = fread(text+(length-256), sizeof(char), 256, fp);
 
         if (read < 256) {
-            text = realloc(text, length-=(256-read));
+            text = JS_realloc(cx, text, length-=(256-read));
             break;
         }
     }
@@ -82,7 +75,7 @@ fileExists (const char* file)
 }
 
 const char*
-stripRemainder (char* text)
+stripRemainder (JSContext* cx, char* text)
 {
     char* stripped = NULL;
     short strip = 0;
@@ -97,9 +90,9 @@ stripRemainder (char* text)
     }
 
     if (strip) {
-        stripped = malloc((strlen(&text[position])+1)*sizeof(char));
+        stripped = JS_malloc(cx, (strlen(&text[position])+1)*sizeof(char));
         strcpy(stripped, &text[position]);
-        free(text);
+        JS_free(cx, text);
     }
     else {
         stripped = text;

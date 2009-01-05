@@ -19,3 +19,5 @@
 require("Prototype");
 
 require("String.js");
+
+new PeriodicalExecuter(function(){GC();}, 60);

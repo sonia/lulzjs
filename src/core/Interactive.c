@@ -19,7 +19,7 @@
 #include "Interactive.h"
 
 void
-Interactive_start (JSContext* cx, JSObject* global)
+Interactive (JSContext* cx, JSObject* global)
 {
     JSBool exit = JS_FALSE;
 
@@ -33,23 +33,23 @@ Interactive_start (JSContext* cx, JSObject* global)
     int startline;
     int lineno;
 
+    puts("lulzJS " __LJS_VERSION__ "\n");
+
     do {
         startline = lineno = 0;
         whole = NULL;
 
         do {
-            printf("%s", startline == lineno ? ">>> " : "");
-            
-            line = readLine();
+            line = readline(startline == lineno ? ">>> " : "");
 
             if (startline == lineno) {
-                if (strcmp(line, "quit") == 0) {
+                if (line == NULL || strcmp(line, "quit") == 0) {
                     puts("GTFO");
                     return;
                 }
             }
 
-            whole = realloc(whole, (whole==NULL?0:strlen(whole))+strlen(line)*sizeof(char)+1);
+            whole = JS_realloc(cx, whole, (whole==NULL?0:strlen(whole))+strlen(line)*sizeof(char)+1);
 
             if (lineno == 0) {
                 strcpy(whole, line);
@@ -58,9 +58,13 @@ Interactive_start (JSContext* cx, JSObject* global)
                 strcat(whole, line);
             }
 
-            free(line);
+            JS_free(cx, line);
             lineno++;
         } while (!JS_BufferIsCompilableUnit(cx, global, whole, strlen(whole)));
+
+        if (strlen(whole) > 0) {
+            add_history(whole);
+        }
 
         JS_ClearPendingException(cx);
         script = JS_CompileScript(cx, global, whole, strlen(whole), "lulzJS", startline);
@@ -76,7 +80,7 @@ Interactive_start (JSContext* cx, JSObject* global)
             JS_DestroyScript(cx, script);
         }
         
-        free(whole);
+        JS_free(cx, whole);
     } while (!exit);
 }
 

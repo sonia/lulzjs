@@ -24,8 +24,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "Misc.h"
+#include <readline/readline.h>
+#include <readline/history.h>
 
-void Interactive_start (JSContext* cx, JSObject* global);
+void Interactive (JSContext* cx, JSObject* global);
 
 #endif
