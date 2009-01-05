@@ -16,9 +16,67 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-void
-Interactive_start (void)
-{
+#include "Interactive.h"
 
+void
+Interactive_start (JSContext* cx, JSObject* global)
+{
+    JSBool exit = JS_FALSE;
+
+    JSScript* script;
+    jsval     result;
+    JSString* strResult;
+
+    char* whole;
+    char* line;
+
+    int startline;
+    int lineno;
+
+    do {
+        startline = lineno = 0;
+        whole = NULL;
+
+        do {
+            printf("%s", startline == lineno ? ">>> " : "");
+            
+            line = readLine();
+
+            if (startline == lineno) {
+                if (strcmp(line, "quit") == 0) {
+                    puts("GTFO");
+                    return;
+                }
+            }
+
+            whole = realloc(whole, (whole==NULL?0:strlen(whole))+strlen(line)*sizeof(char)+1);
+
+            if (lineno == 0) {
+                strcpy(whole, line);
+            }
+            else {
+                strcat(whole, line);
+            }
+
+            free(line);
+            lineno++;
+        } while (!JS_BufferIsCompilableUnit(cx, global, whole, strlen(whole)));
+
+        JS_ClearPendingException(cx);
+        script = JS_CompileScript(cx, global, whole, strlen(whole), "lulzJS", startline);
+
+        if (script) {
+            if (JS_ExecuteScript(cx, global, script, &result)) {
+                strResult = JS_ValueToString(cx, result);
+
+                if (strResult) {
+                    printf("<<< %s\n", JS_GetStringBytes(strResult));
+                }
+            }
+            JS_DestroyScript(cx, script);
+        }
+        
+        free(whole);
+    } while (!exit);
 }
 

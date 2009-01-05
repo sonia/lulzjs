@@ -44,7 +44,7 @@ main (int argc, char *argv[])
     while ((cmd = getopt(argc, argv, "v")) != -1) {
         switch (cmd) {
             case 'v':
-            puts("lulzJS " __LJS_VERSION__ "\n");
+            puts("lulzJS " __LJS_VERSION__);
             return 0;
             break;
         }
@@ -57,7 +57,7 @@ main (int argc, char *argv[])
     }
 
     if (argc == 1) {
-        Interactive_start();
+        Interactive_start(engine.context, engine.core);
     }
     else {
         if (!fileExists(argv[optind])) {
@@ -133,7 +133,7 @@ executeScript (JSContext* context, const char* file)
     JSObject* global = JS_GetGlobalObject(context);
 
     JSScript* script;
-    char* sources = stripRemainder((char*) readFile(file));
+    char* sources = (char*) stripRemainder((char*) readFile(file));
 
     returnValue = JS_EvaluateScript(context, global, sources, strlen(sources), file, 0, &rval);
     free(sources);

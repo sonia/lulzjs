@@ -23,8 +23,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+      char* readLine (void);
 const char* readFile (const char* file);
-short       fileExists (const char* file);
+      short fileExists (const char* file);
 const char* stripRemained (char* text);
 
 #endif

@@ -18,6 +18,27 @@
 
 #include "Misc.h"
 
+char*
+readLine (void)
+{
+    char* string  = malloc(256*sizeof(char));
+    size_t length = 0;
+    
+    do {
+        if ((length+1) % 256) { //definisci %
+            string = realloc(string, (length+256+1)*sizeof(char));
+        }
+        
+        string[length] = (char) getchar();
+    } while (string[(++length)-1] != '\n');
+    
+    string[length-1] = '\0';
+    string = realloc(string, length*sizeof(char));
+    
+    return string;
+
+}
+
 const char*
 readFile (const char* file)
 {
@@ -31,11 +52,11 @@ readFile (const char* file)
     }
 
     while (1) {
-        text = realloc(text, length+=512);
-        read = fread(text+(length-512), sizeof(char), 512, fp);
+        text = realloc(text, length+=256);
+        read = fread(text+(length-256), sizeof(char), 256, fp);
 
-        if (read < 512) {
-            text = realloc(text, length-=(512-read));
+        if (read < 256) {
+            text = realloc(text, length-=(256-read));
             break;
         }
     }

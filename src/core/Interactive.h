@@ -16,4 +16,16 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-void Interactive_start (void);
+#ifndef _INTERACTIVE_H
+#define _INTERACTIVE_H
+
+#include "jsapi.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "Misc.h"
+
+void Interactive_start (JSContext* cx, JSObject* global);
+
+#endif
