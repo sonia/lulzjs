@@ -1,5 +1,6 @@
 #! /usr/bin/ljs
 require("System/Console");
-require("System/IO/File");
 
-Console.writeLine(new File("test/lol.js", "r").readToEnd());
+Console.writeLine("Version: "+__VERSION__);
+Console.writeLine("Paths: "+__PATH__);
+

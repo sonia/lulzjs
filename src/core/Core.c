@@ -31,11 +31,10 @@ Core_initialize (JSContext *cx, const char* script)
 
         char* rootPath = __Core_getRootPath(cx, script);
         jsval paths[] = {
-            STRING_TO_JSVAL(JS_NewString(cx, JS_strdup(cx, "./"), strlen("./"))),
             STRING_TO_JSVAL(JS_NewString(cx, rootPath, strlen(rootPath))),
             STRING_TO_JSVAL(JS_NewString(cx, JS_strdup(cx, __LJS_LIBRARY_PATH__), strlen(__LJS_LIBRARY_PATH__)))
         };
-        JSObject* path = JS_NewArrayObject(cx, 3, paths);
+        JSObject* path = JS_NewArrayObject(cx, 2, paths);
         property       = OBJECT_TO_JSVAL(path);
         JS_SetProperty(cx, JS_GetGlobalObject(cx), "__PATH__", &property);
 
@@ -172,7 +171,24 @@ Core_ENV (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 char*
 __Core_getRootPath (JSContext* cx, const char* fileName)
 {
-    return JS_strdup(cx, "/");
+    char* path;
+
+    if (fileName == NULL) {
+        path = JS_strdup(cx, getenv("PWD"));
+    }
+    else if (fileName[0] == '/') {
+        path = dirname(JS_strdup(cx, fileName));
+    }
+    else {
+        path = JS_strdup(cx, getenv("PWD"));
+        path = JS_realloc(cx, path, (strlen(path)+2)*sizeof(char));
+        strcat(path, "/");
+        path = JS_realloc(cx, path, (strlen(path)+strlen(fileName)+1)*sizeof(char));
+        strcat(path, fileName);
+        path = dirname(path);
+    }
+
+    return path;
 }
 
 char*
@@ -201,11 +217,25 @@ __Core_getPath (JSContext* cx, const char* fileName)
 
     if (!fileExists(path)) {
         JS_free(cx, path);
-        path = JS_strdup(cx, __LJS_LIBRARY_PATH__);
-        path = JS_realloc(cx, path, (strlen(path)+2)*sizeof(char));
-        strcat(path, "/");
-        path = JS_realloc(cx, path, (strlen(path)+strlen(fileName)+1)*sizeof(char));
-        strcat(path, fileName);
+
+        jsval jsPath;
+        JS_GetProperty(cx, JS_GetGlobalObject(cx), "__PATH__", &jsPath);
+        JSObject* lPath = JSVAL_TO_OBJECT(jsPath);
+
+        jsuint length;
+        JS_GetArrayLength(cx, lPath, &length);
+
+        size_t i;
+        for (i = 0; i < length; i++) {
+            jsval pathFile;
+            JS_GetElement(cx, lPath, i, &pathFile);
+
+            path = JS_strdup(cx, JS_GetStringBytes(JSVAL_TO_STRING(pathFile)));
+            path = JS_realloc(cx, path, (strlen(path)+2)*sizeof(char));
+            strcat(path, "/");
+            path = JS_realloc(cx, path, (strlen(path)+strlen(fileName)+1)*sizeof(char));
+            strcat(path, fileName);
+        }
     }
 
     return path;
