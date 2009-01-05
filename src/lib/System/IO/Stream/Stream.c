@@ -72,9 +72,6 @@ Stream_initialize (JSContext* cx)
     // Default properties
     jsval property;
 
-//    property = INT_TO_JSVAL(EOF);
-//    JS_SetProperty(cx, parent, "EOF", property);
-
     return 1;
 }
 

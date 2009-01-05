@@ -18,21 +18,21 @@
 
 #include "File.h"
 
-short exec (JSContext* context) { return File_initialize(context); }
+short exec (JSContext* cx) { return File_initialize(cx); }
 
 short
-File_initialize (JSContext* context)
+File_initialize (JSContext* cx)
 {
     jsval jsParent;
-    JS_GetProperty(context, JS_GetGlobalObject(context), "System", &jsParent);
-    JS_GetProperty(context, JSVAL_TO_OBJECT(jsParent), "IO", &jsParent);
+    JS_GetProperty(cx, JS_GetGlobalObject(cx), "System", &jsParent);
+    JS_GetProperty(cx, JSVAL_TO_OBJECT(jsParent), "IO", &jsParent);
     JSObject* parent = JSVAL_TO_OBJECT(jsParent);
 
     jsval jsSuper;
-    JS_GetProperty(context, parent, "Stream", &jsSuper);
+    JS_GetProperty(cx, parent, "Stream", &jsSuper);
 
     JSObject* object = JS_InitClass(
-        context, parent, JSVAL_TO_OBJECT(jsSuper), &File_class,
+        cx, parent, JSVAL_TO_OBJECT(jsSuper), &File_class,
         File_constructor, 2, NULL, File_methods, NULL, File_static_methods
     );
 
@@ -42,13 +42,16 @@ File_initialize (JSContext* context)
     // Default properties
     jsval property;
 
+    property = INT_TO_JSVAL(EOF);
+    JS_SetProperty(cx, parent, "EOF", &property);
+
     return 1;
 }
 
 void
-File_finalize (JSContext* context, JSObject* object)
+File_finalize (JSContext* cx, JSObject* object)
 {
-    FileInformation* data = JS_GetPrivate(context, object);
+    FileInformation* data = JS_GetPrivate(cx, object);
 
     if (data) {
         free(data->path);
@@ -60,13 +63,13 @@ File_finalize (JSContext* context, JSObject* object)
 }
 
 JSBool
-File_constructor (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+File_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     const char* fileName;
     const char* mode;
 
-    if (argc != 2 || !JS_ConvertArguments(context, argc, argv, "ss", &fileName, &mode)) {
-        JS_ReportError(context, "File requires the path and the mode as arguments.");
+    if (argc != 2 || !JS_ConvertArguments(cx, argc, argv, "ss", &fileName, &mode)) {
+        JS_ReportError(cx, "File requires the path and the mode as arguments.");
         return JS_FALSE;
     }
 
@@ -75,10 +78,10 @@ File_constructor (JSContext* context, JSObject* object, uintN argc, jsval* argv,
     data->mode               = strdup(mode);
     data->stream             = (StreamInformation*) malloc(sizeof(StreamInformation));
     data->stream->descriptor = fopen(data->path, data->mode);
-    JS_SetPrivate(context, object, data);
+    JS_SetPrivate(cx, object, data);
 
     if (!data->stream->descriptor) {
-        JS_ReportError(context, "An error occurred while opening the file.");
+        JS_ReportError(cx, "An error occurred while opening the file.");
         return JS_FALSE;
     }
 
@@ -86,62 +89,60 @@ File_constructor (JSContext* context, JSObject* object, uintN argc, jsval* argv,
 }
 
 JSBool
-File_write (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+File_write (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     char* string;
 
-    if (argc != 1 || !JS_ConvertArguments(context, argc, argv, "s", &string)) {
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "s", &string)) {
         return JS_FALSE;
     }
 
-    FileInformation* data = JS_GetPrivate(context, object);
+    FileInformation* data = JS_GetPrivate(cx, object);
 
     *rval = INT_TO_JSVAL(fwrite(string, sizeof(*string), strlen(string), data->stream->descriptor));
     return JS_TRUE;
 }
 
 JSBool
-File_read (JSContext *context, JSObject *object, uintN argc, jsval *argv, jsval *rval)
+File_read (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval *rval)
 {
     const unsigned int size;
 
-    if (argc != 1 || !JS_ConvertArguments(context, argc, argv, "u", &size)) {
-        JS_ReportError(context, "Not enough parameters.");
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "u", &size)) {
+        JS_ReportError(cx, "Not enough parameters.");
         return JS_FALSE;
     }
 
-    FileInformation* data = JS_GetPrivate(context, object);
+    FileInformation* data = JS_GetPrivate(cx, object);
 
-    printf("%d\n", data->stream->descriptor);
     if (feof(data->stream->descriptor)) {
         *rval = JSVAL_FALSE;
         return JS_TRUE;
     }
-    printf("%d\n", data->stream->descriptor);
 
     char* string = malloc(size*sizeof(char));
     fread(string, sizeof(char), size, data->stream->descriptor);
 
-    *rval = STRING_TO_JSVAL(JS_NewString(context, string, size));
+    *rval = STRING_TO_JSVAL(JS_NewString(cx, string, size));
     return JS_TRUE;
 }
 
 JSBool
-File_isEnd (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+File_isEnd (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
-    FileInformation* data = JS_GetPrivate(context, object);
+    FileInformation* data = JS_GetPrivate(cx, object);
 
     *rval = BOOLEAN_TO_JSVAL(feof(data->stream->descriptor));
     return JS_TRUE;
 }
 
 JSBool
-File_static_exists (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+File_static_exists (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     const char* path;
 
-    if (argc != 1 || !JS_ConvertArguments(context, argc, argv, "s", &path)) {
-        JS_ReportError(context, "Not enough parameters.");
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "s", &path)) {
+        JS_ReportError(cx, "Not enough parameters.");
         return JS_FALSE;
     }
 
