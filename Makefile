@@ -92,5 +92,5 @@ uninstall:
 
 clean:
 	rm -f ljs;
-	find .|egrep "\.l?o"|xargs rm
+	find .|egrep "\.l?o"|xargs rm -f
 

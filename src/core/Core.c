@@ -216,8 +216,6 @@ __Core_getPath (JSContext* cx, const char* fileName)
     strcat(path, fileName);
 
     if (!fileExists(path)) {
-        JS_free(cx, path);
-
         jsval jsPath;
         JS_GetProperty(cx, JS_GetGlobalObject(cx), "__PATH__", &jsPath);
         JSObject* lPath = JSVAL_TO_OBJECT(jsPath);
@@ -227,6 +225,8 @@ __Core_getPath (JSContext* cx, const char* fileName)
 
         size_t i;
         for (i = 0; i < length; i++) {
+            JS_free(cx, path);
+
             jsval pathFile;
             JS_GetElement(cx, lPath, i, &pathFile);
 
@@ -235,6 +235,10 @@ __Core_getPath (JSContext* cx, const char* fileName)
             strcat(path, "/");
             path = JS_realloc(cx, path, (strlen(path)+strlen(fileName)+1)*sizeof(char));
             strcat(path, fileName);
+
+            if (fileExists(path)) {
+                break;
+            }
         }
     }
 
