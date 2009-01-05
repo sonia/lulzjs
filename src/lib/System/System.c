@@ -18,26 +18,26 @@
 
 #include "System.h"
 
-short exec (JSContext* context) { return System_initialize(context); }
+short exec (JSContext* cx) { return System_initialize(cx); }
 
 short
-System_initialize (JSContext* context)
+System_initialize (JSContext* cx)
 {
     JSObject* object = JS_DefineObject(
-        context, JS_GetGlobalObject(context),
+        cx, JS_GetGlobalObject(cx),
         System_class.name, &System_class, NULL, 
         JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE);
 
     if (!object)
         return 0;
 
-    JS_DefineFunctions(context, object, System_methods);
+    JS_DefineFunctions(cx, object, System_methods);
 
     return 1;
 }
 
 JSBool
-System_exec (JSContext *context, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+System_exec (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
     FILE* pipe;
     char* output  = NULL;
@@ -45,16 +45,16 @@ System_exec (JSContext *context, JSObject *obj, uintN argc, jsval *argv, jsval *
     size_t read   = 0;
     const char* command;
 
-    if (!JS_ConvertArguments(context, argc, argv, "s", &command)) {
+    if (!JS_ConvertArguments(cx, argc, argv, "s", &command)) {
         return JS_FALSE;
     }
     if (argc != 1) {
-        JS_ReportError(context, "exec needs 1 arguments");
+        JS_ReportError(cx, "exec needs 1 arguments");
         return JS_FALSE;
     }
 
     if ((pipe = popen(command, "r")) == NULL) {
-        JS_ReportError(context, "command not found");
+        JS_ReportError(cx, "command not found");
         return JS_FALSE;
     }
 
@@ -70,7 +70,7 @@ System_exec (JSContext *context, JSObject *obj, uintN argc, jsval *argv, jsval *
     output[length-1] = '\0';
     pclose(pipe);
 
-    *rval = STRING_TO_JSVAL(JS_NewString(context, output, length));
+    *rval = STRING_TO_JSVAL(JS_NewString(cx, output, length));
     return JS_TRUE;
 }
 

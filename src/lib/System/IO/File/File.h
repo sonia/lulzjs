@@ -24,9 +24,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern short exec (JSContext* context);
-extern short File_initialize (JSContext* context);
-extern void  File_finalize (JSContext* context, JSObject* object); 
+extern short exec (JSContext* cx);
+extern short File_initialize (JSContext* cx);
+extern void  File_finalize (JSContext* cx, JSObject* object); 
 
 static JSClass File_class = {
     "File", JSCLASS_HAS_PRIVATE,
@@ -36,13 +36,13 @@ static JSClass File_class = {
 
 #include "private.h"
 
-extern JSBool File_constructor (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool File_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
-extern JSBool File_read (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern JSBool File_write (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern JSBool File_isEnd (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool File_read (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool File_write (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool File_isEnd (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
-extern JSBool File_static_exists (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool File_static_exists (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 static JSFunctionSpec File_methods[] = {
     {"read",  File_read,  0, 0, 0},

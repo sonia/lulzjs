@@ -21,8 +21,8 @@
 
 #include "jsapi.h"
 
-extern short exec (JSContext* context);
-extern short IO_initialize (JSContext* context);
+extern short exec (JSContext* cx);
+extern short IO_initialize (JSContext* cx);
 
 static JSClass IO_class = {
     "IO", 0,

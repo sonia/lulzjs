@@ -18,24 +18,24 @@
 
 #include "IO.h"
 
-short exec (JSContext* context) { return IO_initialize(context); }
+short exec (JSContext* cx) { return IO_initialize(cx); }
 
 short
-IO_initialize (JSContext* context)
+IO_initialize (JSContext* cx)
 {
     jsval jsParent;
-    JS_GetProperty(context, JS_GetGlobalObject(context), "System", &jsParent);
+    JS_GetProperty(cx, JS_GetGlobalObject(cx), "System", &jsParent);
     JSObject* parent = JSVAL_TO_OBJECT(jsParent);
 
     JSObject* object = JS_DefineObject(
-        context, parent,
+        cx, parent,
         IO_class.name, &IO_class, NULL, 
         JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE);
 
     if (!object)
         return 0;
 
-    JS_DefineFunctions(context, object, IO_methods);
+    JS_DefineFunctions(cx, object, IO_methods);
 
     return 1;
 }

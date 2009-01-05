@@ -24,9 +24,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern short exec (JSContext* context);
-extern short Socket_initialize (JSContext* context);
-extern void  Socket_finalize (JSContext* context, JSObject* object); 
+extern short exec (JSContext* cx);
+extern short Socket_initialize (JSContext* cx);
+extern void  Socket_finalize (JSContext* cx, JSObject* object); 
 
 static JSClass Socket_class = {
     "Socket", JSCLASS_HAS_PRIVATE,
@@ -36,10 +36,10 @@ static JSClass Socket_class = {
 
 #include "private.h"
 
-extern JSBool Socket_constructor (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool Socket_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
-extern JSBool Socket_read (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern JSBool Socket_write (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool Socket_read (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool Socket_write (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 static JSFunctionSpec Socket_methods[] = {
     {"read",   Socket_read,   0, 0, 0},

@@ -18,21 +18,21 @@
 
 #include "Socket.h"
 
-short exec (JSContext* context) { return Socket_initialize(context); }
+short exec (JSContext* cx) { return Socket_initialize(cx); }
 
 short
-Socket_initialize (JSContext* context)
+Socket_initialize (JSContext* cx)
 {
     jsval jsParent;
-    JS_GetProperty(context, JS_GetGlobalObject(context), "System", &jsParent);
-    JS_GetProperty(context, JSVAL_TO_OBJECT(jsParent), "IO", &jsParent);
+    JS_GetProperty(cx, JS_GetGlobalObject(cx), "System", &jsParent);
+    JS_GetProperty(cx, JSVAL_TO_OBJECT(jsParent), "IO", &jsParent);
     JSObject* parent = JSVAL_TO_OBJECT(jsParent);
 
     jsval jsSuper;
-    JS_GetProperty(context, parent, "Stream", &jsSuper);
+    JS_GetProperty(cx, parent, "Stream", &jsSuper);
 
     JSObject* object = JS_InitClass(
-        context, parent, JSVAL_TO_OBJECT(jsSuper), &Socket_class,
+        cx, parent, JSVAL_TO_OBJECT(jsSuper), &Socket_class,
         Socket_constructor, 2, NULL, Socket_methods, NULL, Socket_static_methods
     );
 
@@ -46,9 +46,9 @@ Socket_initialize (JSContext* context)
 }
 
 void
-Socket_finalize (JSContext* context, JSObject* object)
+Socket_finalize (JSContext* cx, JSObject* object)
 {
-    SocketInformation* data = JS_GetPrivate(context, object);
+    SocketInformation* data = JS_GetPrivate(cx, object);
 
     if (data) {
 
@@ -57,47 +57,47 @@ Socket_finalize (JSContext* context, JSObject* object)
 }
 
 JSBool
-Socket_constructor (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+Socket_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     const char* fileName;
     const char* mode;
 
-    if (argc != 2 || !JS_ConvertArguments(context, argc, argv, "ss", &fileName, &mode)) {
-        JS_ReportError(context, "Socket requires the path and the mode as arguments.");
+    if (argc != 2 || !JS_ConvertArguments(cx, argc, argv, "ss", &fileName, &mode)) {
+        JS_ReportError(cx, "Socket requires the path and the mode as arguments.");
         return JS_FALSE;
     }
 
     SocketInformation* data = malloc(sizeof(SocketInformation));
-    JS_SetPrivate(context, object, data);
+    JS_SetPrivate(cx, object, data);
 
     return JS_TRUE;
 }
 
 JSBool
-Socket_write (JSContext* context, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+Socket_write (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     char* string;
 
-    if (argc != 1 || !JS_ConvertArguments(context, argc, argv, "s", &string)) {
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "s", &string)) {
         return JS_FALSE;
     }
 
-    SocketInformation* data = JS_GetPrivate(context, object);
+    SocketInformation* data = JS_GetPrivate(cx, object);
 
     return JS_TRUE;
 }
 
 JSBool
-Socket_read (JSContext *context, JSObject *object, uintN argc, jsval *argv, jsval *rval)
+Socket_read (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval *rval)
 {
     const unsigned int size;
 
-    if (argc != 1 || !JS_ConvertArguments(context, argc, argv, "u", &size)) {
-        JS_ReportError(context, "Not enough parameters.");
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "u", &size)) {
+        JS_ReportError(cx, "Not enough parameters.");
         return JS_FALSE;
     }
 
-    SocketInformation* data = JS_GetPrivate(context, object);
+    SocketInformation* data = JS_GetPrivate(cx, object);
 
     return JS_TRUE;
 }

@@ -21,8 +21,8 @@
 
 #include "jsapi.h"
 
-extern short exec (JSContext* context);
-extern short Net_initialize (JSContext* context);
+extern short exec (JSContext* cx);
+extern short Net_initialize (JSContext* cx);
 
 static JSClass Net_class = {
     "Net", 0,

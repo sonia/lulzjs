@@ -18,24 +18,24 @@
 
 #include "Net.h"
 
-short exec (JSContext* context) { return Net_initialize(context); }
+short exec (JSContext* cx) { return Net_initialize(cx); }
 
 short
-Net_initialize (JSContext* context)
+Net_initialize (JSContext* cx)
 {
     jsval jsParent;
-    JS_GetProperty(context, JS_GetGlobalObject(context), "System", &jsParent);
+    JS_GetProperty(cx, JS_GetGlobalObject(cx), "System", &jsParent);
     JSObject* parent = JSVAL_TO_OBJECT(jsParent);
 
     JSObject* object = JS_DefineObject(
-        context, parent,
+        cx, parent,
         Net_class.name, &Net_class, NULL, 
         JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE);
 
     if (!object)
         return 0;
 
-    JS_DefineFunctions(context, object, Net_methods);
+    JS_DefineFunctions(cx, object, Net_methods);
 
     return 1;
 }
