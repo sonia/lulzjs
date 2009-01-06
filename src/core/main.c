@@ -132,11 +132,10 @@ executeScript (JSContext* cx, const char* file)
     jsval     rval;
     JSObject* global = JS_GetGlobalObject(cx);
 
-    JSScript* script;
     char* sources = stripRemainder(cx, readFile(cx, file));
-
     returnValue = JS_EvaluateScript(cx, global, sources, strlen(sources), file, 0, &rval);
     JS_free(cx, sources);
+
     return returnValue;
 }
 

@@ -13,9 +13,9 @@ ifdef DEBUG
 CFLAGS += -DDEBUG -g
 endif
 
-CORE         = src/core/main.o src/core/Core.o src/core/Misc.o src/core/Interactive.c
+CORE         = src/core/main.o src/core/Core.o src/core/Misc.o src/core/Interactive.o src/core/Hash.o
 CORE_CFLAGS  = ${CFLAGS}
-CORE_LDFLAGS = ${LDFLAGS} -ldl -lreadline
+CORE_LDFLAGS = ${LDFLAGS} -ldl -lreadline -lpthread
 
 LIB_SYSTEM = \
 	src/lib/System/System.o \

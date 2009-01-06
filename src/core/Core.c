@@ -21,6 +21,11 @@
 JSObject*
 Core_initialize (JSContext *cx, const char* script)
 {
+    srand((unsigned) time(NULL));
+
+    timeouts  = Hash_create();
+    intervals = Hash_create();
+
     JSObject* object = JS_NewObject(cx, &Core_class, NULL, NULL);
 
     if (object && JS_InitStandardClasses(cx, object)) {
@@ -168,6 +173,165 @@ Core_ENV (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
     return JS_TRUE;
 }
 
+JSBool
+Core_setTimeout (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+    JSObject* expression;
+    unsigned int timespan;
+
+    if (argc != 2 || !JS_ConvertArguments(cx, argc, argv, "ou", &expression, &timespan)) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    Timer* timer      = JS_malloc(cx, sizeof(Timer));
+    timer->expression = expression;
+    timer->timespan   = timespan;
+    timer->cx         = cx;
+
+    pthread_t* thread = JS_malloc(cx, sizeof(pthread_t));
+
+    unsigned int nId;
+    char id[21];
+    do {
+        nId = ((rand()*rand()+1)*((unsigned)clock()+1)^1040);
+        memset(id, 0, 21);
+        sprintf(id, "%u", nId);
+    } while (Hash_exists(timeouts, id));
+
+    #ifdef DEBUG
+    printf("%s interval starting\n", id);
+    #endif
+
+    // XXX: This could cause some problems, probably needs a pthread_mutex_lock thingy
+    Hash_set(timeouts, id, thread);
+
+    pthread_create(thread, NULL, __Core_setTimeout, timer);
+    pthread_detach(*thread);
+
+    *rval = INT_TO_JSVAL(nId);
+    return JS_TRUE;
+}
+
+void*
+__Core_setTimeout (void* arg)
+{
+    Timer* timer = (Timer*) arg;
+
+    JSContext* cx    = timer->cx;
+    JSObject* global = JS_GetGlobalObject(cx);
+
+    usleep(timer->timespan*1000);
+
+    jsval rval;
+    if (JS_ObjectIsFunction(cx, timer->expression)) {
+        jsval function = OBJECT_TO_JSVAL(timer->expression);
+
+        JS_CallFunctionValue(cx, global, function, 0, NULL, &rval);
+    }
+    else {
+        char* sources = JS_GetStringBytes(JS_ValueToString(cx, OBJECT_TO_JSVAL(timer->expression)));
+        JS_EvaluateScript(cx, global, sources, strlen(sources), __Core_getScriptName(cx), 0, &rval);
+    }
+}
+
+JSBool
+Core_clearTimeout (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+    char* id;
+
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "s", &id)) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    pthread_cancel(*((pthread_t*)Hash_get(timeouts, id)));
+    Hash_delete(timeouts, id);
+
+    *rval = JSVAL_NULL;
+    return JS_TRUE;
+}
+
+JSBool
+Core_setInterval (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+    JSObject* expression;
+    unsigned int timespan;
+
+    if (argc != 2 || !JS_ConvertArguments(cx, argc, argv, "ou", &expression, &timespan)) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    Timer* timer      = JS_malloc(cx, sizeof(Timer));
+    timer->expression = expression;
+    timer->timespan   = timespan;
+    timer->cx         = cx;
+
+    unsigned int nId;
+    char id[21];
+    do {
+        nId = ((rand()*rand()+1)*((unsigned)clock()+1)^1040);
+        memset(id, 0, 21);
+        sprintf(id, "%u", nId);
+    } while (Hash_exists(intervals, id));
+
+    #ifdef DEBUG
+    printf("%s interval starting\n", id);
+    #endif
+
+    pthread_t* thread = JS_malloc(cx, sizeof(pthread_t));
+
+    // XXX: This could cause some problems, probably needs a pthread_mutex_lock thingy
+    Hash_set(intervals, id, thread);
+
+    pthread_create(thread, NULL, __Core_setInterval, timer);
+    pthread_detach(*thread);
+
+    *rval = INT_TO_JSVAL(nId);
+    return JS_TRUE;
+}
+
+void*
+__Core_setInterval (void* arg)
+{
+    Timer* timer = (Timer*) arg;
+    
+    JSContext* cx    = timer->cx;
+    JSObject* global = JS_GetGlobalObject(cx);
+
+    while (JS_TRUE) {
+        usleep(timer->timespan*1000);
+
+        jsval rval;
+        if (JS_ObjectIsFunction(cx, timer->expression)) {
+            jsval function = OBJECT_TO_JSVAL(timer->expression);
+            JS_CallFunctionValue(cx, global, function, 0, NULL, &rval);
+        }
+        else {
+            char* sources = JS_GetStringBytes(JS_ValueToString(cx, OBJECT_TO_JSVAL(timer->expression)));
+            JS_EvaluateScript(cx, global, sources, strlen(sources), __Core_getScriptName(cx), 0, &rval);
+        }
+    }
+}
+
+JSBool
+Core_clearInterval (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+    char* id;
+
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "s", &id)) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    pthread_cancel(*((pthread_t*)Hash_get(intervals, id)));
+    Hash_delete(intervals, id);
+
+    *rval = JSVAL_NULL;
+    return JS_TRUE;
+}
+
 char*
 __Core_getRootPath (JSContext* cx, const char* fileName)
 {
@@ -192,17 +356,24 @@ __Core_getRootPath (JSContext* cx, const char* fileName)
 }
 
 char*
-__Core_getPath (JSContext* cx, const char* fileName)
+__Core_getScriptName (JSContext* cx)
 {
     JSStackFrame* fp = NULL;
     fp = JS_FrameIterator(cx, &fp); fp = JS_FrameIterator(cx, &fp);
     JSScript* script = JS_GetFrameScript(cx, fp);
 
+    return JS_GetScriptFilename(cx, script);
+}
+
+char*
+__Core_getPath (JSContext* cx, const char* fileName)
+{
+
     /*
      * Getting the dirname of the file from the other file is included
      * then copying it and getting the path to the dir.
      */
-    char* from = JS_strdup(cx, JS_GetScriptFilename(cx, script));
+    char* from = JS_strdup(cx, __Core_getScriptName(cx));
     char* dir  = dirname(from);
     char* path = JS_malloc(cx, (strlen(dir)+2)*sizeof(char));
 

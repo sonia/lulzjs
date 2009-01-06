@@ -28,14 +28,6 @@ Object.extend(Function.prototype, (function() {
     }
   }
 
-  function bindAsEventListener(context) {
-    var __method = this, args = slice.call(arguments, 1);
-    return function(event) {
-      var a = update([event || window.event], args);
-      return __method.apply(context, a);
-    }
-  }
-
   function curry() {
     if (!arguments.length) return this;
     var __method = this, args = slice.call(arguments, 0);
@@ -48,7 +40,7 @@ Object.extend(Function.prototype, (function() {
   function delay(timeout) { 
     var __method = this, args = slice.call(arguments, 1);
     timeout = timeout * 1000
-    return window.setTimeout(function() {
+    return setTimeout(function() {
       return __method.apply(__method, args);
     }, timeout);
   }
