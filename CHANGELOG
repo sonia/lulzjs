@@ -16,6 +16,7 @@
 
     This is permitted because the interpreter after checking for a local file it checks for a
     program root dir file and then for a system library file.
+  - Implemented setTimeout, clearTimeout, setInterval and clearInterval.
 
 0.1.5:
   - Replaced the #include statement with 2 Core functions: include and require.
