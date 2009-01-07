@@ -62,9 +62,11 @@ Interactive (JSContext* cx, JSObject* global)
             lineno++;
         } while (!JS_BufferIsCompilableUnit(cx, global, whole, strlen(whole)));
 
-        if (strlen(whole) > 0) {
-            add_history(whole);
+        if (strlen(whole) == 0) {
+            continue;
         }
+
+        add_history(whole);
 
         JS_ClearPendingException(cx);
         script = JS_CompileScript(cx, global, whole, strlen(whole), "lulzJS", startline);

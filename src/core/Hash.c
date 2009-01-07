@@ -27,15 +27,11 @@ Pair_create (const char* key, void* value)
     return pair;
 }
 
-void*
+void
 Pair_destroy (Pair* pair)
 {
-    void* ret = pair->value;
-
     free(pair->key);
     free(pair);
-
-    return ret;
 }
 
 Hash*
@@ -49,9 +45,9 @@ Hash_create ()
 void
 Hash_destroy (Hash* hash)
 {
-    unsigned int length = Hash_length(hash);
+    size_t length = Hash_length(hash);
 
-    unsigned int i;
+    size_t i;
     for (i = 0; i < length; i++) {
         Pair_destroy(hash[i]);
     }
@@ -59,11 +55,13 @@ Hash_destroy (Hash* hash)
     free (hash);
 }
 
-unsigned int
+size_t
 Hash_exists (Hash* hash, const char* key)
 {
-    unsigned int i;
+    size_t i;
     for (i = 0; i < Hash_length(hash); i++) {
+        printf(":%d: %d\n", i, ((Pair*)hash[i])->key);
+        printf("> %s\n\n", ((Pair*)hash[i])->key);
         if (strcmp(((Pair*)hash[i])->key, key) == 0) {
             return i+1;
         }
@@ -72,10 +70,10 @@ Hash_exists (Hash* hash, const char* key)
     return HASH_FALSE;
 }
 
-unsigned int
+size_t
 Hash_length (Hash* hash)
 {
-    unsigned int i;
+    size_t i;
     for (i = 0; hash[i] != NULL; i++);
     return i;
 }
@@ -83,10 +81,10 @@ Hash_length (Hash* hash)
 void
 Hash_set (Hash* hash, const char* key, void* value)
 {
-    unsigned int result = Hash_exists(hash, key);
+    size_t result = Hash_exists(hash, key);
 
     if (result == HASH_FALSE) {
-        unsigned int length = Hash_length(hash);
+        size_t length = Hash_length(hash);
         hash = realloc(hash, (length+2)*sizeof(Hash));
         hash[length] = Pair_create(key, value);
         hash[length+1] = NULL;
@@ -97,9 +95,9 @@ Hash_set (Hash* hash, const char* key, void* value)
 }
 
 void
-Hash_setIndex (Hash* hash, unsigned int index, Pair* pair)
+Hash_setIndex (Hash* hash, size_t index, Pair* pair)
 {
-    unsigned int length = Hash_length(hash);
+    size_t length = Hash_length(hash);
 
     if (index >= length || index < 0) {
         return;
@@ -112,10 +110,10 @@ Hash_setIndex (Hash* hash, unsigned int index, Pair* pair)
 void
 Hash_setPair (Hash* hash, Pair* pair)
 {
-    unsigned int result = Hash_exists(hash, pair->key);
+    size_t result = Hash_exists(hash, pair->key);
 
     if (result == HASH_FALSE) {
-        unsigned int length = Hash_length(hash);
+        size_t length = Hash_length(hash);
         hash = realloc(hash, (length+2)*sizeof(Hash));
         hash[length] = pair;
         hash[length+1] = NULL;
@@ -128,7 +126,7 @@ Hash_setPair (Hash* hash, Pair* pair)
 void*
 Hash_get (Hash* hash, const char* key)
 {
-    unsigned int result = Hash_exists(hash, key);
+    size_t result = Hash_exists(hash, key);
 
     if (result == HASH_FALSE) {
         return NULL;
@@ -138,9 +136,9 @@ Hash_get (Hash* hash, const char* key)
 }
 
 void*
-Hash_getIndex (Hash* hash, unsigned int index)
+Hash_getIndex (Hash* hash, size_t index)
 {
-    unsigned int length = Hash_length(hash);
+    size_t length = Hash_length(hash);
 
     if (index >= length || index < 0) {
         return NULL;
@@ -152,7 +150,7 @@ Hash_getIndex (Hash* hash, unsigned int index)
 Pair*
 Hash_replace (Hash* hash, const char* key, void* value)
 {
-    unsigned int result = Hash_exists(hash, key);
+    size_t result = Hash_exists(hash, key);
 
     if (result == HASH_FALSE) {
         return NULL;
@@ -162,9 +160,9 @@ Hash_replace (Hash* hash, const char* key, void* value)
 }
 
 Pair*
-Hash_replaceIndex (Hash* hash, unsigned int index, Pair* pair)
+Hash_replaceIndex (Hash* hash, size_t index, Pair* pair)
 {
-    unsigned int length = Hash_length(hash);
+    size_t length = Hash_length(hash);
 
     if (index >= length || index < 0) {
         return NULL;
@@ -179,7 +177,7 @@ Hash_replaceIndex (Hash* hash, unsigned int index, Pair* pair)
 Pair*
 Hash_replacePair (Hash* hash, Pair* pair)
 {
-    unsigned int result = Hash_exists(hash, pair->key);
+    size_t result = Hash_exists(hash, pair->key);
 
     if (result == HASH_FALSE) {
         return NULL;
@@ -191,13 +189,13 @@ Hash_replacePair (Hash* hash, Pair* pair)
 void
 Hash_delete (Hash* hash, const char* key)
 {
-    Hash_deleteIndex(hash, Hash_exists(hash, key)-1);
+    Hash_deleteIndex(hash, Hash_exists(hash, key));
 }
 
 void
-Hash_deleteIndex (Hash* hash, unsigned int index)
+Hash_deleteIndex (Hash* hash, size_t index)
 {
-    unsigned int length = Hash_length(hash);
+    size_t length = Hash_length(hash);
 
     if (index >= length || index < 0) {
         return;
@@ -205,7 +203,7 @@ Hash_deleteIndex (Hash* hash, unsigned int index)
 
     Pair_destroy(hash[index]);
 
-    unsigned int i;
+    size_t i;
     for (i = index; i < length-1; i++) {
         hash[i] = hash[i+1];
     }
@@ -217,6 +215,6 @@ Hash_deleteIndex (Hash* hash, unsigned int index)
 void
 Hash_deletePair (Hash* hash, Pair* pair)
 {
-    Hash_deleteIndex(hash, Hash_exists(hash, pair->key)-1);
+    Hash_deleteIndex(hash, Hash_exists(hash, pair->key));
 }
 

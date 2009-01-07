@@ -23,6 +23,7 @@ Core_initialize (JSContext *cx, const char* script)
 {
     srand((unsigned) time(NULL));
 
+    // FIXME: Also these need to use garbage collection.
     timeouts  = Hash_create();
     intervals = Hash_create();
 
@@ -184,20 +185,21 @@ Core_setTimeout (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
         return JS_FALSE;
     }
 
+    uint32 nId;
+    char id[21];
+    do {
+        nId = (uint32) rand()*rand();
+        memset(id, 0, 21);
+        sprintf(id, "%d", nId);
+    } while (Hash_exists(timeouts, id) != HASH_FALSE);
+
     Timer* timer      = JS_malloc(cx, sizeof(Timer));
     timer->expression = expression;
     timer->timespan   = timespan;
     timer->cx         = cx;
+    timer->id         = JS_strdup(cx, id);
 
     pthread_t* thread = JS_malloc(cx, sizeof(pthread_t));
-
-    unsigned int nId;
-    char id[21];
-    do {
-        nId = (unsigned int) (rand()*rand()) % (INT_MAX*2);
-        memset(id, 0, 21);
-        sprintf(id, "%d", nId);
-    } while (Hash_exists(timeouts, id));
 
     #ifdef DEBUG
     printf("%s interval starting\n", id);
@@ -234,6 +236,14 @@ __Core_setTimeout (void* arg)
         char* sources = JS_GetStringBytes(JS_ValueToString(cx, OBJECT_TO_JSVAL(timer->expression)));
         JS_EvaluateScript(cx, global, sources, strlen(sources), "thread", 0, &rval);
     }
+
+    /*
+     * FIXME: This shit has to be fixed, we need locks etc.
+
+     jsval argv[] = {JS_NewString(cx, timer->id, strlen(timer->id))};
+     JS_CallFunctionName(cx, global, "clearTimeout", 1, argv, &rval);
+
+     */
 }
 
 JSBool
@@ -270,22 +280,23 @@ Core_setInterval (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *
         return JS_FALSE;
     }
 
-    Timer* timer      = JS_malloc(cx, sizeof(Timer));
-    timer->expression = expression;
-    timer->timespan   = timespan;
-    timer->cx         = cx;
-
-    unsigned int nId;
+    uint32 nId;
     char id[21];
     do {
-        nId = (unsigned int) (rand()*rand()) % (INT_MAX*2);
+        nId = (uint32) rand();
         memset(id, 0, 21);
         sprintf(id, "%d", nId);
-    } while (Hash_exists(intervals, id));
+    } while (Hash_exists(intervals, id) != HASH_FALSE);
 
     #ifdef DEBUG
     printf("%s interval starting\n", id);
     #endif
+
+    Timer* timer      = JS_malloc(cx, sizeof(Timer));
+    timer->expression = expression;
+    timer->timespan   = timespan;
+    timer->cx         = cx;
+    timer->id         = JS_strdup(cx, id);
 
     pthread_t* thread = JS_malloc(cx, sizeof(pthread_t));
 
@@ -369,7 +380,7 @@ __Core_getRootPath (JSContext* cx, const char* fileName)
     return path;
 }
 
-char*
+const char*
 __Core_getScriptName (JSContext* cx)
 {
     JSStackFrame* fp = NULL;

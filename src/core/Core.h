@@ -59,6 +59,7 @@ extern JSBool Core_GC (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 extern JSBool Core_ENV (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
 typedef struct {
+    char* id;
     JSContext* cx;
     JSObject* expression;
     unsigned int timespan;
@@ -72,7 +73,7 @@ extern JSBool Core_setInterval (JSContext* cx, JSObject *obj, uintN argc, jsval 
 void* __Core_setInterval (void* arg);
 extern JSBool Core_clearInterval (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
-char* __Core_getScriptName (JSContext* cx);
+const char* __Core_getScriptName (JSContext* cx);
 
 char*  __Core_getRootPath (JSContext* cx, const char* fileName);
 char*  __Core_getPath (JSContext* cx, const char* fileName);
