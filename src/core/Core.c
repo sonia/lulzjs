@@ -188,7 +188,7 @@ Core_setTimeout (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
     uint32 nId;
     char id[21];
     do {
-        nId = (uint32) rand()*rand();
+        nId = (uint32) rand();
         memset(id, 0, 21);
         sprintf(id, "%d", nId);
     } while (Hash_exists(timeouts, id) != HASH_FALSE);
@@ -206,7 +206,7 @@ Core_setTimeout (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
     #endif
 
     // XXX: This could cause some problems, probably needs a pthread_mutex_lock thingy
-    Hash_set(timeouts, id, thread);
+    Hash_set(&timeouts, id, thread);
 
     pthread_create(thread, NULL, __Core_setTimeout, timer);
     pthread_detach(*thread);
@@ -301,7 +301,7 @@ Core_setInterval (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *
     pthread_t* thread = JS_malloc(cx, sizeof(pthread_t));
 
     // XXX: This could cause some problems, probably needs a pthread_mutex_lock thingy
-    Hash_set(intervals, id, thread);
+    Hash_set(&intervals, id, thread);
 
     pthread_create(thread, NULL, __Core_setInterval, timer);
     pthread_detach(*thread);
