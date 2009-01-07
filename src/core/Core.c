@@ -257,8 +257,8 @@ Core_clearTimeout (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval 
     }
 
     if (Hash_exists(timeouts, id)) {
-        pthread_cancel(*((pthread_t*)Hash_get(timeouts, id)));
-        Hash_delete(timeouts, id);
+        pthread_cancel(*((pthread_t*)Hash_get(&timeouts, id)));
+        Hash_delete(&timeouts, id);
 
         *rval = JSVAL_TRUE;
     }
@@ -345,8 +345,8 @@ Core_clearInterval (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval
     }
 
     if (Hash_exists(intervals, id)) {
-        pthread_cancel(*((pthread_t*)Hash_get(intervals, id)));
-        Hash_delete(intervals, id);
+        pthread_cancel(*((pthread_t*)Hash_get(&intervals, id)));
+        Hash_delete(&intervals, id);
 
         *rval = JSVAL_TRUE;
     }

@@ -50,16 +50,15 @@ void Hash_set      (Hash** hash, const char* key, void* value);
 void Hash_setIndex (Hash** hash, unsigned int index, Pair* pair);
 void Hash_setPair  (Hash** hash, Pair* pair);
 
-void* Hash_get      (Hash* hash, const char* key);
-void* Hash_getIndex (Hash* hash, unsigned int index);
+void* Hash_get      (Hash** hash, const char* key);
+void* Hash_getIndex (Hash** hash, unsigned int index);
 
-Pair* Hash_replace      (Hash* hash, const char* key, void* value);
-Pair* Hash_replaceIndex (Hash* hash, unsigned int index, Pair* pair);
-Pair* Hash_replacePair  (Hash* hash, Pair* pair);
+Pair* Hash_replace      (Hash** hash, const char* key, void* value);
+Pair* Hash_replaceIndex (Hash** hash, unsigned int index, Pair* pair);
+Pair* Hash_replacePair  (Hash** hash, Pair* pair);
 
-void Hash_delete      (Hash* hash, const char* key);
-void Hash_deleteIndex (Hash* hash, unsigned int index);
-void Hash_deletePair  (Hash* hash, Pair* pair);
-
+void Hash_delete      (Hash** hash, const char* key);
+void Hash_deleteIndex (Hash** hash, unsigned int index);
+void Hash_deletePair  (Hash** hash, Pair* pair);
 
 #endif
