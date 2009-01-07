@@ -70,7 +70,6 @@ Object.extend(Function.prototype, (function() {
   return {
     argumentNames:       argumentNames,
     bind:                bind,
-    bindAsEventListener: bindAsEventListener,
     curry:               curry,
     delay:               delay,
     defer:               defer,

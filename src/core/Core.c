@@ -194,9 +194,9 @@ Core_setTimeout (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
     unsigned int nId;
     char id[21];
     do {
-        nId = ((rand()*rand()+1)*((unsigned)clock()+1)^1040);
+        nId = (unsigned int) (rand()*rand()) % (INT_MAX*2);
         memset(id, 0, 21);
-        sprintf(id, "%u", nId);
+        sprintf(id, "%d", nId);
     } while (Hash_exists(timeouts, id));
 
     #ifdef DEBUG
@@ -209,7 +209,7 @@ Core_setTimeout (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
     pthread_create(thread, NULL, __Core_setTimeout, timer);
     pthread_detach(*thread);
 
-    *rval = INT_TO_JSVAL(nId);
+    *rval = STRING_TO_JSVAL(JS_NewString(cx, JS_strdup(cx, id), strlen(id)));
     return JS_TRUE;
 }
 
@@ -222,6 +222,7 @@ __Core_setTimeout (void* arg)
     JSObject* global = JS_GetGlobalObject(cx);
 
     usleep(timer->timespan*1000);
+    pthread_testcancel();
 
     jsval rval;
     if (JS_ObjectIsFunction(cx, timer->expression)) {
@@ -231,7 +232,7 @@ __Core_setTimeout (void* arg)
     }
     else {
         char* sources = JS_GetStringBytes(JS_ValueToString(cx, OBJECT_TO_JSVAL(timer->expression)));
-        JS_EvaluateScript(cx, global, sources, strlen(sources), __Core_getScriptName(cx), 0, &rval);
+        JS_EvaluateScript(cx, global, sources, strlen(sources), "thread", 0, &rval);
     }
 }
 
@@ -245,10 +246,16 @@ Core_clearTimeout (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval 
         return JS_FALSE;
     }
 
-    pthread_cancel(*((pthread_t*)Hash_get(timeouts, id)));
-    Hash_delete(timeouts, id);
+    if (Hash_exists(timeouts, id)) {
+        pthread_cancel(*((pthread_t*)Hash_get(timeouts, id)));
+        Hash_delete(timeouts, id);
 
-    *rval = JSVAL_NULL;
+        *rval = JSVAL_TRUE;
+    }
+    else {
+        *rval = JSVAL_FALSE;
+    }
+
     return JS_TRUE;
 }
 
@@ -271,9 +278,9 @@ Core_setInterval (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *
     unsigned int nId;
     char id[21];
     do {
-        nId = ((rand()*rand()+1)*((unsigned)clock()+1)^1040);
+        nId = (unsigned int) (rand()*rand()) % (INT_MAX*2);
         memset(id, 0, 21);
-        sprintf(id, "%u", nId);
+        sprintf(id, "%d", nId);
     } while (Hash_exists(intervals, id));
 
     #ifdef DEBUG
@@ -288,7 +295,7 @@ Core_setInterval (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *
     pthread_create(thread, NULL, __Core_setInterval, timer);
     pthread_detach(*thread);
 
-    *rval = INT_TO_JSVAL(nId);
+    *rval = STRING_TO_JSVAL(JS_NewString(cx, JS_strdup(cx, id), strlen(id)));
     return JS_TRUE;
 }
 
@@ -302,6 +309,7 @@ __Core_setInterval (void* arg)
 
     while (JS_TRUE) {
         usleep(timer->timespan*1000);
+        pthread_testcancel();
 
         jsval rval;
         if (JS_ObjectIsFunction(cx, timer->expression)) {
@@ -310,7 +318,7 @@ __Core_setInterval (void* arg)
         }
         else {
             char* sources = JS_GetStringBytes(JS_ValueToString(cx, OBJECT_TO_JSVAL(timer->expression)));
-            JS_EvaluateScript(cx, global, sources, strlen(sources), __Core_getScriptName(cx), 0, &rval);
+            JS_EvaluateScript(cx, global, sources, strlen(sources), "thread", 0, &rval);
         }
     }
 }
@@ -325,10 +333,16 @@ Core_clearInterval (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval
         return JS_FALSE;
     }
 
-    pthread_cancel(*((pthread_t*)Hash_get(intervals, id)));
-    Hash_delete(intervals, id);
+    if (Hash_exists(intervals, id)) {
+        pthread_cancel(*((pthread_t*)Hash_get(intervals, id)));
+        Hash_delete(intervals, id);
 
-    *rval = JSVAL_NULL;
+        *rval = JSVAL_TRUE;
+    }
+    else {
+        *rval = JSVAL_FALSE;
+    }
+
     return JS_TRUE;
 }
 
@@ -420,6 +434,10 @@ JSBool
 __Core_include (JSContext* cx, const char* path)
 {
     if (__Core_isIncluded(path)) {
+        #ifdef DEBUG
+        printf("(already included) %s\n", path);
+        #endif
+
         return JS_TRUE;
     }
 
@@ -443,9 +461,9 @@ __Core_include (JSContext* cx, const char* path)
 
         while (JS_IsExceptionPending(cx)) {
             JS_ReportPendingException(cx);
-        }
 
-        return result;
+            return JS_FALSE;
+        }
     }
     else if (strstr(path, ".so") == &path[strlen(path)-3]) {
         #ifdef DEBUG
