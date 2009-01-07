@@ -15,7 +15,7 @@ endif
 
 CORE         = src/core/main.o src/core/Core.o src/core/Misc.o src/core/Interactive.o src/core/Hash.o
 CORE_CFLAGS  = ${CFLAGS}
-CORE_LDFLAGS = ${LDFLAGS} -ldl -lreadline -lpthread
+CORE_LDFLAGS = ${LDFLAGS} -ldl -lreadline -lncurses -lpthread
 
 LIB_SYSTEM = \
 	src/lib/System/System.o \
