@@ -1,8 +1,10 @@
 #! /usr/bin/ljs
-require("System");
+require("System/Console");
+
+Console.writeLine("Program.name: "+this.name);
 
 arguments.each(function (value, index) {
-    System.Console.writeLine("{index}: {value}".format({
+    Console.writeLine("{index}: {value}".format({
         index: index,
         value: value
     }));

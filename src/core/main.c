@@ -47,19 +47,21 @@ int
 main (int argc, char *argv[])
 {
     char* oneliner = NULL;
-
     int stopAt = argc;
-    int i;
-    char prev = '\0';
-    for (i = 1; i < argc; i++) {
-        if (argv[i][0] != '-' && prev != 'e') {
-            stopAt = i;
-            break;
-        }
 
-        if (strlen(argv[i]) >= 2) {
-            if (argv[i][0] == '-') {
-                prev = argv[i][1];
+    if (argc > 1) {
+        int i;
+        char prev = '\0';
+        for (i = 1; i < argc; i++) {
+            if (argv[i][0] != '-' && prev != 'e') {
+                stopAt = i;
+                break;
+            }
+
+            if (strlen(argv[i]) >= 2) {
+                if (argv[i][0] == '-') {
+                    prev = argv[i][1];
+                }
             }
         }
     }
@@ -82,7 +84,7 @@ main (int argc, char *argv[])
         }
     }
 
-    Engine engine = initEngine(argc, optind, argv);
+    Engine engine = initEngine(argc, (argc == 1 ? 0 : optind), argv);
     if (engine.error) {
         fprintf(stderr, "An error occurred while initializing the system.\n");
         return 1;
@@ -131,7 +133,7 @@ reportError (JSContext *cx, const char *message, JSErrorReport *report)
 }
 
 Engine
-initEngine (int argc, int optind, char *argv[])
+initEngine (int argc, int offset, char *argv[])
 {
     Engine engine;
     engine.error = JS_TRUE;
@@ -141,20 +143,20 @@ initEngine (int argc, int optind, char *argv[])
             JS_SetOptions(engine.context, JSOPTION_VAROBJFIX);
             JS_SetErrorReporter(engine.context, reportError);
 
-            if (engine.core = Core_initialize(engine.context, argv[optind])) {
-                jsval pass;
+            if (engine.core = Core_initialize(engine.context, argv[offset])) {
+                jsval property;
                 JSObject* arguments = JS_NewArrayObject(engine.context, 0, NULL);
-                pass = OBJECT_TO_JSVAL(arguments);
-                JS_SetProperty(engine.context, engine.core, "arguments", &pass);
+                property = OBJECT_TO_JSVAL(arguments);
+                JS_SetProperty(engine.context, engine.core, "arguments", &property);
 
-                if (optind < argc) {
+                if (offset+1 < argc) {
                     int i;
                     jsval rval;
-                    for (i = optind; i < argc; i++) {
-                        pass = STRING_TO_JSVAL(JS_NewString(engine.context, JS_strdup(engine.context, argv[i]), strlen(argv[i])));
+                    for (i = offset+1; i < argc; i++) {
+                        property = STRING_TO_JSVAL(JS_NewString(engine.context, JS_strdup(engine.context, argv[i]), strlen(argv[i])));
                         JS_CallFunctionName(
                             engine.context, arguments, "push",
-                            1, &pass, &rval);
+                            1, &property, &rval);
                     }
                 }
 

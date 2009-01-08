@@ -42,10 +42,16 @@ Core_initialize (JSContext *cx, const char* script)
         };
         JSObject* path = JS_NewArrayObject(cx, 2, paths);
         property       = OBJECT_TO_JSVAL(path);
-        JS_SetProperty(cx, JS_GetGlobalObject(cx), "__PATH__", &property);
+        JS_SetProperty(cx, object, "__PATH__", &property);
 
         property = STRING_TO_JSVAL(JS_NewString(cx, JS_strdup(cx, __LJS_VERSION__), strlen(__LJS_VERSION__)));
-        JS_SetProperty(cx, JS_GetGlobalObject(cx), "__VERSION__", &property);
+        JS_SetProperty(cx, object, "__VERSION__", &property);
+
+        property = OBJECT_TO_JSVAL(object);
+        JS_SetProperty(cx, object, "Program", &property);
+
+        property = STRING_TO_JSVAL(JS_NewString(cx, JS_strdup(cx, script), strlen(script)));
+        JS_SetProperty(cx, object, "name", &property);
 
         if (__Core_include(cx, __LJS_LIBRARY_PATH__ "/Core"))
             return object;
