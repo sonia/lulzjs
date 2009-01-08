@@ -4,3 +4,7 @@ To make the project just execute
 make SPIDERMONKEY_HEADERS=/path/to/jsapi SPIDERMONKEY_LIB=liblinking
 
 (liblinking is like -ljs or -lmozjs)
+
+Gentoo: emerge spidermonkey
+Debian/Ubuntu: apt-get install libmozjs-dev libreadline5-dev
+Arch Linux: Arch has a header file missing, i hope it will be fixed
