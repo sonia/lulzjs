@@ -26,9 +26,14 @@ static JSClass System_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
 };
 
-extern short  exec (JSContext* cx);
 extern short  System_initialize (JSContext* cx);
-extern JSBool System_write (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+
+/*
+ * Execute a system command and return the output.
+ *
+ * RETURN:
+ *     String    The command output.
+ */
 extern JSBool System_exec (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
 static JSFunctionSpec System_methods[] = {

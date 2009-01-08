@@ -26,14 +26,14 @@ System_initialize (JSContext* cx)
     JSObject* object = JS_DefineObject(
         cx, JS_GetGlobalObject(cx),
         System_class.name, &System_class, NULL, 
-        JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE);
+        JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
+    );
 
-    if (!object)
-        return 0;
+    if (object) {
+        JS_DefineFunctions(cx, object, System_methods);
+    }
 
-    JS_DefineFunctions(cx, object, System_methods);
-
-    return 1;
+    return 0;
 }
 
 JSBool
@@ -45,19 +45,17 @@ System_exec (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
     size_t read   = 0;
     const char* command;
 
-    if (!JS_ConvertArguments(cx, argc, argv, "s", &command)) {
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "s", &command)) {
+        JS_ReportError(cx, "Not enough parameters.");
         return JS_FALSE;
     }
-    if (argc != 1) {
-        JS_ReportError(cx, "exec needs 1 arguments");
-        return JS_FALSE;
-    }
-
+    
     if ((pipe = popen(command, "r")) == NULL) {
-        JS_ReportError(cx, "command not found");
+        JS_ReportError(cx, "Command not found");
         return JS_FALSE;
     }
 
+    // Read untill the pipe is empty.
     while (1) {
         output = JS_realloc(cx, output, length+=512);
         read   = fread(output+(length-512), sizeof(char), 512, pipe);

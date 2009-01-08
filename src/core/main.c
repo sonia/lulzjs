@@ -84,7 +84,7 @@ main (int argc, char *argv[])
         }
     }
 
-    Engine engine = initEngine(argc, (argc == 1 ? 0 : optind), argv);
+    Engine engine = initEngine(argc, (argc == 1 || oneliner ? 0 : optind), argv);
     if (engine.error) {
         fprintf(stderr, "An error occurred while initializing the system.\n");
         return 1;
@@ -94,15 +94,14 @@ main (int argc, char *argv[])
         Interactive(engine.context, engine.core);
     }
     else if (oneliner) {
-        jsval rval = JSVAL_NULL;
+        jsval rval;
 
         if (!JS_EvaluateScript(engine.context, engine.core, oneliner, strlen(oneliner), "lulzJS", 0, &rval)) {
             JS_ReportPendingException(engine.context);
             return EXIT_FAILURE;
         }
-        else {
-            printf("%s\n", JS_GetStringBytes(JS_ValueToString(engine.context, rval)));
-        }
+
+        printf("%s\n", JS_GetStringBytes(JS_ValueToString(engine.context, rval)));
     }
     else {
         if (!fileExists(argv[optind])) {
