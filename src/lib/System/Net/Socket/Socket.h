@@ -20,6 +20,7 @@
 #define _SYSTEM_NET_SOCKET_H
 
 #include "jsapi.h"
+#include "jsregexp.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,17 +53,25 @@ extern JSBool Socket_connect (JSContext* cx, JSObject* object, uintN argc, jsval
 extern JSBool Socket_send (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 extern JSBool Socket_receive (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
-JSBool __Socket_isIPv4 (JSContext* cx, const char* host);
+extern JSBool Socket_static_getHostByName (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+const char* __Socket_getHostByName (JSContext* cx, const char* host);
+
+extern JSBool Socket_static_isIPv4 (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool __Socket_isIPv4 (const char* host);
 
 static JSFunctionSpec Socket_methods[] = {
     {"connect", Socket_connect, 0, 0, 0},
 
     {"send",    Socket_send,    0, 0, 0},
     {"receive", Socket_receive, 0, 0, 0},
+
     {NULL}
 };
 
 static JSFunctionSpec Socket_static_methods[] = {
+    {"getHostByName", Socket_static_getHostByName, 0, 0, 0},
+    {"isIPv4",        Socket_static_isIPv4,        0, 0, 0},
+
     {NULL}
 };
 

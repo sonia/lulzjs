@@ -25,6 +25,7 @@
         readLine: function () {
             var str = "";
             var ch;
+
             while ((ch = this.read(1)) != '\n') {
                 str += ch;
             }

@@ -78,6 +78,7 @@ libsystem_install:
 #######
 	cp -f src/lib/System/Net/Socket/init.js		${LJS_LIBDIR}/System/Net/Socket/init.js
 	cp -f src/lib/System/Net/Socket/Socket.o	${LJS_LIBDIR}/System/Net/Socket/Socket.so
+	cp -f src/lib/System/Net/Socket/Socket.js	${LJS_LIBDIR}/System/Net/Socket/Socket.js
 
 libsystem_uninstall:
 

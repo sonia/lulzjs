@@ -20,6 +20,6 @@ require("System/System.so");
 
 require("Net.so");
 
-require("Socket/Socket.so");
+require(["Socket/Socket.so", "Socket/Socket.js"]);
 
 var Net = System.Net;

@@ -24,6 +24,7 @@ typedef struct {
     unsigned family;
     unsigned type;
     unsigned protocol;
+    JSBool connected;
 } SocketInformation;
 
 #endif

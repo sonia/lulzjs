@@ -77,10 +77,11 @@ Socket_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     SocketInformation* data = JS_malloc(cx, sizeof(SocketInformation));
     JS_SetPrivate(cx, object, data);
 
-    data->socket   = socket(family, type, protocol);
-    data->family   = family;
-    data->type     = type;
-    data->protocol = protocol;
+    data->socket    = socket(family, type, protocol);
+    data->family    = family;
+    data->type      = type;
+    data->protocol  = protocol;
+    data->connected = JS_FALSE;
 
     return JS_TRUE;
 }
@@ -102,7 +103,7 @@ Socket_connect (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval*
     char* host;
     int port;
 
-    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "si", &host)) {
+    if (argc < 2 || !JS_ConvertArguments(cx, argc, argv, "si", &host, &port)) {
         JS_ReportError(cx, "Not enough parameters.");
         return JS_FALSE;
     }
@@ -111,31 +112,31 @@ Socket_connect (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval*
 
     struct sockaddr_in addrin;
 
-    addrin.sin_family      = data->family;
-    addrin.sin_port        = htons((u_short)port);
+    addrin.sin_family = data->family;
+    addrin.sin_port   = htons((u_short)port);
 
-    if (__Socket_isIPv4(cx, host)) {
+    if (__Socket_isIPv4(host)) {
         addrin.sin_addr.s_addr = inet_addr(host);
     }
     else {
-        struct hostent* gethost;
+        const char* ip = __Socket_getHostByName(cx, host);
 
-        gethost = gethostbyname(host);
-
-        if (!gethost) {
+        if (!ip) {
             *rval = JSVAL_FALSE;
             return JS_TRUE;
         }
 
-        addrin.sin_addr.s_addr = inet_addr(gethost->h_name);
+        addrin.sin_addr.s_addr = inet_addr(ip);
     }
 
-    if (connect(data->socket, (struct sockaddr*) &addrin, sizeof(struct sockaddr)) < 0) {
-        *rval = JSVAL_FALSE;
+    if (connect(data->socket, (struct sockaddr*) &addrin, sizeof(addrin)) < 0) {
+        data->connected = JS_FALSE;
     }
     else {
-        *rval = JSVAL_TRUE;
+        data->connected = JS_TRUE;
     }
+
+    *rval = BOOLEAN_TO_JSVAL(data->connected);
 
     return JS_TRUE;
 }
@@ -144,13 +145,26 @@ JSBool
 Socket_send (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     char* string;
+    unsigned flags = 0;
 
-    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "s", &string)) {
+    if (argc < 1) {
         JS_ReportError(cx, "Not enough parameters.");
         return JS_FALSE;
     }
 
+    switch (argc) {
+        case 2: flags  = JSVAL_TO_INT(argv[1]);
+        case 1: string = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+    }
+
     SocketInformation* data = JS_GetPrivate(cx, object);
+
+    if (!data->connected) {
+        JS_ReportError(cx, "The socket isn't connected.");
+        return JS_FALSE;
+    }
+    
+    *rval = INT_TO_JSVAL(send(data->socket, string, strlen(string), flags));
 
     return JS_TRUE;
 }
@@ -158,45 +172,118 @@ Socket_send (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
 JSBool
 Socket_receive (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval *rval)
 {
-    const unsigned size;
+    unsigned size;
+    unsigned flags = 0;
 
-    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "u", &size)) {
+    if (argc < 1) {
         JS_ReportError(cx, "Not enough parameters.");
         return JS_FALSE;
     }
 
+    switch (argc) {
+        case 2: flags = JSVAL_TO_INT(argv[1]);
+        case 1: size  = JSVAL_TO_INT(argv[0]);
+    }
+
     SocketInformation* data = JS_GetPrivate(cx, object);
+
+    if (!data->connected) {
+        JS_ReportError(cx, "The socket isn't connected.");
+        return JS_FALSE;
+    }
+
+    char* string = JS_malloc(cx, size*sizeof(char)+1);
+    recv(data->socket, string, size, flags);
+    string[size] = '\0';
+
+    *rval = STRING_TO_JSVAL(JS_NewString(cx, string, strlen(string)));
 
     return JS_TRUE;
 }
 
 JSBool
-__Socket_isIPv4 (JSContext* cx, const char* host)
+Socket_static_getHostByName (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
-    char* ip     = "^(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)$";
-    JSObject* re = JS_NewRegExpObject(cx, ip, strlen(ip), 0);
+    const char* host;
 
-    jsval jsMatches;
-    JS_ExecuteRegExp(cx, re, JS_NewString(cx, JS_strdup(cx, host), strlen(host)), JS_FALSE, &jsMatches);
-
-    if (JSVAL_IS_NULL(jsMatches)) {
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "s", &host)) {
+        JS_ReportError(cx, "Not enough paramters.");
         return JS_FALSE;
     }
 
-    JSObject* matches = JSVAL_TO_OBJECT(jsMatches);
+    char* rHost = (char*) __Socket_getHostByName(cx, host);
 
-    jsuint length;
-    JS_GetArrayLength(cx, matches, &length);
+    if (!rHost) {
+        JS_ReportError(cx, "An error occurred while resolving the hostname.");
+        return JS_FALSE;
+    }
 
-    jsuint i;
-    for (i = 0; i < length; i++) {
-        jsval jsClass;
-        JS_GetElement(cx, matches, i, &jsClass);
+    *rval = STRING_TO_JSVAL(JS_NewString(cx, rHost, strlen(rHost)));
+    return JS_TRUE;
+}
 
-        int class = JSVAL_TO_INT(jsClass);
-        if (class < 0 || class > 255) {
+const char*
+__Socket_getHostByName (JSContext* cx, const char* host)
+{
+    struct hostent* hp = gethostbyname(host);
+    struct in_addr in;
+
+    if (!hp) {
+        return NULL;
+    }
+
+    char* ip = JS_malloc(cx, INET6_ADDRSTRLEN*sizeof(char));
+    int offset = 0;
+
+    offset += sprintf(&ip[offset], "%u.", (unsigned char) hp->h_addr[0]);
+    offset += sprintf((ip+offset), "%u.", (unsigned char) hp->h_addr[1]);
+    offset += sprintf((ip+offset), "%u.", (unsigned char) hp->h_addr[2]);
+    offset += sprintf((ip+offset), "%u",  (unsigned char) hp->h_addr[3]);
+
+    return ip;
+}
+
+JSBool
+Socket_static_isIPv4 (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    const char* host;
+
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "s", &host)) {
+        JS_ReportError(cx, "Not enough paramters.");
+        return JS_FALSE;
+    }
+
+    *rval = BOOLEAN_TO_JSVAL(__Socket_isIPv4(host));
+    return JS_TRUE;
+}
+
+JSBool
+__Socket_isIPv4 (const char* host)
+{
+    char class[4];
+    memset(class, 0, 4);
+
+    short number;
+    size_t i;
+    for (i = 0, number = 0; i < strlen(host); i++) {
+        if (number == 3) {
             return JS_FALSE;
         }
+
+        if (host[i] == '.') {
+            number = 0;
+            
+            short part = atoi(class);
+
+            if (part < 0 || part > 255) {
+                return JS_FALSE;
+            }
+
+            memset(class, 0, 4);
+        }
+
+        class[number] = host[i];
+        number++;
     }
 
     return JS_TRUE;

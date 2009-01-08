@@ -16,22 +16,52 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-// Global library object
-require("System.so")
+require("System/Console");
 
-// Input output modules
-require("IO/IO.so")
+Object.extend(System.Net.Socket.prototype, {
+    sendLine: function (str, options) {
+        options = options || {};
+        var flags = options["flags"] || 0;
 
-require("IO/Stream/Stream.so")
-require("IO/Stream/Stream.js")
+        if (str.constructor.toString().indexOf("Array") == -1) {
+            str = new Array(str);
+        }
 
-require("IO/File/File.so")
-require("IO/File/File.js")
+        for (var i = 0; i < str.length; i++) {
+            this.send(str[i]+"\r\n", flags)
+        }
+    },
 
-// Networking modules
-require("Net/Net.so");
+    receiveLine: function (options) {
+        options = options || {};
 
-require(["Net/Socket/Socket.so", "Net/Socket/Socket.js"]);
+        var times     = options.times     || 1;
+        var separator = options.separator || "\r\n";
+        var flags     = options.flags     || 0;
 
-// Console module
-require("Console/Console.js")
+        var str = "";
+        for (var i = 0; i < times; i++) {
+            var position = 0;
+            var ch;
+            while (ch = this.receive(1, flags)) {
+                if (ch == separator[position]) {
+                    position++;
+
+                    if (position == separator.length)
+                        break;
+
+                    continue;
+                }
+                else if (position > 0) {
+                    str += separator.substr(0, position+1);
+                    position = 0;
+                }
+
+                str += ch;
+            }
+        }
+
+        return str;
+    }
+});
+
