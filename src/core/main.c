@@ -18,13 +18,19 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <getopt.h>
 #include "jsapi.h"
 
 #include "Misc.h"
 #include "Core.h"
 
 #include "Interactive.h"
+
+char USAGE[] = {
+    "lulzJS " __LJS_VERSION__ "\n"
+    "\n"
+    "    -v        Get lulzJS version.\n"
+    "    -h        Read this help.\n"
+};
 
 typedef struct {
     JSBool     error;
@@ -40,13 +46,39 @@ JSBool executeScript (JSContext* cx, const char* file);
 int
 main (int argc, char *argv[])
 {
+    char* oneliner = NULL;
+
+    int stopAt = argc;
+    int i;
+    char prev = '\0';
+    for (i = 1; i < argc; i++) {
+        if (argv[i][0] != '-' && prev != 'e') {
+            stopAt = i;
+            break;
+        }
+
+        if (strlen(argv[i]) >= 2) {
+            if (argv[i][0] == '-') {
+                prev = argv[i][1];
+            }
+        }
+    }
+
     int cmd;
-    while ((cmd = getopt(argc, argv, "v")) != -1) {
+    while ((cmd = getopt(stopAt, argv, "vVhe:")) != -1) {
         switch (cmd) {
-            case 'v':
+            case 'V':
             puts("lulzJS " __LJS_VERSION__);
             return 0;
             break;
+
+            case 'e':
+            oneliner = optarg;
+            break;
+
+            default:
+            puts(USAGE);
+            return 0;
         }
     }
 
@@ -58,6 +90,16 @@ main (int argc, char *argv[])
 
     if (argc == 1) {
         Interactive(engine.context, engine.core);
+    }
+    else if (oneliner) {
+        jsval rval = JSVAL_NULL;
+
+        if (!JS_EvaluateScript(engine.context, engine.core, oneliner, strlen(oneliner), "lulzJS", 0, &rval)) {
+            JS_ReportPendingException(engine.context);
+        }
+        else {
+            printf("%s\n", JS_GetStringBytes(JS_ValueToString(engine.context, rval)));
+        }
     }
     else {
         if (!fileExists(argv[optind])) {
