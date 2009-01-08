@@ -25,6 +25,14 @@ System.Console = {
         System.IO.STDOUT.writeLine(text);
     },
 
+    error: function (text) {
+        System.IO.STDERR.write(text);
+    },
+
+    errorLine: function (text) {
+        System.IO.STDERR.writeLine(text);
+    },
+
     read: function (size) {
         size = size || 1;
 
