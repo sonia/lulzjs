@@ -130,7 +130,7 @@ Socket_connect (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval*
         addrin.sin_addr.s_addr = inet_addr(gethost->h_name);
     }
 
-    if (connect(data->socket, (struct sockaddr*) &addrin, sizeof(sockaddr)) < 0) {
+    if (connect(data->socket, (struct sockaddr*) &addrin, sizeof(struct sockaddr)) < 0) {
         *rval = JSVAL_FALSE;
     }
     else {
