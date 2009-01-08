@@ -94,6 +94,7 @@ File_write (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rva
     char* string;
 
     if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "s", &string)) {
+        JS_ReportError(cx, "Not enough parameters.");
         return JS_FALSE;
     }
 

@@ -70,7 +70,7 @@ Core_include (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
         jsuint length;
         JS_GetArrayLength(cx, files, &length);
 
-        size_t i;
+        jsuint i;
         for (i = 0; i < length; i++) {
             jsval fileName;
             JS_GetElement(cx, files, i, &fileName);

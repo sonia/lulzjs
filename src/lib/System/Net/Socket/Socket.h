@@ -20,9 +20,18 @@
 #define _SYSTEM_NET_SOCKET_H
 
 #include "jsapi.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <fcntl.h>
+#include <errno.h>
 
 extern short exec (JSContext* cx);
 extern short Socket_initialize (JSContext* cx);
@@ -38,12 +47,18 @@ static JSClass Socket_class = {
 
 extern JSBool Socket_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
-extern JSBool Socket_read (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern JSBool Socket_write (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool Socket_connect (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
+extern JSBool Socket_send (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool Socket_receive (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
+JSBool __Socket_isIPv4 (JSContext* cx, const char* host);
 
 static JSFunctionSpec Socket_methods[] = {
-    {"read",   Socket_read,   0, 0, 0},
-    {"write",  Socket_write,  0, 0, 0},
+    {"connect", Socket_connect, 0, 0, 0},
+
+    {"send",    Socket_send,    0, 0, 0},
+    {"receive", Socket_receive, 0, 0, 0},
     {NULL}
 };
 
