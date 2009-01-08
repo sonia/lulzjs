@@ -193,7 +193,12 @@ Socket_receive (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval 
     }
 
     char* string = JS_malloc(cx, size*sizeof(char)+1);
-    recv(data->socket, string, size, flags);
+
+    unsigned offset = 0;
+
+    while (offset != size) {
+        offset += recv(data->socket, (string+offset), size, flags);
+    }
     string[size] = '\0';
 
     *rval = STRING_TO_JSVAL(JS_NewString(cx, string, strlen(string)));

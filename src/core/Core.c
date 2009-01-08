@@ -158,6 +158,31 @@ Core_GC (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 }
 
 JSBool
+Core_die (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+    char* error;
+
+    if (argc) {
+        error = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+    }
+    else {
+        error = JS_strdup(cx, "Program died.");
+    }
+
+
+    JS_ReportError(cx, error);
+    JS_ReportPendingException(cx);
+
+    exit(EXIT_FAILURE);
+}
+
+JSBool
+Core_exit (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+    exit(EXIT_SUCCESS);
+}
+
+JSBool
 Core_ENV (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
     char* env;
@@ -399,7 +424,6 @@ __Core_getScriptName (JSContext* cx)
 char*
 __Core_getPath (JSContext* cx, const char* fileName)
 {
-
     /*
      * Getting the dirname of the file from the other file is included
      * then copying it and getting the path to the dir.

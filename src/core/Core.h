@@ -56,6 +56,9 @@ extern JSBool Core_include (JSContext *cx, JSObject *obj, uintN argc, jsval *arg
 extern JSBool Core_require (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 extern JSBool Core_GC (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
+extern JSBool Core_die (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+extern JSBool Core_exit (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+
 extern JSBool Core_ENV (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
 typedef struct {
@@ -84,6 +87,9 @@ static JSFunctionSpec Core_methods[] = {
     {"include", Core_include, 0, 0, 0},
     {"require", Core_require, 0, 0, 0},
     {"GC",      Core_GC,      0, 0, 0},
+
+    {"die",  Core_die,  0, 0, 0},
+    {"exit", Core_exit, 0, 0, 0},
 
     {"setTimeout",   Core_setTimeout,   0, 0, 0},
     {"clearTimeout", Core_clearTimeout, 0, 0, 0},

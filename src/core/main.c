@@ -98,6 +98,7 @@ main (int argc, char *argv[])
 
         if (!JS_EvaluateScript(engine.context, engine.core, oneliner, strlen(oneliner), "lulzJS", 0, &rval)) {
             JS_ReportPendingException(engine.context);
+            return EXIT_FAILURE;
         }
         else {
             printf("%s\n", JS_GetStringBytes(JS_ValueToString(engine.context, rval)));
@@ -106,12 +107,12 @@ main (int argc, char *argv[])
     else {
         if (!fileExists(argv[optind])) {
             fprintf(stderr, "The file doesnt't exist.\n");
-            return 1;
+            return EXIT_FAILURE;
         }
 
         if (!executeScript(engine.context, argv[optind])) {
             fprintf(stderr, "The script couldn't be executed.\n");
-            return 1;
+            return EXIT_FAILURE;
         }
     }
     
@@ -119,7 +120,7 @@ main (int argc, char *argv[])
     JS_DestroyRuntime(engine.runtime);
     JS_ShutDown();
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 void

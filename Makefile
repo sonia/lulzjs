@@ -55,6 +55,7 @@ libsystem_install:
 	mkdir -p ${LJS_LIBDIR}/System/IO/File
 	mkdir -p ${LJS_LIBDIR}/System/Net
 	mkdir -p ${LJS_LIBDIR}/System/Net/Socket
+	mkdir -p ${LJS_LIBDIR}/System/Net/Ports
 ########
 	cp -f src/lib/System/init.js				${LJS_LIBDIR}/System/init.js
 	cp -f src/lib/System/System.o				${LJS_LIBDIR}/System/System.so
@@ -79,6 +80,9 @@ libsystem_install:
 	cp -f src/lib/System/Net/Socket/init.js		${LJS_LIBDIR}/System/Net/Socket/init.js
 	cp -f src/lib/System/Net/Socket/Socket.o	${LJS_LIBDIR}/System/Net/Socket/Socket.so
 	cp -f src/lib/System/Net/Socket/Socket.js	${LJS_LIBDIR}/System/Net/Socket/Socket.js
+#######
+	cp -f src/lib/System/Net/Ports/init.js		${LJS_LIBDIR}/System/Net/Ports/init.js
+	cp -f src/lib/System/Net/Ports/Ports.js      ${LJS_LIBDIR}/System/Net/Ports/Ports.js
 
 libsystem_uninstall:
 
