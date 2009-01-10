@@ -31,6 +31,8 @@ System_initialize (JSContext* cx)
 
     if (object) {
         JS_DefineFunctions(cx, object, System_methods);
+
+        return 1;
     }
 
     return 0;

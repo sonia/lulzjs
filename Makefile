@@ -1,4 +1,4 @@
-VERSION = 0.1.6
+VERSION = 0.1.7
 SPIDERMONKEY_HEADERS = /usr/include/js
 SPIDERMONKEY_LIB     = -ljs
 
@@ -7,7 +7,7 @@ CXX        = g++
 BINDIR     = /usr/bin
 LJS_LIBDIR = /usr/lib/lulzjs
 CFLAGS     = -DXP_UNIX -D__LJS_LIBRARY_PATH__="\"${LJS_LIBDIR}\"" -D__LJS_VERSION__="\"${VERSION}\"" -I${SPIDERMONKEY_HEADERS}
-LDFLAGS    = ${SPIDERMONKEY_LIB} 
+LDFLAGS    = ${SPIDERMONKEY_LIB} -lpthread
 
 ifdef DEBUG
 CFLAGS += -DDEBUG -g
@@ -15,10 +15,11 @@ endif
 
 CORE         = src/core/main.o src/core/Core.o src/core/Misc.o src/core/Interactive.o src/core/Hash.o
 CORE_CFLAGS  = ${CFLAGS}
-CORE_LDFLAGS = ${LDFLAGS} -ldl -lreadline -lncurses -lpthread
+CORE_LDFLAGS = ${LDFLAGS} -ldl -lreadline -lncurses
 
 LIB_SYSTEM = \
 	src/lib/System/System.o \
+	src/lib/System/Thread/Thread.o \
 	src/lib/System/IO/IO.o src/lib/System/IO/Stream/Stream.o src/lib/System/IO/File/File.o \
 	src/lib/System/Net/Net.o src/lib/System/Net/Socket/Socket.o
 
@@ -49,6 +50,7 @@ $(LIB_SYSTEM): $(LIB_SYSTEM:.o=.c)
 libsystem_install:
 	mkdir -p ${LJS_LIBDIR}
 	mkdir -p ${LJS_LIBDIR}/System
+	mkdir -p ${LJS_LIBDIR}/System/Thread
 	mkdir -p ${LJS_LIBDIR}/System/Console
 	mkdir -p ${LJS_LIBDIR}/System/IO
 	mkdir -p ${LJS_LIBDIR}/System/IO/Stream
@@ -59,6 +61,9 @@ libsystem_install:
 ########
 	cp -f src/lib/System/init.js				${LJS_LIBDIR}/System/init.js
 	cp -f src/lib/System/System.o				${LJS_LIBDIR}/System/System.so
+########
+	cp -f src/lib/System/Thread/init.js			${LJS_LIBDIR}/System/Thread/init.js
+	cp -f src/lib/System/Thread/Thread.o		${LJS_LIBDIR}/System/Thread/Thread.so
 ########
 	cp -f src/lib/System/IO/init.js				${LJS_LIBDIR}/System/IO/init.js
 	cp -f src/lib/System/IO/IO.o				${LJS_LIBDIR}/System/IO/IO.so

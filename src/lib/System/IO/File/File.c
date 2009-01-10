@@ -48,20 +48,6 @@ File_initialize (JSContext* cx)
     return 1;
 }
 
-void
-File_finalize (JSContext* cx, JSObject* object)
-{
-    FileInformation* data = JS_GetPrivate(cx, object);
-
-    if (data) {
-        JS_free(cx, data->path);
-        JS_free(cx, data->mode);
-        fclose(data->stream->descriptor);
-        JS_free(cx, data->stream);
-        JS_free(cx, data);
-    }
-}
-
 JSBool
 File_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
@@ -86,6 +72,20 @@ File_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsva
     }
 
     return JS_TRUE;
+}
+
+void
+File_finalize (JSContext* cx, JSObject* object)
+{
+    FileInformation* data = JS_GetPrivate(cx, object);
+
+    if (data) {
+        JS_free(cx, data->path);
+        JS_free(cx, data->mode);
+        fclose(data->stream->descriptor);
+        JS_free(cx, data->stream);
+        JS_free(cx, data);
+    }
 }
 
 JSBool

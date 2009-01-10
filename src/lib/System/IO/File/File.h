@@ -26,6 +26,8 @@
 
 extern short exec (JSContext* cx);
 extern short File_initialize (JSContext* cx);
+
+extern JSBool File_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 extern void  File_finalize (JSContext* cx, JSObject* object); 
 
 static JSClass File_class = {
@@ -35,8 +37,6 @@ static JSClass File_class = {
 };
 
 #include "private.h"
-
-extern JSBool File_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 extern JSBool File_read (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 extern JSBool File_write (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);

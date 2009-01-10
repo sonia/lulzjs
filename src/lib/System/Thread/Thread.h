@@ -16,31 +16,52 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
+#ifndef _SYSTEM_THREAD_H
+#define _SYSTEM_THREAD_H
+
 #include "jsapi.h"
+
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-static JSClass System_class = {
-    "System", 0,
+extern short exec (JSContext* cx);
+extern short Thread_initialize (JSContext* cx);
+
+extern JSBool Thread_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern void   Thread_finalize (JSContext* cx, JSObject* object); 
+
+static JSClass Thread_class = {
+    "Thread", JSCLASS_HAS_PRIVATE,
     JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, Thread_finalize
 };
 
-extern short  System_initialize (JSContext* cx);
+typedef struct {
+    JSContext* cx;
+    uintN argc;
+    jsval* argv;
+} ThreadData;
 
-/*
- * Execute a system command and return the output.
- *
- * PARAMS:
- *      command (String) > The string that the system will execute.
- *
- * RETURN:
- *     String < The command's output.
- */
-extern JSBool System_exec (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+extern JSBool Thread_start (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+void* __Thread_start (void* arg);
 
-static JSFunctionSpec System_methods[] = {
-    {"exec", System_exec, 0, 0, 0},
+extern JSBool Thread_stop (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
+extern JSBool Thread_static_cancel (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool Thread_static_cancelPoint (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
+static JSFunctionSpec Thread_methods[] = {
+    {"start", Thread_start, 0, 0, 0},
+    {"stop",  Thread_stop,  0, 0, 0},
     {NULL}
 };
 
+static JSFunctionSpec Thread_static_methods[] = {
+    {"cancel",      Thread_static_cancel,      0, 0, 0},
+    {"cancelPoint", Thread_static_cancelPoint, 0, 0, 0},
+    {NULL}
+};
+
+#endif

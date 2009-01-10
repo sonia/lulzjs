@@ -49,6 +49,7 @@ main (int argc, char *argv[])
     char* oneliner = NULL;
     int stopAt = argc;
 
+    // Fix the options to let a script get all the real arguments.
     if (argc > 1) {
         int i;
         char prev = '\0';
@@ -83,7 +84,12 @@ main (int argc, char *argv[])
             return 0;
         }
     }
-
+    
+    /*
+     * Engine initialization, 0 because the Program.name will be ljs or the name
+     * of the interpreter on the system, if instead it's executing a file it passes
+     * optind because it will be the script name.
+     */
     Engine engine = initEngine(argc, (argc == 1 || oneliner ? 0 : optind), argv);
     if (engine.error) {
         fprintf(stderr, "An error occurred while initializing the system.\n");
@@ -96,7 +102,7 @@ main (int argc, char *argv[])
     else if (oneliner) {
         jsval rval;
 
-        if (!JS_EvaluateScript(engine.context, engine.core, oneliner, strlen(oneliner), "lulzJS", 0, &rval)) {
+        if (!JS_EvaluateScript(engine.context, engine.core, oneliner, strlen(oneliner), "lulzJS", 1, &rval)) {
             JS_ReportPendingException(engine.context);
             return EXIT_FAILURE;
         }
@@ -126,7 +132,7 @@ void
 reportError (JSContext *cx, const char *message, JSErrorReport *report)
 {
     fprintf(stderr, "%s:%u > %s\n",
-        report->filename ? report->filename : "<no filename>",
+        report->filename ? report->filename : "lulzJS",
         (unsigned int) report->lineno,
         message
     );
@@ -177,7 +183,7 @@ executeScript (JSContext* cx, const char* file)
     JSObject* global = JS_GetGlobalObject(cx);
 
     char* sources = stripRemainder(cx, readFile(cx, file));
-    returnValue = JS_EvaluateScript(cx, global, sources, strlen(sources), file, 0, &rval);
+    returnValue = JS_EvaluateScript(cx, global, sources, strlen(sources), file, 1, &rval);
     JS_free(cx, sources);
 
     return returnValue;

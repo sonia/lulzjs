@@ -265,7 +265,7 @@ __Core_setTimeout (void* arg)
     }
     else {
         char* sources = JS_GetStringBytes(JS_ValueToString(cx, OBJECT_TO_JSVAL(timer->expression)));
-        JS_EvaluateScript(cx, global, sources, strlen(sources), "thread", 0, &rval);
+        JS_EvaluateScript(cx, global, sources, strlen(sources), "thread", 1, &rval);
     }
 
     /*
@@ -360,7 +360,7 @@ __Core_setInterval (void* arg)
         }
         else {
             char* sources = JS_GetStringBytes(JS_ValueToString(cx, OBJECT_TO_JSVAL(timer->expression)));
-            JS_EvaluateScript(cx, global, sources, strlen(sources), "thread", 0, &rval);
+            JS_EvaluateScript(cx, global, sources, strlen(sources), "thread", 1, &rval);
         }
     }
 }
@@ -497,7 +497,7 @@ __Core_include (JSContext* cx, const char* path)
         jsval rval;
         char* sources = stripRemainder(cx, readFile(cx, path));
 
-        JSBool result = (short) JS_EvaluateScript(cx, JS_GetGlobalObject(cx), sources, strlen(sources), path, 0, &rval);
+        JSBool result = (short) JS_EvaluateScript(cx, JS_GetGlobalObject(cx), sources, strlen(sources), path, 1, &rval);
         JS_free(cx, sources);
 
         while (JS_IsExceptionPending(cx)) {

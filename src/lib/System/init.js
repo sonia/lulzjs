@@ -19,6 +19,9 @@
 // Global library object
 require("System.so")
 
+// Thread object
+require("Thread/Thread.so");
+
 // Input output modules
 require("IO/IO.so")
 

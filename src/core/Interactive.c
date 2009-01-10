@@ -75,7 +75,7 @@ Interactive (JSContext* cx, JSObject* global)
             if (JS_ExecuteScript(cx, global, script, &result)) {
                 strResult = JS_ValueToString(cx, result);
 
-                if (strResult) {
+                if (strResult && strcmp(strResult, "undefined") != 0) {
                     printf("<<< %s\n", JS_GetStringBytes(strResult));
                 }
             }

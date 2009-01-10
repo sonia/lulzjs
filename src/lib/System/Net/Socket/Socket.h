@@ -36,6 +36,8 @@
 
 extern short exec (JSContext* cx);
 extern short Socket_initialize (JSContext* cx);
+
+extern JSBool Socket_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 extern void  Socket_finalize (JSContext* cx, JSObject* object); 
 
 static JSClass Socket_class = {
@@ -45,8 +47,6 @@ static JSClass Socket_class = {
 };
 
 #include "private.h"
-
-extern JSBool Socket_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 extern JSBool Socket_connect (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 

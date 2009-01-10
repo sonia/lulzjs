@@ -16,31 +16,8 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-#include "jsapi.h"
-#include <stdio.h>
-#include <stdlib.h>
+require("System/System.so");
 
-static JSClass System_class = {
-    "System", 0,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
-};
+require("Thread.so");
 
-extern short  System_initialize (JSContext* cx);
-
-/*
- * Execute a system command and return the output.
- *
- * PARAMS:
- *      command (String) > The string that the system will execute.
- *
- * RETURN:
- *     String < The command's output.
- */
-extern JSBool System_exec (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-
-static JSFunctionSpec System_methods[] = {
-    {"exec", System_exec, 0, 0, 0},
-    {NULL}
-};
-
+var Thread = System.Thread;

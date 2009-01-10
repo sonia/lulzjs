@@ -68,12 +68,54 @@ typedef struct {
     unsigned int timespan;
 } Timer;
 
+/**
+ * Start a thread to execute a function or eval a text after the given timespan.
+ *
+ * PARAMS:
+ *     expression (Function | String) > Function or string to be executed/eval'd.
+ *     timespan   (Number)            > Timespan in milliseconds.
+ *
+ * RETURN:
+ *      Number < The timeout's id.
+ */
 extern JSBool Core_setTimeout (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 void* __Core_setTimeout (void* arg);
+
+/**
+ * Clear the timeout before it executes the expression.
+ *
+ * PARAMS:
+ *      id (Number) > The timeout's id to be removed.
+ *
+ * RETURN:
+ *      Bool < True if it removed the timeout succesfully.
+ *             False if it failed.
+ */
 extern JSBool Core_clearTimeout (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
+/**
+ * Start a thread to execute a function or eval a text every time the interval passed.
+ *
+ * PARAMS:
+ *     expression (Function | String) > Function or string to be executed/eval'd.
+ *     timespan   (Number)            > Interval which the expression is executed.
+ *
+ * RETURN:
+ *      Number < The interval's id.
+ */
 extern JSBool Core_setInterval (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 void* __Core_setInterval (void* arg);
+
+/**
+ * Stop the interval.
+ *
+ * PARAMS:
+ *      id (Number) > The interval's id to be removed.
+ *
+ * RETURN:
+ *      Bool < True if it removed the interval succesfully.
+ *             False if it failed.
+ */
 extern JSBool Core_clearInterval (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
 const char* __Core_getScriptName (JSContext* cx);
