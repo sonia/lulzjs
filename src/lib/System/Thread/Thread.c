@@ -38,9 +38,6 @@ Thread_initialize (JSContext* cx)
     // Default properties
     jsval property;
 
-    property = INT_TO_JSVAL(EOF);
-    JS_SetProperty(cx, parent, "EOF", &property);
-
     return 1;
 }
 
@@ -78,9 +75,10 @@ Thread_start (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* r
     pthread_t* thread = JS_GetPrivate(cx, object);
 
     ThreadData* data = JS_malloc(cx, sizeof(ThreadData));
-    data->cx   = cx;
-    data->argc = argc;
-    data->argv = argv;
+    data->cx     = cx;
+    data->object = object;
+    data->argc   = argc;
+    data->argv   = argv;
 
     pthread_create(thread, NULL, __Thread_start, data);
     pthread_detach(*thread);
@@ -93,12 +91,17 @@ void*
 __Thread_start (void* arg)
 {
     ThreadData* data = (ThreadData*) arg;
-    JSContext* cx   = data->cx;
-    uintN      argc = data->argc;
-    jsval*     argv = data->argv;
+    JSContext* cx     = data->cx;
+    JSObject*  object = data->object;
+    uintN      argc   = data->argc;
+    jsval*     argv   = data->argv;
     JS_free(cx, data);
-    
-    // :O BOH
+
+    jsval jsClass;
+    JS_GetProperty(cx, object, "__class", &jsClass);
+    JSObject* class = JSVAL_TO_OBJECT(jsClass);
+
+    // I think i'll die before i manage to do this .(
 }
 
 JSBool

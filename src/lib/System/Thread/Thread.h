@@ -40,6 +40,7 @@ static JSClass Thread_class = {
 
 typedef struct {
     JSContext* cx;
+    JSObject* object;
     uintN argc;
     jsval* argv;
 } ThreadData;
