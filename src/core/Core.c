@@ -18,6 +18,9 @@
 
 #include "Core.h"
 
+extern Hash* timeouts;
+extern Hash* intervals;
+
 JSObject*
 Core_initialize (JSContext *cx, const char* script)
 {
@@ -233,10 +236,10 @@ Core_setTimeout (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
     pthread_t* thread = JS_malloc(cx, sizeof(pthread_t));
 
     #ifdef DEBUG
-    printf("%s interval starting\n", id);
+    printf("%s timeout starting\n", id);
     #endif
 
-    // XXX: This could cause some problems, probably needs a pthread_mutex_lock thingy
+    // FIXME: This could cause some problems, probably needs a pthread_mutex_lock thingy
     Hash_set(&timeouts, id, thread);
 
     pthread_create(thread, NULL, __Core_setTimeout, timer);
@@ -250,7 +253,6 @@ void*
 __Core_setTimeout (void* arg)
 {
     Timer* timer = (Timer*) arg;
-
     JSContext* cx    = timer->cx;
     JSObject* global = JS_GetGlobalObject(cx);
 
@@ -259,22 +261,14 @@ __Core_setTimeout (void* arg)
 
     jsval rval;
     if (JS_ObjectIsFunction(cx, timer->expression)) {
-        jsval function = OBJECT_TO_JSVAL(timer->expression);
-
-        JS_CallFunctionValue(cx, global, function, 0, NULL, &rval);
+        JS_CallFunctionValue(cx, global, OBJECT_TO_JSVAL(timer->expression), 0, NULL, &rval);
     }
     else {
         char* sources = JS_GetStringBytes(JS_ValueToString(cx, OBJECT_TO_JSVAL(timer->expression)));
         JS_EvaluateScript(cx, global, sources, strlen(sources), "thread", 1, &rval);
     }
 
-    /*
-     * FIXME: This shit has to be fixed, we need locks etc.
-
-     jsval argv[] = {JS_NewString(cx, timer->id, strlen(timer->id))};
-     JS_CallFunctionName(cx, global, "clearTimeout", 1, argv, &rval);
-
-     */
+    Hash_delete(&timeouts, timer->id);
 }
 
 JSBool
@@ -331,7 +325,7 @@ Core_setInterval (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
     pthread_t* thread = JS_malloc(cx, sizeof(pthread_t));
 
-    // XXX: This could cause some problems, probably needs a pthread_mutex_lock thingy
+    // FIXME: This could cause some problems, probably needs a pthread_mutex_lock thingy
     Hash_set(&intervals, id, thread);
 
     pthread_create(thread, NULL, __Core_setInterval, timer);

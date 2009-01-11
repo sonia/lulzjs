@@ -49,8 +49,8 @@ Thread_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
 {
     JSObject* class;
 
-    if (argc != 2 || !JS_ConvertArguments(cx, argc, argv, "o", &class)) {
-        JS_ReportError(cx, "Thread requires the path and the mode as arguments.");
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "o", &class)) {
+        JS_ReportError(cx, "Thread needs an object to transform into a thread.");
         return JS_FALSE;
     }
 
@@ -82,7 +82,7 @@ Thread_start (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* r
     data->argc = argc;
     data->argv = argv;
 
-    pthread_create(*thread, NULL, __Thread_start, data);
+    pthread_create(thread, NULL, __Thread_start, data);
     pthread_detach(*thread);
 
     *rval = JSVAL_NULL;

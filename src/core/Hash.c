@@ -105,6 +105,9 @@ Hash_exists (Hash* hash, const char* key)
 unsigned int
 Hash_length (Hash* hash)
 {
+    if (!hash)
+        return 0;
+
     unsigned int i;
     for (i = 0; hash[i] != NULL; i++);
     return i;

@@ -21,7 +21,10 @@
 #include "jsapi.h"
 
 #include "Misc.h"
+
 #include "Core.h"
+extern Hash* timeouts;
+extern Hash* intervals;
 
 #include "Interactive.h"
 
@@ -120,6 +123,8 @@ main (int argc, char *argv[])
             return EXIT_FAILURE;
         }
     }
+
+    while (Hash_length(timeouts) || Hash_length(intervals) != 1);
     
     JS_DestroyContext(engine.context);
     JS_DestroyRuntime(engine.runtime);
