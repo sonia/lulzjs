@@ -97,13 +97,12 @@ __Thread_start (void* arg)
     jsval property;
     JS_GetProperty(cx, object, "__going", &property);
 
-    if (JSVAL_TO_BOOLEAN(property)) {
+    if (!JSVAL_IS_VOID(property) && JSVAL_TO_BOOLEAN(property)) {
         return NULL;
     }
 
-    property = JSVAL_TRUE;
-    JS_SetProperty(cx, object, "__going", &property);
-    JS_SetProperty(cx, object, "__started", &property);
+    property = JSVAL_TRUE; JS_SetProperty(cx, object, "__going", &property);
+    property = JSVAL_TRUE; JS_SetProperty(cx, object, "__started", &property);
 
     // Get the __class that's the actual class to construct.
     JS_GetProperty(cx, object, "__class", &property);

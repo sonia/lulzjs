@@ -242,6 +242,25 @@ Core_exec (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
     return JS_TRUE;
 }
 
+JSBool
+Core_sleep (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+    jsdouble time;
+
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "d", &time)) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    if (time < 1) {
+        usleep(time * 1000000);
+    }
+    else {
+        sleep(time);
+    }
+
+    return JS_TRUE;
+}
 
 char*
 __Core_getRootPath (JSContext* cx, const char* fileName)

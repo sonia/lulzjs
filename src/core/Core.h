@@ -22,11 +22,9 @@
 #include "jsapi.h"
 #include "jsdbgapi.h"
 
-#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
 #include <time.h>
 
 // Not cross platform
@@ -72,19 +70,13 @@ extern JSBool Core_ENV (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, j
  */
 extern JSBool Core_exec (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
-typedef struct {
-    char* id;
-    JSContext* cx;
-    JSObject* expression;
-    unsigned int timespan;
-} Timer;
+extern JSBool Core_sleep (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
 const char* __Core_getScriptName (JSContext* cx);
-
-char*  __Core_getRootPath (JSContext* cx, const char* fileName);
-char*  __Core_getPath (JSContext* cx, const char* fileName);
-JSBool __Core_include (JSContext* cx, const char* path);
-JSBool __Core_isIncluded (const char* path);
+char*       __Core_getRootPath (JSContext* cx, const char* fileName);
+char*       __Core_getPath (JSContext* cx, const char* fileName);
+JSBool      __Core_include (JSContext* cx, const char* path);
+JSBool      __Core_isIncluded (const char* path);
 
 static JSFunctionSpec Core_methods[] = {
     {"include", Core_include, 0, 0, 0},
@@ -94,8 +86,9 @@ static JSFunctionSpec Core_methods[] = {
     {"die",  Core_die,  0, 0, 0},
     {"exit", Core_exit, 0, 0, 0},
 
-    {"ENV",  Core_ENV,  0, 0, 0},
-    {"exec", Core_exec, 0, 0, 0},
+    {"ENV",   Core_ENV,  0, 0, 0},
+    {"exec",  Core_exec, 0, 0, 0},
+    {"sleep", Core_sleep, 0, 0, 0},
     {NULL}
 };
 

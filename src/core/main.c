@@ -122,8 +122,6 @@ main (int argc, char *argv[])
             fprintf(stderr, "The script couldn't be executed.\n");
             return EXIT_FAILURE;
         }
-
-        while (Hash_length(timeouts) || Hash_length(intervals) != 1);
     }
     
     JS_DestroyContext(engine.context);
