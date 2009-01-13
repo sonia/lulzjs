@@ -10,6 +10,10 @@ CFLAGS     = -DXP_UNIX -D__LJS_LIBRARY_PATH__="\"${LJS_LIBDIR}\"" -D__LJS_VERSIO
 LDFLAGS    = ${SPIDERMONKEY_LIB} -lpthread
 
 ifdef DEBUG
+CFLAGS += -g
+endif
+
+ifdef DDEBUG
 CFLAGS += -DDEBUG -g
 endif
 

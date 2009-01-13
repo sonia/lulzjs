@@ -83,34 +83,58 @@ Thread_start (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* r
     pthread_create(thread, NULL, __Thread_start, data);
     pthread_detach(*thread);
 
-    *rval = JSVAL_NULL;
     return JS_TRUE;
 }
 
 void*
 __Thread_start (void* arg)
 {
-    ThreadData* data = (ThreadData*) arg;
+    ThreadData* data  = (ThreadData*) arg;
     JSContext* cx     = data->cx;
     JSObject*  object = data->object;
     uintN      argc   = data->argc;
     jsval*     argv   = data->argv;
     JS_free(cx, data);
 
-    jsval jsClass;
-    JS_GetProperty(cx, object, "__class", &jsClass);
-    JSObject* class = JSVAL_TO_OBJECT(jsClass);
+    jsval property;
+    JS_GetProperty(cx, object, "__started", &property);
 
-    // I think i'll die before i manage to do this .(
+    if (!JSVAL_TO_BOOLEAN(property)) {
+        return NULL;
+    }
+
+    // Get the __class that's the actual class to construct.
+    JS_GetProperty(cx, object, "__class", &property);
+    JSObject* class = JSVAL_TO_OBJECT(property);
+
+    // I guess that here i should check if it's javascript shit or actual native code stuff
+    // so I can construct both.
+
+    // Get the prototype of the object to use in the JS_ConstructObject
+    jsval jsProto; JS_GetProperty(cx, class, "prototype", &jsProto);
+    JSObject* proto = JSVAL_TO_OBJECT(jsProto);
+
+    // Construct the object if it's a javascript thingy.
+    JSObject* threadObj = JS_ConstructObject(cx, NULL, proto, NULL);
+
+    // Execute the actual javascript constructor
+    jsval ret;
+    JS_CallFunctionValue(cx, threadObj, class, argc, argv, &ret);
+    JS_SetProperty(cx, object, "__object", &threadObj);
+
+    property = JSVAL_TRUE;
+    JS_SetProperty(cx, object, "__started", &property);
 }
 
 JSBool
 Thread_stop (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval *rval)
 {
     pthread_t* thread = JS_GetPrivate(cx, object);
-    pthread_cancel(*thread);
 
-    *rval = JSVAL_NULL;
+    jsval property = JSVAL_FALSE;
+    JS_SetProperty(cx, object, "__started", &property);
+
+    *rval = BOOLEAN_TO_JSVAL(pthread_cancel(*thread));
     return JS_TRUE;
 }
 

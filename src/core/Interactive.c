@@ -29,6 +29,7 @@ Interactive (JSContext* cx, JSObject* global)
 
     char* whole;
     char* line;
+    int lineNumber = 0;
 
     int startline;
     int lineno;
@@ -36,12 +37,14 @@ Interactive (JSContext* cx, JSObject* global)
     puts("lulzJS " __LJS_VERSION__ "\n");
 
     do {
-        startline = lineno = 0;
+        startline = lineno = 1;
         whole = NULL;
 
         do {
-            line = readline(startline == lineno ? ">>> " : "");
+            line = readline(startline == lineno ? ">>> " : "... ");
 
+            // If it's the first line and nothing has been written or the line
+            // is quit exit the interactive mode.
             if (startline == lineno) {
                 if (line == NULL || strcmp(line, "quit") == 0) {
                     puts("GTFO");
@@ -49,17 +52,15 @@ Interactive (JSContext* cx, JSObject* global)
                 }
             }
 
+            // Realloc the whole string with length of whole + the length of the inserted line.
             whole = JS_realloc(cx, whole, (whole==NULL?0:strlen(whole))+strlen(line)*sizeof(char)+1);
 
-            if (lineno == 0) {
-                strcpy(whole, line);
-            }
-            else {
-                strcat(whole, line);
-            }
+            // If it's the first line use strcpy to avoid not cleaned memory bugs if it's not
+            // use strcat.
+            whole = (lineno == 1) ? strcpy(whole, line) : strcat(whole, line);
 
             JS_free(cx, line);
-            lineno++;
+            lineno++; lineNumber++;
         } while (!JS_BufferIsCompilableUnit(cx, global, whole, strlen(whole)));
 
         if (strlen(whole) == 0) {
@@ -69,14 +70,18 @@ Interactive (JSContext* cx, JSObject* global)
         add_history(whole);
 
         JS_ClearPendingException(cx);
-        script = JS_CompileScript(cx, global, whole, strlen(whole), "lulzJS", startline);
+        script = JS_CompileScript(cx, global, whole, strlen(whole), "lulzJS", lineNumber);
 
         if (script) {
             if (JS_ExecuteScript(cx, global, script, &result)) {
                 strResult = JS_ValueToString(cx, result);
 
-                if (strResult && strcmp(strResult, "undefined") != 0) {
-                    printf("<<< %s\n", JS_GetStringBytes(strResult));
+                if (strResult) {
+                    char* str = JS_GetStringBytes(strResult);
+
+                    if (strcmp(str, "undefined") != 0) {
+                        printf("%s\n", JS_GetStringBytes(strResult));
+                    }
                 }
             }
             JS_DestroyScript(cx, script);

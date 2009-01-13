@@ -146,7 +146,6 @@ Core_require (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
         JS_free(cx, path);
     }
 
-    *rval = JSVAL_NULL;
     return JS_TRUE;
 }
 
@@ -154,8 +153,6 @@ JSBool
 Core_GC (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
     JS_MaybeGC(cx);
-
-    *rval = JSVAL_NULL;
 
     return JS_TRUE;
 }
@@ -172,17 +169,18 @@ Core_die (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
         error = JS_strdup(cx, "Program died.");
     }
 
-
     JS_ReportError(cx, error);
     JS_ReportPendingException(cx);
 
     exit(EXIT_FAILURE);
+    return JS_FALSE;
 }
 
 JSBool
 Core_exit (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
     exit(EXIT_SUCCESS);
+    return JS_FALSE;
 }
 
 JSBool
@@ -536,9 +534,11 @@ __Core_include (JSContext* cx, const char* path)
         newPath = JS_realloc(cx, newPath, (strlen(newPath)+strlen("/init.js")+1)*sizeof(char));
         strcat(newPath, "/init.js");
 
-        JSBool result = __Core_include(cx, newPath);
+        if (!__Core_include(cx, newPath)) {
+            JS_free(cx, newPath);
+            return JS_FALSE;
+        }
         JS_free(cx, newPath);
-        return result;
     }
 
     included = JS_realloc(cx, included, ++includedNumber*sizeof(char*));
