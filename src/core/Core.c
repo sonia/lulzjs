@@ -207,178 +207,41 @@ Core_ENV (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 }
 
 JSBool
-Core_setTimeout (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+Core_exec (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-    JSObject* expression;
-    unsigned int timespan;
+    FILE* pipe;
+    char* output  = NULL;
+    size_t length = 0;
+    size_t read   = 0;
+    const char* command;
 
-    if (argc != 2 || !JS_ConvertArguments(cx, argc, argv, "ou", &expression, &timespan)) {
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "s", &command)) {
         JS_ReportError(cx, "Not enough parameters.");
         return JS_FALSE;
     }
-
-    uint32 nId;
-    char id[21];
-    do {
-        nId = (uint32) rand();
-        memset(id, 0, 21);
-        sprintf(id, "%d", nId);
-    } while (Hash_exists(timeouts, id) != HASH_FALSE);
-
-    Timer* timer      = JS_malloc(cx, sizeof(Timer));
-    timer->expression = expression;
-    timer->timespan   = timespan;
-    timer->cx         = cx;
-    timer->id         = JS_strdup(cx, id);
-
-    pthread_t* thread = JS_malloc(cx, sizeof(pthread_t));
-
-    #ifdef DEBUG
-    printf("%s timeout starting\n", id);
-    #endif
-
-    // FIXME: This could cause some problems, probably needs a pthread_mutex_lock thingy
-    Hash_set(&timeouts, id, thread);
-
-    pthread_create(thread, NULL, __Core_setTimeout, timer);
-    pthread_detach(*thread);
-
-    *rval = STRING_TO_JSVAL(JS_NewString(cx, JS_strdup(cx, id), strlen(id)));
-    return JS_TRUE;
-}
-
-void*
-__Core_setTimeout (void* arg)
-{
-    Timer* timer = (Timer*) arg;
-    JSContext* cx    = timer->cx;
-    JSObject* global = JS_GetGlobalObject(cx);
-
-    usleep(timer->timespan*1000);
-    pthread_testcancel();
-
-    jsval rval;
-    if (JS_ObjectIsFunction(cx, timer->expression)) {
-        JS_CallFunctionValue(cx, global, OBJECT_TO_JSVAL(timer->expression), 0, NULL, &rval);
-    }
-    else {
-        char* sources = JS_GetStringBytes(JS_ValueToString(cx, OBJECT_TO_JSVAL(timer->expression)));
-        JS_EvaluateScript(cx, global, sources, strlen(sources), "thread", 1, &rval);
-    }
-
-    Hash_delete(&timeouts, timer->id);
-}
-
-JSBool
-Core_clearTimeout (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
-{
-    char* id;
-
-    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "s", &id)) {
-        JS_ReportError(cx, "Not enough parameters.");
-        return JS_FALSE;
-    }
-
-    if (Hash_exists(timeouts, id)) {
-        pthread_cancel(*((pthread_t*)Hash_get(&timeouts, id)));
-        Hash_delete(&timeouts, id);
-
-        *rval = JSVAL_TRUE;
-    }
-    else {
-        *rval = JSVAL_FALSE;
-    }
-
-    return JS_TRUE;
-}
-
-JSBool
-Core_setInterval (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
-{
-    JSObject* expression;
-    unsigned int timespan;
-
-    if (argc != 2 || !JS_ConvertArguments(cx, argc, argv, "ou", &expression, &timespan)) {
-        JS_ReportError(cx, "Not enough parameters.");
-        return JS_FALSE;
-    }
-
-    uint32 nId;
-    char id[21];
-    do {
-        nId = (uint32) rand();
-        memset(id, 0, 21);
-        sprintf(id, "%d", nId);
-    } while (Hash_exists(intervals, id) != HASH_FALSE);
-
-    #ifdef DEBUG
-    printf("%s interval starting\n", id);
-    #endif
-
-    Timer* timer      = JS_malloc(cx, sizeof(Timer));
-    timer->expression = expression;
-    timer->timespan   = timespan;
-    timer->cx         = cx;
-    timer->id         = JS_strdup(cx, id);
-
-    pthread_t* thread = JS_malloc(cx, sizeof(pthread_t));
-
-    // FIXME: This could cause some problems, probably needs a pthread_mutex_lock thingy
-    Hash_set(&intervals, id, thread);
-
-    pthread_create(thread, NULL, __Core_setInterval, timer);
-    pthread_detach(*thread);
-
-    *rval = STRING_TO_JSVAL(JS_NewString(cx, JS_strdup(cx, id), strlen(id)));
-    return JS_TRUE;
-}
-
-void*
-__Core_setInterval (void* arg)
-{
-    Timer* timer = (Timer*) arg;
     
-    JSContext* cx    = timer->cx;
-    JSObject* global = JS_GetGlobalObject(cx);
-
-    while (JS_TRUE) {
-        usleep(timer->timespan*1000);
-        pthread_testcancel();
-
-        jsval rval;
-        if (JS_ObjectIsFunction(cx, timer->expression)) {
-            jsval function = OBJECT_TO_JSVAL(timer->expression);
-            JS_CallFunctionValue(cx, global, function, 0, NULL, &rval);
-        }
-        else {
-            char* sources = JS_GetStringBytes(JS_ValueToString(cx, OBJECT_TO_JSVAL(timer->expression)));
-            JS_EvaluateScript(cx, global, sources, strlen(sources), "thread", 1, &rval);
-        }
-    }
-}
-
-JSBool
-Core_clearInterval (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
-{
-    char* id;
-
-    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "s", &id)) {
-        JS_ReportError(cx, "Not enough parameters.");
+    if ((pipe = popen(command, "r")) == NULL) {
+        JS_ReportError(cx, "Command not found");
         return JS_FALSE;
     }
 
-    if (Hash_exists(intervals, id)) {
-        pthread_cancel(*((pthread_t*)Hash_get(&intervals, id)));
-        Hash_delete(&intervals, id);
+    // Read untill the pipe is empty.
+    while (1) {
+        output = JS_realloc(cx, output, length+=512);
+        read   = fread(output+(length-512), sizeof(char), 512, pipe);
 
-        *rval = JSVAL_TRUE;
+        if (read < 512) {
+            output = JS_realloc(cx, output, length-=(512-read));
+            break;
+        }
     }
-    else {
-        *rval = JSVAL_FALSE;
-    }
+    output[length-1] = '\0';
+    pclose(pipe);
 
+    *rval = STRING_TO_JSVAL(JS_NewString(cx, output, length));
     return JS_TRUE;
 }
+
 
 char*
 __Core_getRootPath (JSContext* cx, const char* fileName)

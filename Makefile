@@ -7,7 +7,7 @@ CXX        = g++
 BINDIR     = /usr/bin
 LJS_LIBDIR = /usr/lib/lulzjs
 CFLAGS     = -DXP_UNIX -D__LJS_LIBRARY_PATH__="\"${LJS_LIBDIR}\"" -D__LJS_VERSION__="\"${VERSION}\"" -I${SPIDERMONKEY_HEADERS}
-LDFLAGS    = ${SPIDERMONKEY_LIB} -lpthread
+LDFLAGS    = ${SPIDERMONKEY_LIB}
 
 ifdef DEBUG
 CFLAGS += -g
@@ -17,15 +17,27 @@ ifdef DDEBUG
 CFLAGS += -DDEBUG -g
 endif
 
-CORE         = src/core/main.o src/core/Core.o src/core/Misc.o src/core/Interactive.o src/core/Hash.o
+## CORE ##
+CORE_DIR     = src/core
+CORE         = ${CORE_DIR}/main.o ${CORE_DIR}/Core.o ${CORE_DIR}/Misc.o ${CORE_DIR}/Interactive.o ${CORE_DIR}/Hash.o
 CORE_CFLAGS  = ${CFLAGS}
 CORE_LDFLAGS = ${LDFLAGS} -ldl -lreadline -lncurses
 
+## LIB_CORE ##
+LIB_CORE_DIR = src/core/Core
+LIB_CORE = \
+	${LIB_CORE_DIR}/Thread/Thread.o
+
+LIB_CORE_CFLAGS  = ${CFLAGS}
+LIB_CORE_LDFLAGS = ${LDFLAGS} -lpthread
+
+## LIB_SYSTEM ##
+
+LIB_SYSTEM_DIR = src/lib/System
 LIB_SYSTEM = \
-	src/lib/System/System.o \
-	src/lib/System/Thread/Thread.o \
-	src/lib/System/IO/IO.o src/lib/System/IO/Stream/Stream.o src/lib/System/IO/File/File.o \
-	src/lib/System/Net/Net.o src/lib/System/Net/Socket/Socket.o
+	${LIB_SYSTEM_DIR}/System.o \
+	${LIB_SYSTEM_DIR}/IO/IO.o ${LIB_SYSTEM_DIR}/IO/Stream/Stream.o ${LIB_SYSTEM_DIR}/IO/File/File.o \
+	${LIB_SYSTEM_DIR}/Net/Net.o ${LIB_SYSTEM_DIR}/Net/Socket/Socket.o
 
 LIB_SYSTEM_CFLAGS  = ${CFLAGS}
 LIB_SYSTEM_LDFLAGS = ${LDFLAGS}
@@ -39,22 +51,37 @@ core_install:
 	mkdir -p ${LJS_LIBDIR}
 	cp -f ljs ${BINDIR}/
 
-libcore:
+libcore: $(LIB_CORE)
+
+$(LIB_CORE): $(LIB_CORE:.o=.c)
+	${CC} ${LIB_CORE_LDFLAGS} ${LIB_CORE_CFLAGS} -fPIC -c $*.c -o $*.lo
+	${CC} -shared -Wl,-soname,`basename $*`.so -o $*.o $*.lo -lc
 
 libcore_install:
 	mkdir -p ${LJS_LIBDIR}
-	cp -rf src/core/Core ${LJS_LIBDIR}/Core
+	mkdir -p ${LJS_LIBDIR}/Core
+	mkdir -p ${LJS_LIBDIR}/Core/Thread
+	mkdir -p ${LJS_LIBDIR}/Core/Prototype
+########
+	cp -f  ${LIB_CORE_DIR}/init.js				${LJS_LIBDIR}/Core/init.js
+########
+	cp -f  ${LIB_CORE_DIR}/Thread/init.js		${LJS_LIBDIR}/Core/Thread/init.js
+	cp -f  ${LIB_CORE_DIR}/Thread/Thread.o		${LJS_LIBDIR}/Core/Thread/Thread.so
+########
+	cp -rf ${LIB_CORE_DIR}/Prototype/*			${LJS_LIBDIR}/Core/Prototype/
+########
+	cp -f  ${LIB_CORE_DIR}/String.js			${LJS_LIBDIR}/Core/String.js
+
 	
 libsystem: $(LIB_SYSTEM)
 
 $(LIB_SYSTEM): $(LIB_SYSTEM:.o=.c)
-	${CC} ${LIB_SYSTEM_LDFLAGS} ${LIB_SYSTEM_CFLAGS} -fPIC -c $*.c -o $*.lo
+	${CC} ${LIB_CORE_LDFLAGS} ${LIB_CORE_CFLAGS} -fPIC -c $*.c -o $*.lo
 	${CC} -shared -Wl,-soname,`basename $*`.so -o $*.o $*.lo -lc
 
 libsystem_install:
 	mkdir -p ${LJS_LIBDIR}
 	mkdir -p ${LJS_LIBDIR}/System
-	mkdir -p ${LJS_LIBDIR}/System/Thread
 	mkdir -p ${LJS_LIBDIR}/System/Console
 	mkdir -p ${LJS_LIBDIR}/System/IO
 	mkdir -p ${LJS_LIBDIR}/System/IO/Stream
@@ -63,35 +90,32 @@ libsystem_install:
 	mkdir -p ${LJS_LIBDIR}/System/Net/Socket
 	mkdir -p ${LJS_LIBDIR}/System/Net/Ports
 ########
-	cp -f src/lib/System/init.js				${LJS_LIBDIR}/System/init.js
-	cp -f src/lib/System/System.o				${LJS_LIBDIR}/System/System.so
+	cp -f ${LIB_SYSTEM_DIR}/init.js					${LJS_LIBDIR}/System/init.js
+	cp -f ${LIB_SYSTEM_DIR}/System.o				${LJS_LIBDIR}/System/System.so
 ########
-	cp -f src/lib/System/Thread/init.js			${LJS_LIBDIR}/System/Thread/init.js
-	cp -f src/lib/System/Thread/Thread.o		${LJS_LIBDIR}/System/Thread/Thread.so
+	cp -f ${LIB_SYSTEM_DIR}/IO/init.js				${LJS_LIBDIR}/System/IO/init.js
+	cp -f ${LIB_SYSTEM_DIR}/IO/IO.o					${LJS_LIBDIR}/System/IO/IO.so
 ########
-	cp -f src/lib/System/IO/init.js				${LJS_LIBDIR}/System/IO/init.js
-	cp -f src/lib/System/IO/IO.o				${LJS_LIBDIR}/System/IO/IO.so
+	cp -f ${LIB_SYSTEM_DIR}/IO/Stream/init.js		${LJS_LIBDIR}/System/IO/Stream/init.js
+	cp -f ${LIB_SYSTEM_DIR}/IO/Stream/Stream.o		${LJS_LIBDIR}/System/IO/Stream/Stream.so
+	cp -f ${LIB_SYSTEM_DIR}/IO/Stream/Stream.js		${LJS_LIBDIR}/System/IO/Stream/Stream.js
 ########
-	cp -f src/lib/System/IO/Stream/init.js		${LJS_LIBDIR}/System/IO/Stream/init.js
-	cp -f src/lib/System/IO/Stream/Stream.o		${LJS_LIBDIR}/System/IO/Stream/Stream.so
-	cp -f src/lib/System/IO/Stream/Stream.js	${LJS_LIBDIR}/System/IO/Stream/Stream.js
+	cp -f ${LIB_SYSTEM_DIR}/IO/File/init.js			${LJS_LIBDIR}/System/IO/File/init.js
+	cp -f ${LIB_SYSTEM_DIR}/IO/File/File.o			${LJS_LIBDIR}/System/IO/File/File.so
+	cp -f ${LIB_SYSTEM_DIR}/IO/File/File.js			${LJS_LIBDIR}/System/IO/File/File.js
 ########
-	cp -f src/lib/System/IO/File/init.js		${LJS_LIBDIR}/System/IO/File/init.js
-	cp -f src/lib/System/IO/File/File.o			${LJS_LIBDIR}/System/IO/File/File.so
-	cp -f src/lib/System/IO/File/File.js		${LJS_LIBDIR}/System/IO/File/File.js
-########
-	cp -f src/lib/System/Console/init.js		${LJS_LIBDIR}/System/Console/init.js
-	cp -f src/lib/System/Console/Console.js		${LJS_LIBDIR}/System/Console/Console.js
+	cp -f ${LIB_SYSTEM_DIR}/Console/init.js			${LJS_LIBDIR}/System/Console/init.js
+	cp -f ${LIB_SYSTEM_DIR}/Console/Console.js		${LJS_LIBDIR}/System/Console/Console.js
 #######
-	cp -f src/lib/System/Net/init.js			${LJS_LIBDIR}/System/Net/init.js
-	cp -f src/lib/System/Net/Net.o				${LJS_LIBDIR}/System/Net/Net.so
+	cp -f ${LIB_SYSTEM_DIR}/Net/init.js				${LJS_LIBDIR}/System/Net/init.js
+	cp -f ${LIB_SYSTEM_DIR}/Net/Net.o				${LJS_LIBDIR}/System/Net/Net.so
 #######
-	cp -f src/lib/System/Net/Socket/init.js		${LJS_LIBDIR}/System/Net/Socket/init.js
-	cp -f src/lib/System/Net/Socket/Socket.o	${LJS_LIBDIR}/System/Net/Socket/Socket.so
-	cp -f src/lib/System/Net/Socket/Socket.js	${LJS_LIBDIR}/System/Net/Socket/Socket.js
+	cp -f ${LIB_SYSTEM_DIR}/Net/Socket/init.js		${LJS_LIBDIR}/System/Net/Socket/init.js
+	cp -f ${LIB_SYSTEM_DIR}/Net/Socket/Socket.o		${LJS_LIBDIR}/System/Net/Socket/Socket.so
+	cp -f ${LIB_SYSTEM_DIR}/Net/Socket/Socket.js	${LJS_LIBDIR}/System/Net/Socket/Socket.js
 #######
-	cp -f src/lib/System/Net/Ports/init.js		${LJS_LIBDIR}/System/Net/Ports/init.js
-	cp -f src/lib/System/Net/Ports/Ports.js      ${LJS_LIBDIR}/System/Net/Ports/Ports.js
+	cp -f ${LIB_SYSTEM_DIR}/Net/Ports/init.js		${LJS_LIBDIR}/System/Net/Ports/init.js
+	cp -f ${LIB_SYSTEM_DIR}/Net/Ports/Ports.js      ${LJS_LIBDIR}/System/Net/Ports/Ports.js
 
 libsystem_uninstall:
 

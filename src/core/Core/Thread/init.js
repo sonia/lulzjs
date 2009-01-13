@@ -16,8 +16,20 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-require("System/System.so");
-
 require("Thread.so");
 
-var Thread = System.Thread;
+Program.setTimeout = function (expression, timeout) {
+
+};
+
+Program.clearTimeout = function (id) {
+
+};
+
+Program.setInterval = function (expression, interval) {
+
+};
+
+Program.clearInterval = function (id) {
+
+};

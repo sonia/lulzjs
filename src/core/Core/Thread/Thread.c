@@ -23,9 +23,7 @@ short exec (JSContext* cx) { return Thread_initialize(cx); }
 short
 Thread_initialize (JSContext* cx)
 {
-    jsval jsParent;
-    JS_GetProperty(cx, JS_GetGlobalObject(cx), "System", &jsParent);
-    JSObject* parent = JSVAL_TO_OBJECT(jsParent);
+    JSObject* parent = JS_GetGlobalObject(cx);
 
     JSObject* object = JS_InitClass(
         cx, parent, NULL, &Thread_class,
@@ -97,11 +95,15 @@ __Thread_start (void* arg)
     JS_free(cx, data);
 
     jsval property;
-    JS_GetProperty(cx, object, "__started", &property);
+    JS_GetProperty(cx, object, "__going", &property);
 
-    if (!JSVAL_TO_BOOLEAN(property)) {
+    if (JSVAL_TO_BOOLEAN(property)) {
         return NULL;
     }
+
+    property = JSVAL_TRUE;
+    JS_SetProperty(cx, object, "__going", &property);
+    JS_SetProperty(cx, object, "__started", &property);
 
     // Get the __class that's the actual class to construct.
     JS_GetProperty(cx, object, "__class", &property);
@@ -116,14 +118,15 @@ __Thread_start (void* arg)
 
     // Construct the object if it's a javascript thingy.
     JSObject* threadObj = JS_ConstructObject(cx, NULL, proto, NULL);
+    property = OBJECT_TO_JSVAL(threadObj);
+    JS_SetProperty(cx, object, "__object", &property);
 
     // Execute the actual javascript constructor
     jsval ret;
-    JS_CallFunctionValue(cx, threadObj, class, argc, argv, &ret);
-    JS_SetProperty(cx, object, "__object", &threadObj);
+    JS_CallFunctionValue(cx, threadObj, OBJECT_TO_JSVAL(class), argc, argv, &ret);
 
-    property = JSVAL_TRUE;
-    JS_SetProperty(cx, object, "__started", &property);
+    property = JSVAL_FALSE;
+    JS_SetProperty(cx, object, "__going", &property);
 }
 
 JSBool
@@ -132,7 +135,7 @@ Thread_stop (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval *rv
     pthread_t* thread = JS_GetPrivate(cx, object);
 
     jsval property = JSVAL_FALSE;
-    JS_SetProperty(cx, object, "__started", &property);
+    JS_SetProperty(cx, object, "__going", &property);
 
     *rval = BOOLEAN_TO_JSVAL(pthread_cancel(*thread));
     return JS_TRUE;
@@ -155,7 +158,7 @@ Thread_static_cancel (JSContext* cx, JSObject* object, uintN argc, jsval* argv, 
         return JS_FALSE;
     }
 
-    pthread_cancel(thread);
+    *rval = BOOLEAN_TO_JSVAL(pthread_cancel(*thread));
 
     return JS_TRUE;
 }

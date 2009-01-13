@@ -38,39 +38,3 @@ System_initialize (JSContext* cx)
     return 0;
 }
 
-JSBool
-System_exec (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
-{
-    FILE* pipe;
-    char* output  = NULL;
-    size_t length = 0;
-    size_t read   = 0;
-    const char* command;
-
-    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "s", &command)) {
-        JS_ReportError(cx, "Not enough parameters.");
-        return JS_FALSE;
-    }
-    
-    if ((pipe = popen(command, "r")) == NULL) {
-        JS_ReportError(cx, "Command not found");
-        return JS_FALSE;
-    }
-
-    // Read untill the pipe is empty.
-    while (1) {
-        output = JS_realloc(cx, output, length+=512);
-        read   = fread(output+(length-512), sizeof(char), 512, pipe);
-
-        if (read < 512) {
-            output = JS_realloc(cx, output, length-=(512-read));
-            break;
-        }
-    }
-    output[length-1] = '\0';
-    pclose(pipe);
-
-    *rval = STRING_TO_JSVAL(JS_NewString(cx, output, length));
-    return JS_TRUE;
-}
-

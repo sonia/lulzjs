@@ -16,6 +16,8 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
+require("Thread");
+
 require("Prototype");
 
 require("String.js");
