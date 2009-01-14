@@ -27,6 +27,8 @@
 #include <string.h>
 
 extern short exec (JSContext* cx);
+extern void reportError (JSContext *cx, const char *message, JSErrorReport *report);
+
 extern short Thread_initialize (JSContext* cx);
 
 extern JSBool Thread_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);

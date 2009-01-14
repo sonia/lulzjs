@@ -42,7 +42,17 @@ typedef struct {
     JSObject*  core;
 } Engine;
 
-void reportError (JSContext *cx, const char *message, JSErrorReport *report);
+void
+reportError (JSContext *cx, const char *message, JSErrorReport *report)
+{
+    fprintf(stderr, "%s:%u > %s\n",
+        report->filename ? report->filename : "lulzJS",
+        (unsigned int) report->lineno,
+        message
+    );
+}
+
+
 Engine initEngine (int argc, int optind, char *argv[]);
 JSBool executeScript (JSContext* cx, const char* file);
 
@@ -131,15 +141,6 @@ main (int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-void
-reportError (JSContext *cx, const char *message, JSErrorReport *report)
-{
-    fprintf(stderr, "%s:%u > %s\n",
-        report->filename ? report->filename : "lulzJS",
-        (unsigned int) report->lineno,
-        message
-    );
-}
 
 Engine
 initEngine (int argc, int offset, char *argv[])
