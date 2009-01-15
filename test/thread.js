@@ -1,25 +1,15 @@
 #! /usr/bin/env ljs
 require("System/Console");
 
-function setTimeout (expression, timeout) {
-    var thread = new Thread(Class.create({
-        initialize: function (expression, timeout) {
-            Console.writeLine("NIGGER");
-            sleep(timeout/1000);
-            eval(expression);
-        }
-    }), true);
-
-    thread.start(expression, timeout);
-}
-
 var LOL = Class.create({
     initialize: function (a, b) {
-        return a + b;
+        this.__return = a + b;
     }
 });
 
-var thread = new Thread(LOL);
+var thread = new Thread(LOL, true);
 thread.start(2, 4);
-Console.writeLine("NIGGER");
-Console.writeLine(thread.join());
+Console.writeLine("ID: "+thread.__id);
+
+sleep(2);
+Console.writeLine(thread.__return);

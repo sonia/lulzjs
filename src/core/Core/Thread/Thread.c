@@ -68,7 +68,7 @@ Thread_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     pthread_t* thread = JS_malloc(cx, sizeof(pthread_t));
     JS_SetPrivate(cx, object, thread);
 
-    JS_SetProperty(cx, object, "class", &class);
+    JS_SetProperty(cx, object, "__class", &class);
     JS_SetProperty(cx, object, "__detach", &detach);
 
     return JS_TRUE;
@@ -97,14 +97,26 @@ Thread_start (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* r
 
     data->object = object;
     data->argc   = argc;
-    data->argv   = argv;
+    data->argv   = JS_malloc(data->cx, argc*sizeof(jsval*));
+    memcpy(data->argv, argv, argc*sizeof(jsval*));
 
     jsval property; JS_GetProperty(cx, object, "__detach", &property);
     JSBool detach = JSVAL_TO_BOOLEAN(property);
 
     pthread_create(thread, NULL, __Thread_start, data);
 
+    char id[26]; memset(id, 0, 26);
+    sprintf(id, "%lu", pthread_self());
+    property = STRING_TO_JSVAL(JS_NewString(cx, JS_strdup(cx, id), strlen(id)));
+    JS_SetProperty(cx, object, "__id", &property);
+
+    // TODO: Make this work.
     if (detach) {
+        #if !defined(DEBUG)
+        JS_ReportError(cx, "Detached threads still have some problems.");
+        return JS_FALSE;
+        #endif
+
         pthread_detach(*thread);
     }
 
@@ -122,20 +134,21 @@ __Thread_start (void* arg)
     free(data);
 
     JS_BeginRequest(cx);
-    jsval detach; JS_GetProperty(cx, object, "__detach", &detach);
+    jsval property; JS_GetProperty(cx, object, "__detach", &property);
 
-    jsval property;
-    JS_GetProperty(cx, object, "going", &property);
+    JSBool detach = JSVAL_TO_BOOLEAN(property);
+
+    JS_GetProperty(cx, object, "__going", &property);
 
     if (!JSVAL_IS_VOID(property) && JSVAL_TO_BOOLEAN(property)) {
         return NULL;
     }
 
-    property = JSVAL_TRUE; JS_SetProperty(cx, object, "going", &property);
-    property = JSVAL_TRUE; JS_SetProperty(cx, object, "started", &property);
+    property = JSVAL_TRUE; JS_SetProperty(cx, object, "__going", &property);
+    property = JSVAL_TRUE; JS_SetProperty(cx, object, "__started", &property);
 
     // Get the class that's the actual class to construct.
-    JS_GetProperty(cx, object, "class", &property);
+    JS_GetProperty(cx, object, "__class", &property);
     JSObject* class = JSVAL_TO_OBJECT(property);
 
     // Get the prototype of the object to use in the JS_ConstructObject
@@ -145,33 +158,44 @@ __Thread_start (void* arg)
     // Construct the object if it's a javascript thingy.
     JSObject* threadObj = JS_ConstructObject(cx, NULL, proto, NULL);
     property = OBJECT_TO_JSVAL(threadObj);
-    JS_SetProperty(cx, object, "object", &property);
+    JS_SetProperty(cx, object, "__object", &property);
 
     // Execute the actual javascript constructor
-    jsval ret;
-    JS_CallFunctionValue(cx, threadObj, OBJECT_TO_JSVAL(class), argc, argv, &ret);
+    jsval* ret = JS_malloc(cx, sizeof(jsval));
+    JS_CallFunctionValue(cx, threadObj, OBJECT_TO_JSVAL(class), argc, argv, ret);
 
     property = JSVAL_FALSE;
-    JS_SetProperty(cx, object, "going", &property);
+    JS_SetProperty(cx, object, "__going", &property);
 
+    if (!detach) {
+        JS_GetProperty(cx, object, "__return", ret);
+    }
+    else {
+        *ret = JSVAL_VOID;
+    }
+
+    JS_free(cx, argv);
     JS_EndRequest(cx);
     JS_DestroyContext(cx);
-
-    if (!JSVAL_TO_BOOLEAN(detach)) {
-        pthread_exit(&ret);
-    }
 }
 
 JSBool
 Thread_join (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
+    jsval detach; JS_GetProperty(cx, object, "__detach", &detach);
+    if (JSVAL_TO_BOOLEAN(detach)) {
+        JS_ReportError(cx, "You can't join a detached thread.");
+        return JS_FALSE;
+    }
+
     pthread_t* thread = JS_GetPrivate(cx, object);
+    pthread_join(*thread, NULL);
 
     jsval ret;
-    pthread_join(*thread, (void*) &ret);
-    
-    *rval = ret;
+    JS_GetProperty(cx, object, "__object", &ret);
+    JS_GetProperty(cx, JSVAL_TO_OBJECT(ret), "__return", &ret);
 
+    *rval = ret;
     return JS_TRUE;
 }
 
@@ -181,7 +205,7 @@ Thread_stop (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval *rv
     pthread_t* thread = JS_GetPrivate(cx, object);
 
     jsval property = JSVAL_FALSE;
-    JS_SetProperty(cx, object, "going", &property);
+    JS_SetProperty(cx, object, "__going", &property);
 
     *rval = BOOLEAN_TO_JSVAL(pthread_cancel(*thread));
     return JS_TRUE;
