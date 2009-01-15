@@ -14,19 +14,12 @@ function setTimeout (expression, timeout) {
 }
 
 var LOL = Class.create({
-    initialize: function (wat) {
-        Program.wat = wat;
-
-        Console.writeLine("Hello, I'm a thread. And Program.wat is "+Program.wat+" and it's "+new Date);
+    initialize: function (a, b) {
+        return a + b;
     }
 });
 
-setTimeout("Console.writeLine('lolnigger');", 2000);
-
-/*for (var i = 0; i < 10; i++) {
-    var thread = new Thread(LOL);
-    thread.start(i);
-}*/
-
-sleep(5);
-
+var thread = new Thread(LOL);
+thread.start(2, 4);
+Console.writeLine("NIGGER");
+Console.writeLine(thread.join());

@@ -50,6 +50,8 @@ typedef struct {
 extern JSBool Thread_start (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 void* __Thread_start (void* arg);
 
+extern JSBool Thread_join (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
 extern JSBool Thread_stop (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 extern JSBool Thread_static_cancel (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
@@ -57,6 +59,7 @@ extern JSBool Thread_static_cancelPoint (JSContext* cx, JSObject* object, uintN 
 
 static JSFunctionSpec Thread_methods[] = {
     {"start", Thread_start, 0, 0, 0},
+    {"join",  Thread_join,  0, 0, 0},
     {"stop",  Thread_stop,  0, 0, 0},
     {NULL}
 };

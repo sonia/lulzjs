@@ -120,14 +120,15 @@ main (int argc, char *argv[])
             return EXIT_FAILURE;
         }
 
-        printf("%s\n", JS_GetStringBytes(JS_ValueToString(engine.context, rval)));
+        if (!JSVAL_IS_VOID(rval)) {
+            printf("%s\n", JS_GetStringBytes(JS_ValueToString(engine.context, rval)));
+        }
     }
     else {
         if (!fileExists(argv[optind])) {
             fprintf(stderr, "The file doesnt't exist.\n");
             return EXIT_FAILURE;
         }
-
         if (!executeScript(engine.context, argv[optind])) {
             fprintf(stderr, "The script couldn't be executed.\n");
             return EXIT_FAILURE;

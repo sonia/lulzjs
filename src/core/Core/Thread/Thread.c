@@ -107,9 +107,6 @@ Thread_start (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* r
     if (detach) {
         pthread_detach(*thread);
     }
-    else {
-        pthread_join(*thread, NULL);
-    }
 
     return JS_TRUE;
 }
@@ -125,6 +122,7 @@ __Thread_start (void* arg)
     free(data);
 
     JS_BeginRequest(cx);
+    jsval detach; JS_GetProperty(cx, object, "__detach", &detach);
 
     jsval property;
     JS_GetProperty(cx, object, "going", &property);
@@ -139,8 +137,6 @@ __Thread_start (void* arg)
     // Get the class that's the actual class to construct.
     JS_GetProperty(cx, object, "class", &property);
     JSObject* class = JSVAL_TO_OBJECT(property);
-
-    printf("class: %d, cx: %d\n", class, cx);
 
     // Get the prototype of the object to use in the JS_ConstructObject
     jsval jsProto; JS_GetProperty(cx, class, "prototype", &jsProto);
@@ -160,6 +156,23 @@ __Thread_start (void* arg)
 
     JS_EndRequest(cx);
     JS_DestroyContext(cx);
+
+    if (!JSVAL_TO_BOOLEAN(detach)) {
+        pthread_exit(&ret);
+    }
+}
+
+JSBool
+Thread_join (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    pthread_t* thread = JS_GetPrivate(cx, object);
+
+    jsval ret;
+    pthread_join(*thread, (void*) &ret);
+    
+    *rval = ret;
+
+    return JS_TRUE;
 }
 
 JSBool
