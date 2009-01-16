@@ -16,31 +16,18 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-// Global library object
-require("System.so")
+require("System/System.so");
 
-// Input output modules
-require("IO/IO.so")
+require("System/Net/Net.so");
 
-require(["IO/Stream/Stream.so", "IO/Stream/Stream.js"]);
+require(["System/Net/Socket/Socket.so", "System/Net/Socket/Socket.js"]);
 
-require(["IO/File/File.so", "IO/File/File.js"]);
-
-// Networking modules
-require("Net/Net.so");
-
-require(["Net/Socket/Socket.so", "Net/Socket/Socket.js"]);
-
-require("Net/Protocol/Protocol.so");
+require("Protocol.so");
 
 require([
-    "Net/Protocol/HTTP/HTTP.so", "Net/Protocol/HTTP/HTTP.js",
-    "Net/Protocol/HTTP/Request.js", "Net/Protocol/HTTP/Response.js",
-    "Net/Protocol/HTTP/Client.js"
+    "HTTP/HTTP.so", "HTTP/HTTP.js",
+    "HTTP/Request.js", "HTTP/Response.js",
+    "HTTP/Client.js"
 ]);
 
-require("Net/Ports/Ports.js");
-
-// Console module
-require("Console/Console.js")
-
+var Protocol = System.Net.Protocol;
