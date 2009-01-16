@@ -16,18 +16,18 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-require("Net/Net.so");
+require("System/Net/Net.so");
 
-require(["Net/Socket/Socket.so", "Net/Socket/Socket.js"]);
+require(["System/Net/Socket/Socket.so", "System/Net/Socket/Socket.js"]);
 
-require("Net/Ports/Ports.js");
+require("System/Net/Ports/Ports.js");
 
-require("Net/Protocol/Protocol.so");
+require("System/Net/Protocol/Protocol.so");
 
 require([
-    "Net/Protocol/HTTP/HTTP.so", "Net/Protocol/HTTP/HTTP.js",
-    "Net/Protocol/HTTP/Request.js", "Net/Protocol/HTTP/Response.js",
-    "Net/Protocol/HTTP/Client.js"
+    "System/Net/Protocol/HTTP/HTTP.so", "System/Net/Protocol/HTTP/HTTP.js",
+    "System/Net/Protocol/HTTP/Request.js", "System/Net/Protocol/HTTP/Response.js",
+    "System/Net/Protocol/HTTP/Client.js"
 ]);
 
 require("Simple.js");

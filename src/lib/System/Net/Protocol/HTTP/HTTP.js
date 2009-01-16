@@ -37,5 +37,29 @@ Object.extend(System.Net.Protocol.HTTP, {
         }
 
         return headers;
+    },
+
+    getTextParams: function (params) {
+        var text = '';
+
+        if (Object.is(params, Array)) {
+            if (params.length % 2) {
+                throw "The array has a odd length.";
+            }
+
+            var paramz = params;
+            params     = new Object;
+            for (var i = 0; i < paramz.length; i+=2) {
+                params[paramz[i]] = paramz[i+1];
+            }
+        }
+
+        for (var param in params) {
+            text += "&{name}={value}".format({
+                name: param,
+                value: params[param]
+            });
+        }
+        return text.substr(1);
     }
 });

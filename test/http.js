@@ -1,6 +1,5 @@
 #! /usr/bin/env ljs
 require("System/Console");
-require("System/Net/Protocol/HTTP");
+require("System/Net/Protocol/HTTP/Simple");
 
-var http = new HTTP.Request("http://meh.doesntexist.org");
-Console.writeLine(http.response.content);
+Console.writeLine(HTTP.Get(arguments.shift()));

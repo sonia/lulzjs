@@ -60,23 +60,71 @@ System.Net.Protocol.HTTP.Request = Class.create({
             throw "Couldn't connect to the host.";
         }
 
+        switch (this.options.method.toUpperCase()) {
+            case "GET" : this.response = this.__get(); break;
+            case "POST": this.response = this.__post(); break;
+            case "HEAD": this.response = this.__head(); break;
+        }
+    },
+
+    __get: function () {
         this.socket.sendLine([
-            "{0} {1} HTTP/1.1".format([this.options.method.toUpperCase(), this.options.page]),
+            "GET {0} HTTP/1.1".format([this.options.page]),
             "Host: {0}".format([this.options.host]),
         ].concat(this.getRequestHeadersArray()).concat([""]));
 
-        var answer  = System.Net.Protocol.HTTP.parseResponse(this.socket.receiveLine());
-        var headers = '';
-        var content;
+        var answer = System.Net.Protocol.HTTP.parseResponse(this.socket.receiveLine());
 
+        var headers = '';
         var line;
         while (line = this.socket.receiveLine()) {
             headers += line+"\n";
         }
         headers = System.Net.Protocol.HTTP.parseHeaders(headers);
-        content = this.socket.receive(headers["Content-Length"]);
+        var content = this.socket.receive(headers["Content-Length"]);
 
-        this.response = new System.Net.Protocol.HTTP.Response(answer, headers, content);
+        return new System.Net.Protocol.HTTP.Response(answer, headers, content);
+    },
+
+    __post: function () {
+        var params = System.Net.Protocol.HTTP.getTextParams(this.options.params);
+
+        this.socket.sendLine([
+            "POST {0} HTTP/1.1".format([this.options.page]),
+            "Host: {0}".format([this.options.host]),
+        ].concat(this.getRequestHeadersArray()).concat(["Content-Length: "+params.length, "", params]));
+
+        var answer = System.Net.Protocol.HTTP.parseResponse(this.socket.receiveLine());
+
+        var headers = '';
+        var line;
+        while (line = this.socket.receiveLine()) {
+            headers += line+"\n";
+        }
+        headers = System.Net.Protocol.HTTP.parseHeaders(headers);
+        var content = this.socket.receive(headers["Content-Length"]);
+
+        return new System.Net.Protocol.HTTP.Response(answer, headers, content);
+
+    },
+
+    __head: function () {
+        this.socket.sendLine([
+            "HEAD {0} HTTP/1.1".format([this.options.page]),
+            "Host: {0}".format([this.options.host]),
+        ].concat(this.getRequestHeadersArray()).concat([""]));
+
+        var answer = System.Net.Protocol.HTTP.parseResponse(this.socket.receiveLine());
+
+        var headers = '';
+        var line;
+        while (line = this.socket.receiveLine()) {
+            headers += line+"\n";
+        }
+        headers = System.Net.Protocol.HTTP.parseHeaders(headers);
+
+        return new System.Net.Protocol.HTTP.Response(answer, headers);
+
     },
 
     setDefaultHeaders: function (headers) {
@@ -87,7 +135,6 @@ System.Net.Protocol.HTTP.Request = Class.create({
 
             var headerz = headers;
             headers     = new Object;
-
             for (var i = 0; i < headerz.length; i+=2) {
                 headers[headerz[i]] = headerz[i+1];
             }
