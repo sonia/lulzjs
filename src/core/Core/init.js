@@ -16,6 +16,20 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
+// Isolate the used variables.
+{
+    var PATH = ENV("JSPATH");
+
+    if (PATH) {
+        var re = /([^:])+/g;
+    
+        var path;
+        while (path = re.exec(PATH)) {
+            __PATH__.push(path[0]);
+        }
+    }
+};
+
 require("Thread");
 
 require("Prototype");
