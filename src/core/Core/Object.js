@@ -16,26 +16,23 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-Object.extend(System.Net.Protocol.HTTP, {
-    parseResponse: function (text) {
-        var matches = /^HTTP\/(.+) (\d+) (.*)$/.exec(text);
+Object.is = function (obj, type) {
+    var name;
 
-        return {
-            version: matches[1],
-            code   : matches[2],
-            message: matches[3]
-        };
-    },
-
-    parseHeaders: function (text) {
-        var re      = /\s*([\w\-]+)\s*:\s*(.*)/g;
-        var headers = new Object;
-
-        var header;
-        while (header = re.exec(text)) {
-            headers[header[1]] = header[2];
-        }
-
-        return headers;
+    if (typeof(type) == "function") {
+        var match = /^function (\w+)/.exec(type.toString());
+        name = match[1];
     }
-});
+    else if (typeof(type) == "object") {
+        var match = /^function (\w+)/.exec(type.constructor.toString());
+        name = match[1];
+    }
+    else {
+        name = type;
+    }
+
+    return obj.constructor.toString().match(new RegExp("^.+"+name))
+        ? true
+        : false;
+}
+

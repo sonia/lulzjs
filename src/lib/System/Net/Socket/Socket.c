@@ -69,9 +69,9 @@ Socket_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     }
 
     switch (argc) {
-        case 3: protocol = JSVAL_TO_INT(argv[2]);
-        case 2: type     = JSVAL_TO_INT(argv[1]);
-        case 1: family   = JSVAL_TO_INT(argv[0]);
+        case 3: JS_ValueToInt32(cx, argv[2], &protocol);
+        case 2: JS_ValueToInt32(cx, argv[1], &type);
+        case 1: JS_ValueToInt32(cx, argv[0], &family);
     }
 
     SocketInformation* data = JS_malloc(cx, sizeof(SocketInformation));
@@ -153,7 +153,7 @@ Socket_send (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
     }
 
     switch (argc) {
-        case 2: flags  = JSVAL_TO_INT(argv[1]);
+        case 2: JS_ValueToInt32(cx, argv[1], &flags);
         case 1: string = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
     }
 
@@ -181,8 +181,8 @@ Socket_receive (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval 
     }
 
     switch (argc) {
-        case 2: flags = JSVAL_TO_INT(argv[1]);
-        case 1: size  = JSVAL_TO_INT(argv[0]);
+        case 2: JS_ValueToInt32(cx, argv[1], &flags);
+        case 1: JS_ValueToInt32(cx, argv[0], &size);
     }
 
     SocketInformation* data = JS_GetPrivate(cx, object);

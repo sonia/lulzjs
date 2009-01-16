@@ -16,3 +16,15 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
+System.Net.Protocol.HTTP.Response = Class.create({
+    initialize: function (answer, headers, content) {
+        this.answer  = answer;
+        this.headers = headers;
+        this.content = content;
+    },
+
+    getHeader: function (header) {
+        return this.headers[header];
+    },
+});
+

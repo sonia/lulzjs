@@ -74,6 +74,13 @@ Interactive (JSContext* cx, JSObject* global)
 
         if (script) {
             if (JS_ExecuteScript(cx, global, script, &result)) {
+                jsval val = result;
+                jsval jsObj; JS_GetProperty(cx, global, "Object", &jsObj);
+                JSObject* object = JSVAL_TO_OBJECT(jsObj);
+
+                jsval argv[] = {val};
+                JS_CallFunctionName(cx, object, "inspect", 1, argv, &result);
+
                 strResult = JS_ValueToString(cx, result);
 
                 if (strResult) {

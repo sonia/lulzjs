@@ -72,6 +72,7 @@ libcore_install:
 	cp -rf ${LIB_CORE_DIR}/Prototype/*			${LJS_LIBDIR}/Core/Prototype/
 ########
 	cp -f  ${LIB_CORE_DIR}/String.js			${LJS_LIBDIR}/Core/String.js
+	cp -f  ${LIB_CORE_DIR}/Object.js            ${LJS_LIBDIR}/Core/Object.js
 
 	
 libsystem: $(LIB_SYSTEM)
@@ -126,6 +127,7 @@ libsystem_install:
 #######
 	cp -f ${LIB_SYSTEM_DIR}/Net/Protocol/HTTP/init.js			${LJS_LIBDIR}/System/Net/Protocol/HTTP/init.js
 	cp -f ${LIB_SYSTEM_DIR}/Net/Protocol/HTTP/HTTP.o			${LJS_LIBDIR}/System/Net/Protocol/HTTP/HTTP.so
+	cp -f ${LIB_SYSTEM_DIR}/Net/Protocol/HTTP/HTTP.js			${LJS_LIBDIR}/System/Net/Protocol/HTTP/HTTP.js
 	cp -f ${LIB_SYSTEM_DIR}/Net/Protocol/HTTP/Request.js 		${LJS_LIBDIR}/System/Net/Protocol/HTTP/Request.js
 	cp -f ${LIB_SYSTEM_DIR}/Net/Protocol/HTTP/Response.js		${LJS_LIBDIR}/System/Net/Protocol/HTTP/Response.js
 	cp -f ${LIB_SYSTEM_DIR}/Net/Protocol/HTTP/Client.js			${LJS_LIBDIR}/System/Net/Protocol/HTTP/Client.js

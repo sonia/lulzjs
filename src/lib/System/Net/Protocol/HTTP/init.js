@@ -21,6 +21,7 @@ require("System/System.so");
 require("System/Net/Net.so");
 
 require(["System/Net/Socket/Socket.so", "System/Net/Socket/Socket.js"]);
+require("System/Net/Ports/Ports.js");
 
 require("System/Net/Protocol/Protocol.so");
 

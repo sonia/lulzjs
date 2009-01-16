@@ -27,6 +27,10 @@ Object.extend(String.prototype, {
         }
     
         return formatted;
+    },
+
+    reverse: function () {
+        return this.split('').reverse().join('');
     }
 });
 
