@@ -20,7 +20,6 @@
 #define _SYSTEM_NET_SOCKET_H
 
 #include "jsapi.h"
-#include "jsregexp.h"
 
 #include <stdio.h>
 #include <stdlib.h>

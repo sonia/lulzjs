@@ -16,24 +16,30 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-#ifndef _SYSTEM_H
-#define _SYSTEM_H
+#include "Protocol.h"
 
-#include "jsapi.h"
-#include <stdio.h>
-#include <stdlib.h>
+JSBool exec (JSContext* cx) { return Protocol_initialize(cx); }
 
-extern JSBool exec (JSContext* cx);
-extern JSBool System_initialize (JSContext* cx);
+JSBool
+Protocol_initialize (JSContext* cx)
+{
+    jsval jsParent;
+    JS_GetProperty(cx, JS_GetGlobalObject(cx), "System", &jsParent);
+    JS_GetProperty(cx, JSVAL_TO_OBJECT(jsParent), "Net", &jsParent);
+    JSObject* parent = JSVAL_TO_OBJECT(jsParent);
 
-static JSClass System_class = {
-    "System", 0,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
-};
+    JSObject* object = JS_DefineObject(
+        cx, parent,
+        Protocol_class.name, &Protocol_class, NULL, 
+        JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
+    );
 
-static JSFunctionSpec System_methods[] = {
-    {NULL}
-};
+    if (object) {
+        JS_DefineFunctions(cx, object, Protocol_methods);
 
-#endif
+        return JS_TRUE;
+    }
+
+    return JS_FALSE;
+}
+

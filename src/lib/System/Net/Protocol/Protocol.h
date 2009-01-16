@@ -16,23 +16,23 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-#ifndef _SYSTEM_H
-#define _SYSTEM_H
+#ifndef _SYSTEM_NET_PROTOCOL_Protocol_H
+#define _SYSTEM_NET_PROTOCOL_Protocol_H
 
 #include "jsapi.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 extern JSBool exec (JSContext* cx);
-extern JSBool System_initialize (JSContext* cx);
+extern JSBool Protocol_initialize (JSContext* cx);
 
-static JSClass System_class = {
-    "System", 0,
+static JSClass Protocol_class = {
+    "Protocol", 0,
     JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
 };
 
-static JSFunctionSpec System_methods[] = {
+static JSFunctionSpec Protocol_methods[] = {
     {NULL}
 };
 

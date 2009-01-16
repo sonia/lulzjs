@@ -18,9 +18,9 @@
 
 #include "Socket.h"
 
-short exec (JSContext* cx) { return Socket_initialize(cx); }
+JSBool exec (JSContext* cx) { return Socket_initialize(cx); }
 
-short
+JSBool
 Socket_initialize (JSContext* cx)
 {
     jsval jsParent;
@@ -34,7 +34,7 @@ Socket_initialize (JSContext* cx)
     );
 
     if (!object)
-        return 0;
+        return JS_FALSE;
 
     // Default properties
     jsval property;
@@ -53,7 +53,7 @@ Socket_initialize (JSContext* cx)
     property = INT_TO_JSVAL(PF_UNSPEC);
     JS_SetProperty(cx, object, "PF_UNSPEC", &property);
 
-    return 1;
+    return JS_TRUE;
 }
 
 JSBool

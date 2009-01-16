@@ -37,7 +37,8 @@ LIB_SYSTEM_DIR = src/lib/System
 LIB_SYSTEM = \
 	${LIB_SYSTEM_DIR}/System.o \
 	${LIB_SYSTEM_DIR}/IO/IO.o ${LIB_SYSTEM_DIR}/IO/Stream/Stream.o ${LIB_SYSTEM_DIR}/IO/File/File.o \
-	${LIB_SYSTEM_DIR}/Net/Net.o ${LIB_SYSTEM_DIR}/Net/Socket/Socket.o
+	${LIB_SYSTEM_DIR}/Net/Net.o ${LIB_SYSTEM_DIR}/Net/Socket/Socket.o ${LIB_SYSTEM_DIR}/Net/Protocol/Protocol.o \
+	${LIB_SYSTEM_DIR}/Net/Protocol/HTTP/HTTP.o
 
 LIB_SYSTEM_CFLAGS  = ${CFLAGS}
 LIB_SYSTEM_LDFLAGS = ${LDFLAGS}
@@ -89,33 +90,44 @@ libsystem_install:
 	mkdir -p ${LJS_LIBDIR}/System/Net
 	mkdir -p ${LJS_LIBDIR}/System/Net/Socket
 	mkdir -p ${LJS_LIBDIR}/System/Net/Ports
+	mkdir -p ${LJS_LIBDIR}/System/Net/Protocol
+	mkdir -p ${LJS_LIBDIR}/System/Net/Protocol/HTTP
 ########
-	cp -f ${LIB_SYSTEM_DIR}/init.js					${LJS_LIBDIR}/System/init.js
-	cp -f ${LIB_SYSTEM_DIR}/System.o				${LJS_LIBDIR}/System/System.so
+	cp -f ${LIB_SYSTEM_DIR}/init.js							${LJS_LIBDIR}/System/init.js
+	cp -f ${LIB_SYSTEM_DIR}/System.o						${LJS_LIBDIR}/System/System.so
 ########
-	cp -f ${LIB_SYSTEM_DIR}/IO/init.js				${LJS_LIBDIR}/System/IO/init.js
-	cp -f ${LIB_SYSTEM_DIR}/IO/IO.o					${LJS_LIBDIR}/System/IO/IO.so
+	cp -f ${LIB_SYSTEM_DIR}/IO/init.js						${LJS_LIBDIR}/System/IO/init.js
+	cp -f ${LIB_SYSTEM_DIR}/IO/IO.o							${LJS_LIBDIR}/System/IO/IO.so
 ########
-	cp -f ${LIB_SYSTEM_DIR}/IO/Stream/init.js		${LJS_LIBDIR}/System/IO/Stream/init.js
-	cp -f ${LIB_SYSTEM_DIR}/IO/Stream/Stream.o		${LJS_LIBDIR}/System/IO/Stream/Stream.so
-	cp -f ${LIB_SYSTEM_DIR}/IO/Stream/Stream.js		${LJS_LIBDIR}/System/IO/Stream/Stream.js
+	cp -f ${LIB_SYSTEM_DIR}/IO/Stream/init.js				${LJS_LIBDIR}/System/IO/Stream/init.js
+	cp -f ${LIB_SYSTEM_DIR}/IO/Stream/Stream.o				${LJS_LIBDIR}/System/IO/Stream/Stream.so
+	cp -f ${LIB_SYSTEM_DIR}/IO/Stream/Stream.js				${LJS_LIBDIR}/System/IO/Stream/Stream.js
 ########
-	cp -f ${LIB_SYSTEM_DIR}/IO/File/init.js			${LJS_LIBDIR}/System/IO/File/init.js
-	cp -f ${LIB_SYSTEM_DIR}/IO/File/File.o			${LJS_LIBDIR}/System/IO/File/File.so
-	cp -f ${LIB_SYSTEM_DIR}/IO/File/File.js			${LJS_LIBDIR}/System/IO/File/File.js
+	cp -f ${LIB_SYSTEM_DIR}/IO/File/init.js					${LJS_LIBDIR}/System/IO/File/init.js
+	cp -f ${LIB_SYSTEM_DIR}/IO/File/File.o					${LJS_LIBDIR}/System/IO/File/File.so
+	cp -f ${LIB_SYSTEM_DIR}/IO/File/File.js					${LJS_LIBDIR}/System/IO/File/File.js
 ########
-	cp -f ${LIB_SYSTEM_DIR}/Console/init.js			${LJS_LIBDIR}/System/Console/init.js
-	cp -f ${LIB_SYSTEM_DIR}/Console/Console.js		${LJS_LIBDIR}/System/Console/Console.js
+	cp -f ${LIB_SYSTEM_DIR}/Console/init.js					${LJS_LIBDIR}/System/Console/init.js
+	cp -f ${LIB_SYSTEM_DIR}/Console/Console.js				${LJS_LIBDIR}/System/Console/Console.js
 #######
-	cp -f ${LIB_SYSTEM_DIR}/Net/init.js				${LJS_LIBDIR}/System/Net/init.js
-	cp -f ${LIB_SYSTEM_DIR}/Net/Net.o				${LJS_LIBDIR}/System/Net/Net.so
+	cp -f ${LIB_SYSTEM_DIR}/Net/init.js						${LJS_LIBDIR}/System/Net/init.js
+	cp -f ${LIB_SYSTEM_DIR}/Net/Net.o						${LJS_LIBDIR}/System/Net/Net.so
 #######
-	cp -f ${LIB_SYSTEM_DIR}/Net/Socket/init.js		${LJS_LIBDIR}/System/Net/Socket/init.js
-	cp -f ${LIB_SYSTEM_DIR}/Net/Socket/Socket.o		${LJS_LIBDIR}/System/Net/Socket/Socket.so
-	cp -f ${LIB_SYSTEM_DIR}/Net/Socket/Socket.js	${LJS_LIBDIR}/System/Net/Socket/Socket.js
+	cp -f ${LIB_SYSTEM_DIR}/Net/Socket/init.js				${LJS_LIBDIR}/System/Net/Socket/init.js
+	cp -f ${LIB_SYSTEM_DIR}/Net/Socket/Socket.o				${LJS_LIBDIR}/System/Net/Socket/Socket.so
+	cp -f ${LIB_SYSTEM_DIR}/Net/Socket/Socket.js			${LJS_LIBDIR}/System/Net/Socket/Socket.js
 #######
-	cp -f ${LIB_SYSTEM_DIR}/Net/Ports/init.js		${LJS_LIBDIR}/System/Net/Ports/init.js
-	cp -f ${LIB_SYSTEM_DIR}/Net/Ports/Ports.js      ${LJS_LIBDIR}/System/Net/Ports/Ports.js
+	cp -f ${LIB_SYSTEM_DIR}/Net/Ports/init.js				${LJS_LIBDIR}/System/Net/Ports/init.js
+	cp -f ${LIB_SYSTEM_DIR}/Net/Ports/Ports.js				${LJS_LIBDIR}/System/Net/Ports/Ports.js
+#######
+	cp -f ${LIB_SYSTEM_DIR}/Net/Protocol/init.js			${LJS_LIBDIR}/System/Net/Protocol/init.js
+	cp -f ${LIB_SYSTEM_DIR}/Net/Protocol/Protocol.o			${LJS_LIBDIR}/System/Net/Protocol/Protocol.so
+#######
+	cp -f ${LIB_SYSTEM_DIR}/Net/Protocol/HTTP/init.js		${LIB_LIBDIR}/System/Net/Protocol/HTTP/init.js
+	cp -f ${LIB_SYSTEM_DIR}/Net/Protocol/HTTP/HTTP.o		${LIB_LIBDIR}/System/Net/Protocol/HTTP/HTTP.so
+	cp -f ${LIB_SYSTEM_DIR}/Net/Protocol/HTTP/Request.js 	${LIB_LIBDIR}/System/Net/Protocol/HTTP/Request.js
+	cp -f ${LIB_SYSTEM_DIR}/Net/Protocol/HTTP/Response.js	${LIB_LIBDIR}/System/Net/Protocol/HTTP/Response.js
+	cp -f ${LIB_SYSTEM_DIR}/Net/Protocol/HTTP/Client.js		${LIB_LIBDIR}/System/Net/Protocol/HTTP/Client.js
 
 libsystem_uninstall:
 

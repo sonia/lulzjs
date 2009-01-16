@@ -18,9 +18,9 @@
 
 #include "System.h"
 
-short exec (JSContext* cx) { return System_initialize(cx); }
+JSBool exec (JSContext* cx) { return System_initialize(cx); }
 
-short
+JSBool
 System_initialize (JSContext* cx)
 {
     JSObject* object = JS_DefineObject(
@@ -32,9 +32,9 @@ System_initialize (JSContext* cx)
     if (object) {
         JS_DefineFunctions(cx, object, System_methods);
 
-        return 1;
+        return JS_TRUE;
     }
 
-    return 0;
+    return JS_FALSE;
 }
 
