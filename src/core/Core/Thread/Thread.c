@@ -167,16 +167,13 @@ __Thread_start (void* arg)
     property = JSVAL_FALSE;
     JS_SetProperty(cx, object, "__going", &property);
 
-    if (!detach) {
-        JS_GetProperty(cx, object, "__return", ret);
-    }
-    else {
-        *ret = JSVAL_VOID;
-    }
-
     JS_free(cx, argv);
     JS_EndRequest(cx);
     JS_DestroyContext(cx);
+
+    if (!detach) {
+        pthread_exit(NULL);
+    }
 }
 
 JSBool
