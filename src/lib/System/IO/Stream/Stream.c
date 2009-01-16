@@ -18,9 +18,9 @@
 
 #include "Stream.h"
 
-extern short exec (JSContext* cx) { return Stream_initialize(cx); }
+extern JSBool exec (JSContext* cx) { return Stream_initialize(cx); }
 
-short
+JSBool
 Stream_initialize (JSContext* cx)
 {
     jsval jsParent;
@@ -33,46 +33,47 @@ Stream_initialize (JSContext* cx)
         NULL, 0, NULL, Stream_methods, NULL, NULL 
     );
 
-    if (!object)
-        return 0;
+    if (object) {
+        JSObject* stream;
+        StreamInformation* data;
+    
+        // Create STDIN special Stream object.
+        stream = JS_DefineObject(
+            cx, parent,
+            "STDIN", &Stream_class, object,
+            JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
+        );
+        data = (StreamInformation*) JS_malloc(cx, sizeof(StreamInformation));
+        data->descriptor = stdin;
+        JS_SetPrivate(cx, stream, data);
+    
+        // Create STDOUT special Stream object.
+        stream = JS_DefineObject(
+            cx, parent,
+            "STDOUT", &Stream_class, object,
+            JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
+        );
+        data = (StreamInformation*) JS_malloc(cx, sizeof(StreamInformation));
+        data->descriptor = stdout;
+        JS_SetPrivate(cx, stream, data);
+      
+        // Create STDERR special stream object.
+        stream = JS_DefineObject(
+            cx, parent,
+            "STDERR", &Stream_class, object,
+            JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
+        );
+        data = (StreamInformation*) JS_malloc(cx, sizeof(StreamInformation));
+        data->descriptor = stderr;
+        JS_SetPrivate(cx, stream, data);
+    
+        // Default properties
+        jsval property;
 
-    JSObject* stream;
-    StreamInformation* data;
+        return JS_TRUE;
+    }
 
-    // Create STDIN special Stream object.
-    stream = JS_DefineObject(
-        cx, parent,
-        "STDIN", &Stream_class, object,
-        JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
-    );
-    data = (StreamInformation*) JS_malloc(cx, sizeof(StreamInformation));
-    data->descriptor = stdin;
-    JS_SetPrivate(cx, stream, data);
-
-    // Create STDOUT special Stream object.
-    stream = JS_DefineObject(
-        cx, parent,
-        "STDOUT", &Stream_class, object,
-        JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
-    );
-    data = (StreamInformation*) JS_malloc(cx, sizeof(StreamInformation));
-    data->descriptor = stdout;
-    JS_SetPrivate(cx, stream, data);
-  
-    // Create STDERR special stream object.
-    stream = JS_DefineObject(
-        cx, parent,
-        "STDERR", &Stream_class, object,
-        JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
-    );
-    data = (StreamInformation*) JS_malloc(cx, sizeof(StreamInformation));
-    data->descriptor = stderr;
-    JS_SetPrivate(cx, stream, data);
-
-    // Default properties
-    jsval property;
-
-    return 1;
+    return JS_FALSE;
 }
 
 JSBool

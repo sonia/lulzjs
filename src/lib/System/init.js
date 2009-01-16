@@ -31,15 +31,15 @@ require("Net/Net.so");
 
 require(["Net/Socket/Socket.so", "Net/Socket/Socket.js"]);
 
+require("Net/Ports/Ports.js");
+
 require("Net/Protocol/Protocol.so");
 
 require([
     "Net/Protocol/HTTP/HTTP.so", "Net/Protocol/HTTP/HTTP.js",
     "Net/Protocol/HTTP/Request.js", "Net/Protocol/HTTP/Response.js",
-    "Net/Protocol/HTTP/Client.js"
+    "Net/Protocol/HTTP/Client.js", "Net/Protocol/HTTP/Simple/Simple.js"
 ]);
-
-require("Net/Ports/Ports.js");
 
 // Console module
 require("Console/Console.js")

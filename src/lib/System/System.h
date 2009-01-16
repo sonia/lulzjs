@@ -20,8 +20,6 @@
 #define _SYSTEM_H
 
 #include "jsapi.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 extern JSBool exec (JSContext* cx);
 extern JSBool System_initialize (JSContext* cx);

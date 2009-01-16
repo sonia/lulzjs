@@ -18,9 +18,9 @@
 
 #include "IO.h"
 
-short exec (JSContext* cx) { return IO_initialize(cx); }
+JSBool exec (JSContext* cx) { return IO_initialize(cx); }
 
-short
+JSBool
 IO_initialize (JSContext* cx)
 {
     jsval jsParent;
@@ -32,11 +32,12 @@ IO_initialize (JSContext* cx)
         IO_class.name, &IO_class, NULL, 
         JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE);
 
-    if (!object)
-        return 0;
+    if (object) {
+        JS_DefineFunctions(cx, object, IO_methods);
 
-    JS_DefineFunctions(cx, object, IO_methods);
+        return JS_TRUE;
+    }
 
-    return 1;
+    return JS_FALSE;
 }
 

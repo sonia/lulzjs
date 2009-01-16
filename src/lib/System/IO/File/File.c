@@ -18,9 +18,9 @@
 
 #include "File.h"
 
-short exec (JSContext* cx) { return File_initialize(cx); }
+JSBool exec (JSContext* cx) { return File_initialize(cx); }
 
-short
+JSBool
 File_initialize (JSContext* cx)
 {
     jsval jsParent;
@@ -36,16 +36,17 @@ File_initialize (JSContext* cx)
         File_constructor, 2, NULL, File_methods, NULL, File_static_methods
     );
 
-    if (!object)
-        return 0;
+    if (object) {
+        // Default properties
+        jsval property;
 
-    // Default properties
-    jsval property;
+        property = INT_TO_JSVAL(EOF);
+        JS_SetProperty(cx, parent, "EOF", &property);
 
-    property = INT_TO_JSVAL(EOF);
-    JS_SetProperty(cx, parent, "EOF", &property);
+        return JS_TRUE;
+    }
 
-    return 1;
+    return JS_FALSE;
 }
 
 JSBool

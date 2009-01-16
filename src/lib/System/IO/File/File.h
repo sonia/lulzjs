@@ -24,8 +24,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern short exec (JSContext* cx);
-extern short File_initialize (JSContext* cx);
+extern JSBool exec (JSContext* cx);
+extern JSBool File_initialize (JSContext* cx);
 
 extern JSBool File_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 extern void  File_finalize (JSContext* cx, JSObject* object); 

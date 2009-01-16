@@ -30,3 +30,8 @@ require([
     "Client.js"
 ]);
 
+if (!Program.HTTP) {
+    Program.HTTP = new Object;
+}
+
+Object.extend(Program.HTTP, System.Net.Protocol.HTTP);

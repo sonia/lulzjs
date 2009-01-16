@@ -400,7 +400,7 @@ __Core_include (JSContext* cx, const char* path)
             return JS_FALSE;
         }
 
-        short (*exec)(JSContext*) = dlsym(handle, "exec");
+        JSBool (*exec)(JSContext*) = dlsym(handle, "exec");
 
         if(!(*exec)(cx)) {
             fprintf(stderr, "The initialization of the module failed.\n");

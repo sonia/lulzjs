@@ -24,8 +24,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern short exec (JSContext* cx);
-extern short Stream_initialize (JSContext* cx);
+extern JSBool exec (JSContext* cx);
+extern JSBool Stream_initialize (JSContext* cx);
 
 static JSClass Stream_class = {
     "Stream", JSCLASS_HAS_PRIVATE,

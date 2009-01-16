@@ -16,28 +16,28 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-#include "Net.h"
+require("Net/Net.so");
 
-JSBool exec (JSContext* cx) { return Net_initialize(cx); }
+require(["Net/Socket/Socket.so", "Net/Socket/Socket.js"]);
 
-JSBool
-Net_initialize (JSContext* cx)
-{
-    jsval jsParent;
-    JS_GetProperty(cx, JS_GetGlobalObject(cx), "System", &jsParent);
-    JSObject* parent = JSVAL_TO_OBJECT(jsParent);
+require("Net/Ports/Ports.js");
 
-    JSObject* object = JS_DefineObject(
-        cx, parent,
-        Net_class.name, &Net_class, NULL, 
-        JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE);
+require("Net/Protocol/Protocol.so");
 
-    if (object) {
-        JS_DefineFunctions(cx, object, Net_methods);
+require([
+    "Net/Protocol/HTTP/HTTP.so", "Net/Protocol/HTTP/HTTP.js",
+    "Net/Protocol/HTTP/Request.js", "Net/Protocol/HTTP/Response.js",
+    "Net/Protocol/HTTP/Client.js"
+]);
 
-        return JS_TRUE;
-    }
+require("Simple.js");
 
-    return JS_FALSE;
+if (!Program.HTTP) {
+    Program.HTTP = new Object;
 }
+
+Program.HTTP = Object.extend(Program.HTTP, {
+    Get:  System.Net.Protocol.HTTP.Simple.Get,
+    Post: System.Net.Protocol.HTTP.Simple.Post
+});
 

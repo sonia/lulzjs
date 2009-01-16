@@ -33,8 +33,8 @@
 #include <fcntl.h>
 #include <errno.h>
 
-extern short exec (JSContext* cx);
-extern short Socket_initialize (JSContext* cx);
+extern JSBool exec (JSContext* cx);
+extern JSBool Socket_initialize (JSContext* cx);
 
 extern JSBool Socket_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 extern void  Socket_finalize (JSContext* cx, JSObject* object); 
