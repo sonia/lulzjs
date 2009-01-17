@@ -93,6 +93,7 @@ Socket_finalize (JSContext* cx, JSObject* object)
     SocketInformation* data = JS_GetPrivate(cx, object);
 
     if (data) {
+        JS_free(cx, data->addr_in);
         close(data->socket);
         JS_free(cx, data);
     }
@@ -111,13 +112,13 @@ Socket_connect (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval*
 
     SocketInformation* data = JS_GetPrivate(cx, object);
 
-    struct sockaddr_in addrin;
+    struct sockaddr_in* addr_in = JS_malloc(cx, sizeof(struct sockaddr_in*));
 
-    addrin.sin_family = data->family;
-    addrin.sin_port   = htons((u_short)port);
+    addr_in->sin_family = data->family;
+    addr_in->sin_port   = htons((u_short) port);
 
     if (__Socket_isIPv4(host)) {
-        addrin.sin_addr.s_addr = inet_addr(host);
+        addr_in->sin_addr.s_addr = inet_addr(host);
     }
     else {
         const char* ip = __Socket_getHostByName(cx, host);
@@ -127,15 +128,17 @@ Socket_connect (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval*
             return JS_TRUE;
         }
 
-        addrin.sin_addr.s_addr = inet_addr(ip);
+        addr_in->sin_addr.s_addr = inet_addr(ip);
     }
 
-    if (connect(data->socket, (struct sockaddr*) &addrin, sizeof(addrin)) < 0) {
+    if (connect(data->socket, (struct sockaddr*) &addr_in, sizeof(addr_in)) < 0) {
         data->connected = JS_FALSE;
     }
     else {
         data->connected = JS_TRUE;
     }
+
+    data->addr_in = addr_in;
 
     *rval = BOOLEAN_TO_JSVAL(data->connected);
 
@@ -160,10 +163,13 @@ Socket_listen (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
 
     SocketInformation* data = JS_GetPrivate(cx, object);
 
-    struct sockaddr_in addrin;
+    struct sockaddr_in* addr_in = JS_malloc(cx, sizeof(struct sockaddr_in*));
+
+    addr_in->sin_family = data->family;
+    addr_in->sin_port   = htons((u_short) port);
 
     if (JSVAL_IS_NULL(argv[0])) {
-        addrin.sin_addr.s_addr = INADDR_ANY;
+        addr_in->sin_addr.s_addr = INADDR_ANY;
     }
     else {
         const char* ip = __Socket_getHostByName(cx, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
@@ -172,13 +178,31 @@ Socket_listen (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
             JS_ReportError(cx, "Couldn't resolve the hostname.");
             return JS_FALSE;
         }
+
+        addr_in->sin_addr.s_addr = inet_addr(ip);
     }
+
+    if (bind(data->socket, (struct sockaddr*) &addr_in, sizeof(addr_in)) < 0) {
+        JS_ReportError(cx, "Bind failed, address already in use.");
+        return JS_FALSE;
+    }
+
+    if (listen(data->socket, maxconn) < 0) {
+        JS_ReportError(cx, "Listen failed.");
+        return JS_FALSE;
+    }
+
+    data->addr_in = addr_in;
+
+    return JS_TRUE;
 }
 
 JSBool
 Socket_accept (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
+    SocketInformation* data = JS_GetPrivate(cx, object);
 
+    
 }
 
 JSBool

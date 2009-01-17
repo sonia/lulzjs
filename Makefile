@@ -1,13 +1,11 @@
 VERSION = 0.1.7
-SPIDERMONKEY_HEADERS = /usr/include/js
-SPIDERMONKEY_LIB     = -ljs
 
 CC         = gcc
 CXX        = g++
 BINDIR     = /usr/bin
 LJS_LIBDIR = /usr/lib/lulzjs
-CFLAGS     = -DXP_UNIX -D__LJS_LIBRARY_PATH__="\"${LJS_LIBDIR}\"" -D__LJS_VERSION__="\"${VERSION}\"" -I${SPIDERMONKEY_HEADERS}
-LDFLAGS    = ${SPIDERMONKEY_LIB}
+CFLAGS     = -DXP_UNIX -D__LJS_LIBRARY_PATH__="\"${LJS_LIBDIR}\"" -D__LJS_VERSION__="\"${VERSION}\"" -I/usr/lib/lulzjs/js
+LDFLAGS    = -L/usr/lib/lulzjs/js -ljs
 
 ifdef DEBUG
 CFLAGS += -g
@@ -143,7 +141,8 @@ install: all core_install libcore_install libsystem_install
 
 uninstall:
 	rm -f ${BINDIR}/ljs
-	rm -rf ${LJS_LIBDIR}
+	rm -rf ${LJS_LIBDIR}/Core
+	rm -rf ${LJS_LIBDIR}/System
 	
 
 clean:
