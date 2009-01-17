@@ -25,7 +25,7 @@ typedef struct {
     unsigned type;
     unsigned protocol;
     JSBool connected;
-    struct sockaddr_in* addrin;
+    struct sockaddr* addr;
 } SocketInformation;
 
 #endif

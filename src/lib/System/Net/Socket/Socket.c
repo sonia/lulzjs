@@ -51,6 +51,10 @@ Socket_initialize (JSContext* cx)
         property = INT_TO_JSVAL(PF_UNSPEC);
         JS_SetProperty(cx, object, "PF_UNSPEC", &property);
 
+        // Other
+        property = JSVAL_NULL;
+        JS_SetProperty(cx, object, "INADDR_ANY", &property);
+
         return JS_TRUE;
     }
 
@@ -93,7 +97,10 @@ Socket_finalize (JSContext* cx, JSObject* object)
     SocketInformation* data = JS_GetPrivate(cx, object);
 
     if (data) {
-        JS_free(cx, data->addrin);
+        if (data->addr) {
+            JS_free(cx, data->addr);
+        }
+
         close(data->socket);
         JS_free(cx, data);
     }
@@ -112,7 +119,7 @@ Socket_connect (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval*
 
     SocketInformation* data = JS_GetPrivate(cx, object);
 
-    struct sockaddr_in* addrin = JS_malloc(cx, sizeof(struct sockaddr_in*));
+    struct sockaddr_in* addrin = JS_malloc(cx, sizeof(struct sockaddr_in));
 
     addrin->sin_family = data->family;
     addrin->sin_port   = htons((u_short) port);
@@ -138,7 +145,7 @@ Socket_connect (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval*
         data->connected = JS_TRUE;
     }
 
-    data->addrin = addrin;
+    data->addr = (struct sockaddr*) addrin;
 
     *rval = BOOLEAN_TO_JSVAL(data->connected);
 
@@ -163,7 +170,7 @@ Socket_listen (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
 
     SocketInformation* data = JS_GetPrivate(cx, object);
 
-    struct sockaddr_in* addrin = JS_malloc(cx, sizeof(struct sockaddr_in*));
+    struct sockaddr_in* addrin = JS_malloc(cx, sizeof(struct sockaddr_in));
 
     addrin->sin_family = data->family;
     addrin->sin_port   = htons((u_short) port);
@@ -183,7 +190,7 @@ Socket_listen (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
     }
 
     if (bind(data->socket, (struct sockaddr*) addrin, sizeof(struct sockaddr_in)) < 0) {
-        JS_ReportError(cx, "Bind failed, address already in use.");
+        JS_ReportError(cx, "Bind failed, probably the port is already in use.");
         return JS_FALSE;
     }
 
@@ -192,7 +199,7 @@ Socket_listen (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
         return JS_FALSE;
     }
 
-    data->addrin = addrin;
+    data->addr = (struct sockaddr*) addrin;
 
     return JS_TRUE;
 }
@@ -202,7 +209,18 @@ Socket_accept (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
 {
     SocketInformation* data = JS_GetPrivate(cx, object);
 
-    
+    JSObject* sock = JS_NewObject(cx, &Socket_class, JS_GetPrototype(cx, object), NULL);
+
+    int size = sizeof(struct sockaddr);
+
+    SocketInformation* newData = JS_malloc(cx, sizeof(SocketInformation));
+    newData->addr     = JS_malloc(cx, sizeof(struct sockaddr*));
+    newData->socket   = accept(data->socket, newData->addr, &size);
+    newData->family   = ((struct sockaddr_in*)newData->addr)->sin_family;
+    JS_SetPrivate(cx, sock, newData);
+
+    *rval = OBJECT_TO_JSVAL(sock);
+    return JS_TRUE;
 }
 
 JSBool
