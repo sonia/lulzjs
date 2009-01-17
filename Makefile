@@ -4,8 +4,8 @@ CC         = gcc
 CXX        = g++
 BINDIR     = /usr/bin
 LJS_LIBDIR = /usr/lib/lulzjs
-CFLAGS     = -DXP_UNIX -D__LJS_LIBRARY_PATH__="\"${LJS_LIBDIR}\"" -D__LJS_VERSION__="\"${VERSION}\"" -I/usr/lib/lulzjs/js
-LDFLAGS    = -L/usr/lib/lulzjs/js -ljs
+CFLAGS     = -DXP_UNIX -D__LJS_LIBRARY_PATH__="\"${LJS_LIBDIR}\"" -D__LJS_VERSION__="\"${VERSION}\"" -I/usr/include/js
+LDFLAGS    = -ljs
 
 ifdef DEBUG
 CFLAGS += -g
@@ -147,5 +147,5 @@ uninstall:
 
 clean:
 	rm -f ljs;
-	find .|egrep "\.l?o"|xargs rm -f
+	find src|egrep "\.l?o"|xargs rm -f
 

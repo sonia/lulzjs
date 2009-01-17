@@ -1,5 +1,11 @@
 #! /bin/sh
-mkdir -p /usr/lib/lulzjs/js
+mkdir -p /usr/include/js
+mkdir -p /usr/lib
+
 make -f Makefile.ref LIBDIR=lib JS_THREADSAFE=1
-make -f Makefile.ref install DESTDIR= INCLUDEDIR=/usr/lib/lulzjs/js LIBDIR=lib/lulzjs/js
-chmod -R a+rx /usr/lib/lulzjs
+make -f Makefile.ref install DESTDIR= INCLUDEDIR=/usr/include/js LIBDIR=lib
+
+chmod a+rx /usr/include/js
+chmod a+r  /usr/include/js/*
+
+make -f Makefile.ref clean
