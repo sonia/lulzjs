@@ -26,10 +26,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern short exec (JSContext* cx);
+extern JSBool exec (JSContext* cx);
 extern void reportError (JSContext *cx, const char *message, JSErrorReport *report);
 
-extern short Thread_initialize (JSContext* cx);
+extern JSBool Thread_initialize (JSContext* cx);
 
 extern JSBool Thread_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 extern void   Thread_finalize (JSContext* cx, JSObject* object); 
@@ -40,12 +40,7 @@ static JSClass Thread_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, Thread_finalize
 };
 
-typedef struct {
-    JSContext* cx;
-    JSObject* object;
-    uintN argc;
-    jsval* argv;
-} ThreadData;
+#include "private.h"
 
 extern JSBool Thread_start (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 void* __Thread_start (void* arg);

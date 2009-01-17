@@ -18,7 +18,7 @@
 
 #include "Thread.h"
 
-short exec (JSContext* cx) { return Thread_initialize(cx); }
+JSBool exec (JSContext* cx) { return Thread_initialize(cx); }
 
 void
 reportError (JSContext *cx, const char *message, JSErrorReport *report)
@@ -30,7 +30,7 @@ reportError (JSContext *cx, const char *message, JSErrorReport *report)
     );
 }
 
-short
+JSBool
 Thread_initialize (JSContext* cx)
 {
     JSObject* parent = JS_GetGlobalObject(cx);
@@ -40,13 +40,11 @@ Thread_initialize (JSContext* cx)
         Thread_constructor, 1, NULL, Thread_methods, NULL, Thread_static_methods
     );
 
-    if (!object)
-        return 0;
+    if (object) {
+        return JS_TRUE;
+    }
 
-    // Default properties
-    jsval property;
-
-    return 1;
+    return JS_FALSE;
 }
 
 JSBool
