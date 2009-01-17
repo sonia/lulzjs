@@ -24,7 +24,7 @@ CORE_LDFLAGS = ${LDFLAGS} -ldl -lreadline -lncurses
 ## LIB_CORE ##
 LIB_CORE_DIR = src/core/Core
 LIB_CORE = \
-	${LIB_CORE_DIR}/lulzJS/Thread/Thread.o ${LIB_CORE_DIR}/lulzJS/Bytes/Bytes.o
+	${LIB_CORE_DIR}/Base/Thread/Thread.o ${LIB_CORE_DIR}/Base/Bytes/Bytes.o
 
 LIB_CORE_CFLAGS  = ${CFLAGS}
 LIB_CORE_LDFLAGS = ${LDFLAGS} -lpthread
