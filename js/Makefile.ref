@@ -63,7 +63,7 @@ INCLUDES   += -I$(OBJDIR)
 
 ifdef JS_THREADSAFE
 DEFINES += -DJS_THREADSAFE
-INCLUDES += -I/usr/include/nspr
+INCLUDES += -I./nspr
 ifdef USE_MSVC
 OTHER_LIBS += $(DIST)/lib/libnspr$(NSPR_LIBSUFFIX).lib
 else
