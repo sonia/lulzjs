@@ -1,8 +1,9 @@
 A simple javascript interpreter based on SpiderMonkey and Prototype.
 
 To compile the project do:
+
 cd js
-sudo compile.sh
+sudo ./compile.sh
 cd ..
 make
 sudo make install
