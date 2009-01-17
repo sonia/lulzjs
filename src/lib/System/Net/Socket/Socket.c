@@ -93,7 +93,7 @@ Socket_finalize (JSContext* cx, JSObject* object)
     SocketInformation* data = JS_GetPrivate(cx, object);
 
     if (data) {
-        JS_free(cx, data->addr_in);
+        JS_free(cx, data->addrin);
         close(data->socket);
         JS_free(cx, data);
     }
@@ -112,13 +112,13 @@ Socket_connect (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval*
 
     SocketInformation* data = JS_GetPrivate(cx, object);
 
-    struct sockaddr_in* addr_in = JS_malloc(cx, sizeof(struct sockaddr_in*));
+    struct sockaddr_in* addrin = JS_malloc(cx, sizeof(struct sockaddr_in*));
 
-    addr_in->sin_family = data->family;
-    addr_in->sin_port   = htons((u_short) port);
+    addrin->sin_family = data->family;
+    addrin->sin_port   = htons((u_short) port);
 
     if (__Socket_isIPv4(host)) {
-        addr_in->sin_addr.s_addr = inet_addr(host);
+        addrin->sin_addr.s_addr = inet_addr(host);
     }
     else {
         const char* ip = __Socket_getHostByName(cx, host);
@@ -128,17 +128,17 @@ Socket_connect (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval*
             return JS_TRUE;
         }
 
-        addr_in->sin_addr.s_addr = inet_addr(ip);
+        addrin->sin_addr.s_addr = inet_addr(ip);
     }
 
-    if (connect(data->socket, (struct sockaddr*) &addr_in, sizeof(addr_in)) < 0) {
+    if (connect(data->socket, (struct sockaddr*) addrin, sizeof(struct sockaddr_in)) < 0) {
         data->connected = JS_FALSE;
     }
     else {
         data->connected = JS_TRUE;
     }
 
-    data->addr_in = addr_in;
+    data->addrin = addrin;
 
     *rval = BOOLEAN_TO_JSVAL(data->connected);
 
@@ -163,13 +163,13 @@ Socket_listen (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
 
     SocketInformation* data = JS_GetPrivate(cx, object);
 
-    struct sockaddr_in* addr_in = JS_malloc(cx, sizeof(struct sockaddr_in*));
+    struct sockaddr_in* addrin = JS_malloc(cx, sizeof(struct sockaddr_in*));
 
-    addr_in->sin_family = data->family;
-    addr_in->sin_port   = htons((u_short) port);
+    addrin->sin_family = data->family;
+    addrin->sin_port   = htons((u_short) port);
 
     if (JSVAL_IS_NULL(argv[0])) {
-        addr_in->sin_addr.s_addr = INADDR_ANY;
+        addrin->sin_addr.s_addr = INADDR_ANY;
     }
     else {
         const char* ip = __Socket_getHostByName(cx, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
@@ -179,10 +179,10 @@ Socket_listen (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
             return JS_FALSE;
         }
 
-        addr_in->sin_addr.s_addr = inet_addr(ip);
+        addrin->sin_addr.s_addr = inet_addr(ip);
     }
 
-    if (bind(data->socket, (struct sockaddr*) &addr_in, sizeof(addr_in)) < 0) {
+    if (bind(data->socket, (struct sockaddr*) addrin, sizeof(struct sockaddr_in)) < 0) {
         JS_ReportError(cx, "Bind failed, address already in use.");
         return JS_FALSE;
     }
@@ -192,7 +192,7 @@ Socket_listen (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
         return JS_FALSE;
     }
 
-    data->addr_in = addr_in;
+    data->addrin = addrin;
 
     return JS_TRUE;
 }

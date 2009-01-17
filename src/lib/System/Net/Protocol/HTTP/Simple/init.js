@@ -16,6 +16,8 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
+require("System/System.so");
+
 require("System/Net/Net.so");
 
 require(["System/Net/Socket/Socket.so", "System/Net/Socket/Socket.js"]);

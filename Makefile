@@ -17,7 +17,7 @@ endif
 
 ## CORE ##
 CORE_DIR     = src/core
-CORE         = ${CORE_DIR}/main.o ${CORE_DIR}/Core.o ${CORE_DIR}/Misc.o ${CORE_DIR}/Interactive.o ${CORE_DIR}/Hash.o
+CORE         = ${CORE_DIR}/main.o ${CORE_DIR}/Core.o ${CORE_DIR}/Misc.o ${CORE_DIR}/Interactive.o
 CORE_CFLAGS  = ${CFLAGS}
 CORE_LDFLAGS = ${LDFLAGS} -ldl -lreadline -lncurses
 
