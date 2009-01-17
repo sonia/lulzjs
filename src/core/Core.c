@@ -18,9 +18,6 @@
 
 #include "Core.h"
 
-extern Hash* timeouts;
-extern Hash* intervals;
-
 JSObject*
 Core_initialize (JSContext *cx, const char* script)
 {

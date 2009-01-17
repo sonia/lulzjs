@@ -166,7 +166,12 @@ Socket_listen (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
         addrin.sin_addr.s_addr = INADDR_ANY;
     }
     else {
-        const char* ip = __Socket_getHostByName(cx, JS_GetStringBytes
+        const char* ip = __Socket_getHostByName(cx, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
+        
+        if (!ip) {
+            JS_ReportError(cx, "Couldn't resolve the hostname.");
+            return JS_FALSE;
+        }
     }
 }
 

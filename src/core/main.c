@@ -23,8 +23,6 @@
 #include "Misc.h"
 
 #include "Core.h"
-extern Hash* timeouts;
-extern Hash* intervals;
 
 #include "Interactive.h"
 
