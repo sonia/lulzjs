@@ -33,27 +33,28 @@ Socket_initialize (JSContext* cx)
         Socket_constructor, 0, NULL, Socket_methods, NULL, Socket_static_methods
     );
 
-    if (!object)
-        return JS_FALSE;
+    if (object) {
+        // Default properties
+        jsval property;
+    
+        // Address families.
+        property = INT_TO_JSVAL(AF_INET);
+        JS_SetProperty(cx, object, "AF_INET", &property);
+    
+        // Socket types.
+        property = INT_TO_JSVAL(SOCK_STREAM);
+        JS_SetProperty(cx, object, "SOCK_STREAM", &property);
+        property = INT_TO_JSVAL(SOCK_DGRAM);
+        JS_SetProperty(cx, object, "SOCK_DGRAM", &property);
+    
+        // Protocol type.
+        property = INT_TO_JSVAL(PF_UNSPEC);
+        JS_SetProperty(cx, object, "PF_UNSPEC", &property);
 
-    // Default properties
-    jsval property;
+        return JS_TRUE;
+    }
 
-    // Address families.
-    property = INT_TO_JSVAL(AF_INET);
-    JS_SetProperty(cx, object, "AF_INET", &property);
-
-    // Socket types.
-    property = INT_TO_JSVAL(SOCK_STREAM);
-    JS_SetProperty(cx, object, "SOCK_STREAM", &property);
-    property = INT_TO_JSVAL(SOCK_DGRAM);
-    JS_SetProperty(cx, object, "SOCK_DGRAM", &property);
-
-    // Protocol type.
-    property = INT_TO_JSVAL(PF_UNSPEC);
-    JS_SetProperty(cx, object, "PF_UNSPEC", &property);
-
-    return JS_TRUE;
+    return JS_FALSE;
 }
 
 JSBool
@@ -139,6 +140,40 @@ Socket_connect (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval*
     *rval = BOOLEAN_TO_JSVAL(data->connected);
 
     return JS_TRUE;
+}
+
+JSBool
+Socket_listen (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    int port;
+    int maxconn = 255;
+
+    if (argc != 2) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    switch (argc) {
+        case 3: JS_ValueToInt32(cx, argv[2], &maxconn); break;
+        case 2: JS_ValueToInt32(cx, argv[1], &port); break;
+    }
+
+    SocketInformation* data = JS_GetPrivate(cx, object);
+
+    struct sockaddr_in addrin;
+
+    if (JSVAL_IS_NULL(argv[0])) {
+        addrin.sin_addr.s_addr = INADDR_ANY;
+    }
+    else {
+        const char* ip = __Socket_getHostByName(cx, JS_GetStringBytes
+    }
+}
+
+JSBool
+Socket_accept (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+
 }
 
 JSBool

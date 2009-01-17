@@ -26,10 +26,6 @@ Core_initialize (JSContext *cx, const char* script)
 {
     srand((unsigned) time(NULL));
 
-    // FIXME: Also these need to use garbage collection.
-    timeouts  = Hash_create();
-    intervals = Hash_create();
-
     JSObject* object = JS_NewObject(cx, &Core_class, NULL, NULL);
 
     if (object && JS_InitStandardClasses(cx, object)) {

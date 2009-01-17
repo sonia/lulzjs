@@ -33,13 +33,9 @@
 #include <unistd.h>
 
 #include "Misc.h"
-#include "Hash.h"
 
 static char** included       = NULL;
 static size_t includedNumber = 0;
-
-Hash* timeouts;
-Hash* intervals;
 
 static JSClass Core_class = {
     "Core", JSCLASS_GLOBAL_FLAGS|JSCLASS_HAS_PRIVATE,

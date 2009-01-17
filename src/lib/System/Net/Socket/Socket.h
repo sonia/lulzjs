@@ -49,6 +49,9 @@ static JSClass Socket_class = {
 
 extern JSBool Socket_connect (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
+extern JSBool Socket_listen (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool Socket_accept (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
 extern JSBool Socket_send (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 extern JSBool Socket_receive (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
@@ -60,6 +63,9 @@ JSBool __Socket_isIPv4 (const char* host);
 
 static JSFunctionSpec Socket_methods[] = {
     {"connect", Socket_connect, 0, 0, 0},
+
+    {"listen", Socket_listen, 0, 0, 0},
+    {"accept", Socket_accept, 0, 0, 0},
 
     {"send",    Socket_send,    0, 0, 0},
     {"receive", Socket_receive, 0, 0, 0},
