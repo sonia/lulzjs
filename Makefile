@@ -24,7 +24,7 @@ CORE_LDFLAGS = ${LDFLAGS} -ldl -lreadline -lncurses
 ## LIB_CORE ##
 LIB_CORE_DIR = src/core/Core
 LIB_CORE = \
-	${LIB_CORE_DIR}/Thread/Thread.o
+	${LIB_CORE_DIR}/lulzJS/Thread/Thread.o ${LIB_CORE_DIR}/lulzJS/Bytes/Bytes.o
 
 LIB_CORE_CFLAGS  = ${CFLAGS}
 LIB_CORE_LDFLAGS = ${LDFLAGS} -lpthread
@@ -59,19 +59,24 @@ $(LIB_CORE): $(LIB_CORE:.o=.c)
 libcore_install:
 	mkdir -p ${LJS_LIBDIR}
 	mkdir -p ${LJS_LIBDIR}/Core
-	mkdir -p ${LJS_LIBDIR}/Core/Thread
+	mkdir -p ${LJS_LIBDIR}/Core/Base
+	mkdir -p ${LJS_LIBDIR}/Core/Base/Thread
+	mkdir -p ${LJS_LIBDIR}/Core/Base/Bytes
 	mkdir -p ${LJS_LIBDIR}/Core/Prototype
+	mkdir -p ${LJS_LIBDIR}/Core/Extension
 ########
-	cp -f  ${LIB_CORE_DIR}/init.js				${LJS_LIBDIR}/Core/init.js
+	cp -f  ${LIB_CORE_DIR}/init.js					${LJS_LIBDIR}/Core/init.js
 ########
-	cp -f  ${LIB_CORE_DIR}/Thread/init.js		${LJS_LIBDIR}/Core/Thread/init.js
-	cp -f  ${LIB_CORE_DIR}/Thread/Thread.o		${LJS_LIBDIR}/Core/Thread/Thread.so
+	cp -f  ${LIB_CORE_DIR}/Base/Bytes/init.js		${LJS_LIBDIR}/Core/Base/Bytes/init.js
+	cp -f  ${LIB_CORE_DIR}/Base/Bytes/Bytes.so		${LJS_LIBDIR}/Core/Base/Bytes/Bytes.so
 ########
-	cp -rf ${LIB_CORE_DIR}/Prototype/*			${LJS_LIBDIR}/Core/Prototype/
+	cp -f  ${LIB_CORE_DIR}/Base/Thread/init.js		${LJS_LIBDIR}/Core/Base/Thread/init.js
+	cp -f  ${LIB_CORE_DIR}/Base/Thread/Thread.o		${LJS_LIBDIR}/Core/Base/Thread/Thread.so
 ########
-	cp -f  ${LIB_CORE_DIR}/String.js			${LJS_LIBDIR}/Core/String.js
-	cp -f  ${LIB_CORE_DIR}/Object.js            ${LJS_LIBDIR}/Core/Object.js
-
+	cp -rf ${LIB_CORE_DIR}/Prototype/*				${LJS_LIBDIR}/Core/Prototype/
+########
+	cp -f  ${LIB_CORE_DIR}/Extension/String.js		${LJS_LIBDIR}/Core/Extension/String.js
+	cp -f  ${LIB_CORE_DIR}/Extension/Object.js		${LJS_LIBDIR}/Core/Extension/Object.js
 	
 libsystem: $(LIB_SYSTEM)
 

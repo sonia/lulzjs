@@ -6,4 +6,4 @@ var socket = new Socket;
 socket.connect("localhost", 2707);
 
 socket.sendLine("NIGGER");
-Console.writeLine(socket.receiveLine());
+Console.writeLine("Server: "+(socket.receiveLine()));

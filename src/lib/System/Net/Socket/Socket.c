@@ -226,7 +226,7 @@ Socket_accept (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
 JSBool
 Socket_send (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
-    char* string;
+    unsigned char* string;
     unsigned flags = 0;
 
     if (argc < 1) {
@@ -246,7 +246,7 @@ Socket_send (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
         return JS_FALSE;
     }
     
-    *rval = INT_TO_JSVAL(send(data->socket, string, strlen(string), flags));
+    *rval = INT_TO_JSVAL(send(data->socket, string, sizeof(char)*strlen(string), flags));
 
     return JS_TRUE;
 }
@@ -274,16 +274,16 @@ Socket_receive (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval 
         return JS_FALSE;
     }
 
-    char* string = JS_malloc(cx, size*sizeof(char)+1);
+    unsigned char* string = JS_malloc(cx, size*sizeof(char)+1);
 
     unsigned offset = 0;
 
     while (offset != size) {
-        offset += recv(data->socket, (string+offset), size, flags);
+        offset += recv(data->socket, (string+offset), sizeof(char)*size, flags);
     }
     string[size] = '\0';
 
-    *rval = STRING_TO_JSVAL(JS_NewString(cx, string, strlen(string)));
+    *rval = STRING_TO_JSVAL(JS_NewString(cx, string, sizeof(char)*strlen(string)));
 
     return JS_TRUE;
 }

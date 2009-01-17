@@ -2,4 +2,6 @@
 require("System/Console");
 require("System/Net/Protocol/HTTP/Simple");
 
-Console.writeLine(HTTP.Get(arguments.shift()));
+var content = HTTP.Get(arguments.shift());
+
+Console.writeLine(content.length+":\n"+content);
