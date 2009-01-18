@@ -16,50 +16,19 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-#include "Bytes.h"
-
-JSBool exec (JSContext* cx) { return Bytes_initialize(cx); }
-
-JSBool
-Bytes_initialize (JSContext* cx)
-{
-    JSObject* parent = JS_GetGlobalObject(cx);
-
-    JSObject* object = JS_InitClass(
-        cx, parent, NULL, &Bytes_class,
-        Bytes_constructor, 1, NULL, Bytes_methods, NULL, Bytes_static_methods
-    );
-
-    if (object) {
-        
-        return JS_TRUE;
+Bytes.prototype.byteAt = function (index) {
+    if (index >= this.__array.length) {
+        throw "Index out of range.";
     }
 
-    return JS_FALSE;
-}
+    return this.__array[index];
+};
 
-JSBool
-Bytes_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
-{
-    JSObject* array;
+Bytes.prototype.toArray = function () {
+    return this.__array;
+};
 
-    if (argc < 1 || !JS_ConvertArguments(cx, argc, argv, "o", &array)) {
-        JS_ReportError(cx, "Not enough parameters.");
-        return JS_FALSE;
-    }
+Bytes.prototype.toString = function () {
 
-    if (!JS_IsArrayObject(cx, array)) {
-        JS_ReportError(cx, "Bytes needs an array of ints.");
-        return JS_FALSE;
-    }
+};
 
-    jsval property = OBJECT_TO_JSVAL(array);
-    JS_SetProperty(cx, object, "__array", &property);
-
-    return JS_TRUE;
-}
-
-void
-Bytes_finalize (JSContext* cx, JSObject* object)
-{
-}

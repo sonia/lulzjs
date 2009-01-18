@@ -18,6 +18,7 @@
 
 typedef struct {
     JSObject*      array;
-    unsigned char* data;
-} BytesData;
+    unsigned char* raw;
+    jsuint         length;
+} BytesInformation;
 

@@ -1,6 +1,7 @@
 A simple javascript interpreter based on SpiderMonkey and Prototype.
 
 You need the nspr library installed (libnspr4.so) [Probably if you have firefox you have that lib]
+You also need the readline library (it's a GNU standard)
 
 To compile the project do:
 

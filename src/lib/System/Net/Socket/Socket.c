@@ -289,6 +289,103 @@ Socket_receive (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval 
 }
 
 JSBool
+Socket_sendBytes (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    JSObject* bytes;
+    unsigned flags = 0;
+
+    if (argc < 1) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    switch (argc) {
+        case 2: JS_ValueToInt32(cx, argv[1], &flags);
+        case 1: bytes = JSVAL_TO_OBJECT(argv[0]);
+    }
+
+    SocketInformation* data = JS_GetPrivate(cx, object);
+
+    if (!data->connected) {
+        JS_ReportError(cx, "The socket isn't connected.");
+        return JS_FALSE;
+    }
+
+    // TODO: Add the check if it's a Bytes object.
+
+    jsval property; JS_GetProperty(cx, bytes, "__array", &property);
+    JSObject* array = JSVAL_TO_OBJECT(property);
+
+    jsuint length; JS_GetArrayLength(cx, array, &length);
+    unsigned char* string = JS_malloc(cx, length*sizeof(char));
+
+    jsuint i;
+    for (i = 0; i < length; i++) {
+        jsval val; JS_GetElement(cx, array, i, &val);
+        string[i] = (unsigned char) JSVAL_TO_INT(val);
+    }
+
+    *rval = INT_TO_JSVAL(send(data->socket, string, sizeof(char)*length, flags));
+
+    return JS_TRUE;
+}
+
+JSBool
+Socket_receiveBytes (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval *rval)
+{
+    unsigned size;
+    unsigned flags = 0;
+
+    JS_BeginRequest(cx);
+
+    if (argc < 1) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    switch (argc) {
+        case 2: JS_ValueToInt32(cx, argv[1], &flags);
+        case 1: JS_ValueToInt32(cx, argv[0], &size);
+    }
+
+    SocketInformation* data = JS_GetPrivate(cx, object);
+
+    if (!data->connected) {
+        JS_ReportError(cx, "The socket isn't connected.");
+        return JS_FALSE;
+    }
+
+    unsigned char* string = JS_malloc(cx, size*sizeof(char));
+
+    unsigned offset = 0;
+
+    while (offset != size) {
+        offset += recv(data->socket, (string+offset), sizeof(char)*size, flags);
+    }
+
+    JSObject* array = JS_NewArrayObject(cx, 0, NULL);
+
+    unsigned i;
+    for (i = 0; i < size; i++) {
+        jsval val = INT_TO_JSVAL(string[i]);
+        JS_SetElement(cx, array, i, &val);
+    }
+
+    jsval property; JS_GetProperty(cx, JS_GetGlobalObject(cx), "Bytes", &property);
+    JSObject* Bytes = JSVAL_TO_OBJECT(property);
+    JSClass*  class = JS_GET_CLASS(cx, Bytes);
+    JSObject* proto = JS_GetPrototype(cx, Bytes);
+    jsval newArgv[] = {OBJECT_TO_JSVAL(array)};
+
+    JSObject* bytes = JS_ConstructObjectWithArguments(cx, class, proto, NULL, 1, argv);
+    *rval = OBJECT_TO_JSVAL(bytes);
+
+    JS_EndRequest(cx);
+
+    return JS_TRUE;
+}
+
+JSBool
 Socket_static_getHostByName (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     const char* host;

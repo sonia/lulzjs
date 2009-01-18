@@ -37,7 +37,8 @@ static JSClass Bytes_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, Bytes_finalize
 };
 
-#include "private.h"
+extern JSBool Bytes_byteAt (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool Bytes_toArray (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 static JSFunctionSpec Bytes_methods[] = {
     {NULL}
