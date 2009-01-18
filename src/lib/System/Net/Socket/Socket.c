@@ -336,8 +336,6 @@ Socket_receiveBytes (JSContext *cx, JSObject *object, uintN argc, jsval *argv, j
     unsigned size;
     unsigned flags = 0;
 
-    JS_BeginRequest(cx);
-
     if (argc < 1) {
         JS_ReportError(cx, "Not enough parameters.");
         return JS_FALSE;
@@ -376,11 +374,9 @@ Socket_receiveBytes (JSContext *cx, JSObject *object, uintN argc, jsval *argv, j
     JSClass*  class = JS_GET_CLASS(cx, Bytes);
     JSObject* proto = JS_GetPrototype(cx, Bytes);
     jsval newArgv[] = {OBJECT_TO_JSVAL(array)};
-
     JSObject* bytes = JS_ConstructObjectWithArguments(cx, class, proto, NULL, 1, argv);
-    *rval = OBJECT_TO_JSVAL(bytes);
 
-    JS_EndRequest(cx);
+    *rval = OBJECT_TO_JSVAL(bytes);
 
     return JS_TRUE;
 }
