@@ -179,21 +179,29 @@ Core_exit (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 JSBool
 Core_ENV (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-    char* env;
-
-    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "s", &env)) {
+    if (argc < 1) {
         JS_ReportError(cx, "Not enough parameters.");
         return JS_FALSE;
     }
 
-    char* value = getenv(env);
+    char* env = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 
-    if (value == NULL) {
-        *rval = JSVAL_NULL;
+    if (argc == 1) {
+        char* envValue = getenv(env);
+
+        *rval = (envValue != NULL)
+            ? STRING_TO_JSVAL(JS_NewString(cx, JS_strdup(cx, envValue), strlen(envValue)))
+            : JSVAL_NULL;
     }
     else {
-        value = JS_strdup(cx, value);
-        *rval = STRING_TO_JSVAL(JS_NewString(cx, value, strlen(value)));
+        if (JSVAL_IS_NULL(argv[1])) {
+            unsetenv(env);
+            *rval = JSVAL_NULL;
+        }
+        else {
+            char* value = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
+            *rval = BOOLEAN_TO_JSVAL(!setenv(env, value, 1));
+        }
     }
 
     return JS_TRUE;

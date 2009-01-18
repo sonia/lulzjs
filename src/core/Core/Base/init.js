@@ -16,6 +16,6 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-require("Bytes");
+require("Bytes.js");
 require("Thread");
 

@@ -16,8 +16,8 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-require("Base");
 require("Prototype");
+require("Base");
 require("Extension");
 
 Program.GCExecution = new PeriodicalExecuter(function(){Program.GC()}, 60);

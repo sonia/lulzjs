@@ -369,12 +369,17 @@ Socket_receiveBytes (JSContext *cx, JSObject *object, uintN argc, jsval *argv, j
         JS_SetElement(cx, array, i, &val);
     }
 
+    jsval newArgv[] = {OBJECT_TO_JSVAL(array)};
+
     jsval property; JS_GetProperty(cx, JS_GetGlobalObject(cx), "Bytes", &property);
     JSObject* Bytes = JSVAL_TO_OBJECT(property);
-    JSClass*  class = JS_GET_CLASS(cx, Bytes);
-    JSObject* proto = JS_GetPrototype(cx, Bytes);
-    jsval newArgv[] = {OBJECT_TO_JSVAL(array)};
-    JSObject* bytes = JS_ConstructObjectWithArguments(cx, class, proto, NULL, 1, argv);
+
+    jsval jsProto; JS_GetProperty(cx, Bytes, "prototype", &jsProto);
+    JSObject* proto = JSVAL_TO_OBJECT(jsProto);
+
+    JSObject* bytes = JS_ConstructObject(cx, NULL, proto, NULL);
+    jsval ret;
+    JS_CallFunctionValue(cx, bytes, OBJECT_TO_JSVAL(Bytes), 1, newArgv, &ret);
 
     *rval = OBJECT_TO_JSVAL(bytes);
 

@@ -16,19 +16,35 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-Bytes.prototype.byteAt = function (index) {
-    if (index >= this.__array.length) {
-        throw "Index out of range.";
+Program.Bytes = Class.create({
+    initialize: function (base) {
+        if (!Object.is(base, Array)) {
+            throw "You have to pass an array.";
+        }
+
+        this.__array = base;
+    },
+    
+    byteAt: function (index) {
+        if (index >= this.__array.length) {
+            throw "Index out of range.";
+        }
+
+        return this.__array[index];
+    },
+
+    toArray: function () {
+        return this.__array;
+    },
+
+    toString: function () {
+        var str = new String;
+
+        for (var i = 0; i < this.__array.length; i++) {
+            str += "\\x"+this.__array[i].toPaddedString(2, 16);
+        }
+
+        return str;
     }
-
-    return this.__array[index];
-};
-
-Bytes.prototype.toArray = function () {
-    return this.__array;
-};
-
-Bytes.prototype.toString = function () {
-
-};
+});
 

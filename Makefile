@@ -4,7 +4,7 @@ CC         = gcc
 CXX        = g++
 BINDIR     = /usr/bin
 LJS_LIBDIR = /usr/lib/lulzjs
-CFLAGS     = -DXP_UNIX -D__LJS_LIBRARY_PATH__="\"${LJS_LIBDIR}\"" -D__LJS_VERSION__="\"${VERSION}\"" -I/usr/include/js -I./src/core -I./src/lib
+CFLAGS     = -DXP_UNIX -DJS_THREADSAFE -D__LJS_LIBRARY_PATH__="\"${LJS_LIBDIR}\"" -D__LJS_VERSION__="\"${VERSION}\"" -I/usr/include/js -I./src/core -I./src/lib
 LDFLAGS    = -ljs
 
 ifdef DEBUG
@@ -24,7 +24,7 @@ CORE_LDFLAGS = ${LDFLAGS} -ldl -lreadline -lncurses
 ## LIB_CORE ##
 LIB_CORE_DIR = src/core/Core
 LIB_CORE = \
-	${LIB_CORE_DIR}/Base/Thread/Thread.o ${LIB_CORE_DIR}/Base/Bytes/Bytes.o
+	${LIB_CORE_DIR}/Base/Thread/Thread.o 
 
 LIB_CORE_CFLAGS  = ${CFLAGS}
 LIB_CORE_LDFLAGS = ${LDFLAGS} -lpthread
@@ -61,7 +61,6 @@ libcore_install:
 	mkdir -p ${LJS_LIBDIR}/Core
 	mkdir -p ${LJS_LIBDIR}/Core/Base
 	mkdir -p ${LJS_LIBDIR}/Core/Base/Thread
-	mkdir -p ${LJS_LIBDIR}/Core/Base/Bytes
 	mkdir -p ${LJS_LIBDIR}/Core/Prototype
 	mkdir -p ${LJS_LIBDIR}/Core/Extension
 ########
@@ -69,9 +68,7 @@ libcore_install:
 ########
 	cp -f  ${LIB_CORE_DIR}/Base/init.js				${LJS_LIBDIR}/Core/Base/init.js
 ########
-	cp -f  ${LIB_CORE_DIR}/Base/Bytes/init.js		${LJS_LIBDIR}/Core/Base/Bytes/init.js
-	cp -f  ${LIB_CORE_DIR}/Base/Bytes/Bytes.o		${LJS_LIBDIR}/Core/Base/Bytes/Bytes.so
-	cp -f  ${LIB_CORE_DIR}/Base/Bytes/Bytes.js		${LJS_LIBDIR}/Core/Base/Bytes/Bytes.js
+	cp -f  ${LIB_CORE_DIR}/Base/Bytes.js		${LJS_LIBDIR}/Core/Base/Bytes.js
 ########
 	cp -f  ${LIB_CORE_DIR}/Base/Thread/init.js		${LJS_LIBDIR}/Core/Base/Thread/init.js
 	cp -f  ${LIB_CORE_DIR}/Base/Thread/Thread.o		${LJS_LIBDIR}/Core/Base/Thread/Thread.so
