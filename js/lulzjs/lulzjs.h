@@ -16,22 +16,14 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-#ifndef _SYSTEM_NET_PROTOCOL_HTTP_H
-#define _SYSTEM_NET_PROTOCOL_HTTP_H
+#include "jsapi.h"
 
-#include "lulzjs.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <limits.h>
+#include <time.h>
 
-extern JSBool exec (JSContext* cx);
-extern JSBool HTTP_initialize (JSContext* cx);
-
-static JSClass HTTP_class = {
-    "HTTP", 0,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
-};
-
-static JSFunctionSpec HTTP_methods[] = {
-    {NULL}
-};
-
-#endif
+JSBool js_ObjectIs (JSContext* cx, JSObject* object, const char* name);
+#define JS_OBJECT_IS(cx, obj, name) js_ObjectIs(cx, obj, name)

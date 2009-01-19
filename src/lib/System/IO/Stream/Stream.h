@@ -19,10 +19,7 @@
 #ifndef _SYSTEM_IO_STREAM_H
 #define _SYSTEM_IO_STREAM_H
 
-#include "jsapi.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "lulzjs.h"
 
 extern JSBool exec (JSContext* cx);
 extern JSBool Stream_initialize (JSContext* cx);

@@ -5,7 +5,7 @@ CXX        = g++
 BINDIR     = /usr/bin
 LJS_LIBDIR = /usr/lib/lulzjs
 CFLAGS     = -DXP_UNIX -DJS_THREADSAFE -D__LJS_LIBRARY_PATH__="\"${LJS_LIBDIR}\"" -D__LJS_VERSION__="\"${VERSION}\"" -I/usr/include/js -I./src/core -I./src/lib
-LDFLAGS    = -ljs
+LDFLAGS    = -ljs -llulzjs
 
 ifdef DEBUG
 CFLAGS += -g
@@ -56,7 +56,7 @@ $(LIB_CORE): $(LIB_CORE:.o=.c)
 	${CC} ${LIB_CORE_CFLAGS} -fPIC -c $*.c -o $*.lo
 	${CC} ${LIB_CORE_LDFLAGS} -shared -Wl,-soname,`basename $*`.so -o $*.o $*.lo -lc
 
-libcore_install:
+libcore_install: libcore
 	mkdir -p ${LJS_LIBDIR}
 	mkdir -p ${LJS_LIBDIR}/Core
 	mkdir -p ${LJS_LIBDIR}/Core/Base
@@ -85,7 +85,7 @@ $(LIB_SYSTEM): $(LIB_SYSTEM:.o=.c)
 	${CC} ${LIB_SYSTEM_CFLAGS} -fPIC -c $*.c -o $*.lo
 	${CC} ${LIB_SYSTEM_LDFLAGS} -shared -Wl,-soname,`basename $*`.so -o $*.o $*.lo -lc
 
-libsystem_install:
+libsystem_install: libsystem
 	mkdir -p ${LJS_LIBDIR}
 	mkdir -p ${LJS_LIBDIR}/System
 	mkdir -p ${LJS_LIBDIR}/System/Console

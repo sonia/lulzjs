@@ -122,7 +122,66 @@ File_read (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval *rval
         return JS_TRUE;
     }
 
-    char* string = JS_malloc(cx, size*sizeof(char));
+    unsigned char* string = JS_malloc(cx, (size+1)*sizeof(char));
+    memset(string, 0, size+1);
+    fread(string, sizeof(char), size, data->stream->descriptor);
+
+    *rval = STRING_TO_JSVAL(JS_NewString(cx, string, size));
+    return JS_TRUE;
+}
+
+JSBool
+File_writeBytes (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    JSObject* bytes;
+
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "o", &bytes)) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    if (!JS_OBJECT_IS(cx, bytes, "Bytes")) {
+        JS_ReportError(cx, "You have to pass a Bytes object.");
+        return JS_FALSE;
+    }
+
+    FileInformation* data = JS_GetPrivate(cx, object);
+
+    jsval property; JS_GetProperty(cx, bytes, "__array", &property);
+    JSObject* array = JSVAL_TO_OBJECT(property);
+
+    jsuint length; JS_GetArrayLength(cx, array, &length);
+    unsigned char* string = JS_malloc(cx, length*sizeof(char));
+
+    jsuint i;
+    for (i = 0; i < length; i++) {
+        jsval val; JS_GetElement(cx, array, i, &val);
+        string[i] = (unsigned char) JSVAL_TO_INT(val);
+    }
+
+    *rval = INT_TO_JSVAL(fwrite(string, sizeof(*string), strlen(string), data->stream->descriptor));
+    return JS_TRUE;
+}
+
+JSBool
+File_readBytes (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval *rval)
+{
+    const unsigned int size;
+
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "u", &size)) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    FileInformation* data = JS_GetPrivate(cx, object);
+
+    if (feof(data->stream->descriptor)) {
+        *rval = JSVAL_FALSE;
+        return JS_TRUE;
+    }
+
+    unsigned char* string = JS_malloc(cx, (size+1)*sizeof(char));
+    memset(string, 0, size+1);
     fread(string, sizeof(char), size, data->stream->descriptor);
 
     *rval = STRING_TO_JSVAL(JS_NewString(cx, string, size));

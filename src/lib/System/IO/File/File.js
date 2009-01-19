@@ -37,13 +37,13 @@ Object.extend(System.IO.File.prototype, {
         while ((line = this.readLine()) != null) {
             str += line+"\n";
         }
-        str = str.substr(0, str.length-2);
+        str = str.substr(0, str.length-1);
 
         return str;
 
     },
 
     readAll: function () {
-        return this.readToEnd().split(/\n/);
+        return this.readToEnd().split('\n');
     }
 });

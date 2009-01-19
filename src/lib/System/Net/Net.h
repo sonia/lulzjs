@@ -19,7 +19,7 @@
 #ifndef _SYSTEM_NET_H
 #define _SYSTEM_NET_H
 
-#include "jsapi.h"
+#include "lulzjs.h"
 
 extern JSBool exec (JSContext* cx);
 extern JSBool Net_initialize (JSContext* cx);

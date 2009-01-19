@@ -19,10 +19,7 @@
 #ifndef _INTERACTIVE_H
 #define _INTERACTIVE_H
 
-#include "jsapi.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "lulzjs.h"
 
 #include <readline/readline.h>
 #include <readline/history.h>

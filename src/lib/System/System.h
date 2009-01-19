@@ -19,7 +19,7 @@
 #ifndef _SYSTEM_H
 #define _SYSTEM_H
 
-#include "jsapi.h"
+#include "lulzjs.h"
 
 extern JSBool exec (JSContext* cx);
 extern JSBool System_initialize (JSContext* cx);

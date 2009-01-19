@@ -131,6 +131,7 @@ __Thread_start (void* arg)
     jsval*     argv   = data->argv;
     free(data);
 
+    JS_SetContextThread(cx);
     JS_BeginRequest(cx);
     jsval property; JS_GetProperty(cx, object, "__detach", &property);
 
@@ -167,6 +168,7 @@ __Thread_start (void* arg)
 
     JS_free(cx, argv);
     JS_EndRequest(cx);
+    JS_ClearContextThread(cx);
     JS_DestroyContext(cx);
 
     if (!detach) {

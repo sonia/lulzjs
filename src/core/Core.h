@@ -19,13 +19,8 @@
 #ifndef _CORE_H
 #define _CORE_H
 
-#include "jsapi.h"
+#include "lulzjs.h"
 #include "jsdbgapi.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 
 // Not cross platform
 #include <libgen.h>

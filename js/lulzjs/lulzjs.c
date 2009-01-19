@@ -16,22 +16,20 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-#ifndef _SYSTEM_NET_PROTOCOL_HTTP_H
-#define _SYSTEM_NET_PROTOCOL_HTTP_H
-
 #include "lulzjs.h"
 
-extern JSBool exec (JSContext* cx);
-extern JSBool HTTP_initialize (JSContext* cx);
+JSBool
+js_ObjectIs (JSContext* cx, JSObject* obj, const char* name)
+{
+    jsval jsObj; JS_GetProperty(cx, JS_GetGlobalObject(cx), "Object", &jsObj);
+    JSObject* Obj = JSVAL_TO_OBJECT(jsObj);
 
-static JSClass HTTP_class = {
-    "HTTP", 0,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
-};
+    jsval newArgv[] = {
+        OBJECT_TO_JSVAL(obj),
+        STRING_TO_JSVAL(JS_NewString(cx, JS_strdup(cx, "Bytes"), strlen("Bytes")))
+    };
+    jsval ret; JS_CallFunctionName(cx, Obj, "is", 2, newArgv, &ret);
 
-static JSFunctionSpec HTTP_methods[] = {
-    {NULL}
-};
+    return JSVAL_TO_BOOLEAN(ret);
+}
 
-#endif

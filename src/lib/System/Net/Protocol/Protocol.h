@@ -19,9 +19,7 @@
 #ifndef _SYSTEM_NET_PROTOCOL_Protocol_H
 #define _SYSTEM_NET_PROTOCOL_Protocol_H
 
-#include "jsapi.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include "lulzjs.h"
 
 extern JSBool exec (JSContext* cx);
 extern JSBool Protocol_initialize (JSContext* cx);

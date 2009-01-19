@@ -311,7 +311,10 @@ Socket_sendBytes (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsva
         return JS_FALSE;
     }
 
-    // TODO: Add the check if it's a Bytes object.
+    if (!JS_OBJECT_IS(cx, bytes, "Bytes")) {
+        JS_ReportError(cx, "You have to pass a Bytes object.");
+        return JS_FALSE;
+    }
 
     jsval property; JS_GetProperty(cx, bytes, "__array", &property);
     JSObject* array = JSVAL_TO_OBJECT(property);

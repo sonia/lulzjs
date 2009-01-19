@@ -19,11 +19,7 @@
 #ifndef _SYSTEM_NET_SOCKET_H
 #define _SYSTEM_NET_SOCKET_H
 
-#include "jsapi.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "lulzjs.h"
 
 #include <netinet/in.h>
 #include <sys/types.h>

@@ -19,10 +19,7 @@
 #ifndef _MISC_H
 #define _MISC_H
 
-#include "jsapi.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "lulzjs.h"
 
 char* JS_strdup (JSContext* cx, const char* string);
 
