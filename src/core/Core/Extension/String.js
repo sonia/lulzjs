@@ -31,6 +31,16 @@ Object.extend(String.prototype, {
 
     reverse: function () {
         return this.split('').reverse().join('');
+    },
+
+    toInt: function (base) {
+        return (base)
+            ? parseInt(this, base)
+            : parseInt(this);
+    },
+
+    toFloat: function () {
+        return parseFloat(this);
     }
 });
 

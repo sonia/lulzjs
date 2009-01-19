@@ -226,8 +226,10 @@ Socket_accept (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
 JSBool
 Socket_send (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
-    JSObject* obj;
+    char* string;
     unsigned flags = 0;
+
+    JS_BeginRequest(cx);
 
     if (argc < 1) {
         JS_ReportError(cx, "Not enough parameters.");
@@ -236,7 +238,7 @@ Socket_send (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
 
     switch (argc) {
         case 2: JS_ValueToInt32(cx, argv[1], &flags);
-        case 1: obj = JSVAL_TO_OBJECT(argv[0]);
+        case 1: string = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
     }
 
     SocketInformation* data = JS_GetPrivate(cx, object);
@@ -246,27 +248,12 @@ Socket_send (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
         return JS_FALSE;
     }
 
-    unsigned char* string;
-    if (JS_OBJECT_IS(cx, obj, "Bytes")) {
-        jsval ret; JS_CallFunctionName(cx, obj, "toArray", 0, NULL, &ret);
-        JSObject* array = JSVAL_TO_OBJECT(ret);
+    JS_EndRequest(cx);
 
-        jsuint length; JS_GetArrayLength(cx, array, &length);
-        string = JS_malloc(cx, (length+1)*sizeof(char));
-
-        jsuint i;
-        for (i = 0; i < length; i++) {
-            jsval val; JS_GetElement(cx, array, i, &val);
-            string[i] = (unsigned char) JSVAL_TO_INT(val);
-        }
-        string[length] = '\0';
+    unsigned offset = 0;
+    while (offset < strlen(string)) {
+        offset += send(data->socket, (string+offset), (strlen(string)-offset)*sizeof(char), flags);
     }
-    else {
-        jsval jsObj = OBJECT_TO_JSVAL(obj);
-        string = JS_GetStringBytes(JS_ValueToString(cx, jsObj));
-    }
-    
-    *rval = INT_TO_JSVAL(send(data->socket, string, sizeof(char)*strlen(string), flags));
 
     return JS_TRUE;
 }
@@ -275,8 +262,9 @@ JSBool
 Socket_receive (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval *rval)
 {
     unsigned size;
-    JSBool   inBytes = JS_FALSE;
     unsigned flags = 0;
+
+    JS_BeginRequest(cx);
 
     if (argc < 1) {
         JS_ReportError(cx, "Not enough parameters.");
@@ -284,8 +272,7 @@ Socket_receive (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval 
     }
 
     switch (argc) {
-        case 3: JS_ValueToInt32(cx, argv[2], &flags);
-        case 2: inBytes = JSVAL_TO_BOOLEAN(argv[1]);
+        case 2: JS_ValueToInt32(cx, argv[1], &flags);
         case 1: JS_ValueToInt32(cx, argv[0], &size);
     }
 
@@ -296,44 +283,127 @@ Socket_receive (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval 
         return JS_FALSE;
     }
 
-    unsigned char* string = JS_malloc(cx, size*sizeof(char)+1);
+    char* string = JS_malloc(cx, (size+1)*sizeof(char));
 
+    jsrefcount req = JS_SuspendRequest(cx);
     unsigned offset = 0;
-
-    while (offset != size) {
-        offset += recv(data->socket, (string+offset), sizeof(char)*size, flags);
+    while (offset < size) {
+        offset += recv(data->socket, (string+offset), sizeof(char)*(size-offset), flags);
     }
     string[size] = '\0';
+    JS_ResumeRequest(cx, req);
 
-    if (inBytes) {
-        JSObject* array = JS_NewArrayObject(cx, 0, NULL);
-    
-        unsigned i;
-        for (i = 0; i < size; i++) {
-            jsval val = INT_TO_JSVAL(string[i]);
-            JS_SetElement(cx, array, i, &val);
-        }
-    
-        jsval newArgv[] = {OBJECT_TO_JSVAL(array)};
-    
-        jsval property; JS_GetProperty(cx, JS_GetGlobalObject(cx), "Bytes", &property);
-        JSObject* Bytes = JSVAL_TO_OBJECT(property);
-    
-        jsval jsProto; JS_GetProperty(cx, Bytes, "prototype", &jsProto);
-        JSObject* proto = JSVAL_TO_OBJECT(jsProto);
-    
-        JSObject* bytes = JS_ConstructObject(cx, NULL, proto, NULL);
-        jsval ret;
-        JS_CallFunctionValue(cx, bytes, OBJECT_TO_JSVAL(Bytes), 1, newArgv, &ret);
-    
-        *rval = OBJECT_TO_JSVAL(bytes);
-    }
-    else {
-        *rval = STRING_TO_JSVAL(JS_NewString(cx, string, sizeof(char)*strlen(string)));
-    }
+    *rval = STRING_TO_JSVAL(JS_NewString(cx, string, sizeof(char)*strlen(string)));
 
+    JS_EndRequest(cx);
     return JS_TRUE;
 }
+
+JSBool
+Socket_sendBytes (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    JSObject* obj;
+    unsigned flags = 0;
+
+    JS_BeginRequest(cx);
+
+    if (argc < 1) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    switch (argc) {
+        case 2: JS_ValueToInt32(cx, argv[1], &flags);
+        case 1: JS_ValueToObject(cx, argv[0], &obj);
+    }
+
+    SocketInformation* data = JS_GetPrivate(cx, object);
+
+    if (!data->connected) {
+        JS_ReportError(cx, "The socket isn't connected.");
+        return JS_FALSE;
+    }
+
+    unsigned char* string;
+    jsval ret; JS_CallFunctionName(cx, obj, "toArray", 0, NULL, &ret);
+    JSObject* array = JSVAL_TO_OBJECT(ret);
+
+    jsuint length; JS_GetArrayLength(cx, array, &length);
+    string = JS_malloc(cx, (length+1)*sizeof(char));
+
+    jsuint i;
+    for (i = 0; i < length; i++) {
+        jsval val; JS_GetElement(cx, array, i, &val);
+        string[i] = (unsigned char) JSVAL_TO_INT(val);
+    }
+    string[length] = '\0';
+    
+    JS_EndRequest(cx);
+
+    *rval = INT_TO_JSVAL(send(data->socket, string, sizeof(char)*strlen(string), flags));
+    return JS_TRUE;
+}
+
+JSBool
+Socket_receiveBytes (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval *rval)
+{
+    unsigned size;
+    unsigned flags = 0;
+
+    JS_BeginRequest(cx);
+
+    if (argc < 1) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    switch (argc) {
+        case 2: JS_ValueToInt32(cx, argv[2], &flags);
+        case 1: JS_ValueToInt32(cx, argv[0], &size);
+    }
+
+    SocketInformation* data = JS_GetPrivate(cx, object);
+
+    if (!data->connected) {
+        JS_ReportError(cx, "The socket isn't connected.");
+        return JS_FALSE;
+    }
+
+    unsigned char* string = JS_malloc(cx, (size+1)*sizeof(char));
+
+    jsrefcount req = JS_SuspendRequest(cx);
+    unsigned offset = 0;
+    while (offset < size) {
+        offset += recv(data->socket, (string+offset), sizeof(char)*(size-offset), flags);
+    }
+    string[size] = '\0';
+    JS_ResumeRequest(cx, req);
+
+    JSObject* array = JS_NewArrayObject(cx, 0, NULL);
+
+    unsigned i;
+    for (i = 0; i < size; i++) {
+        jsval val = INT_TO_JSVAL(string[i]);
+        JS_SetElement(cx, array, i, &val);
+    }
+
+    jsval newArgv[] = {OBJECT_TO_JSVAL(array)};
+
+    jsval property; JS_GetProperty(cx, JS_GetGlobalObject(cx), "Bytes", &property);
+    JSObject* Bytes = JSVAL_TO_OBJECT(property);
+
+    jsval jsProto; JS_GetProperty(cx, Bytes, "prototype", &jsProto);
+    JSObject* proto = JSVAL_TO_OBJECT(jsProto);
+
+    JSObject* bytes = JS_ConstructObject(cx, NULL, proto, NULL);
+    jsval ret;
+    JS_CallFunctionValue(cx, bytes, OBJECT_TO_JSVAL(Bytes), 1, newArgv, &ret);
+    JS_EndRequest(cx);
+
+    *rval = OBJECT_TO_JSVAL(bytes);
+    return JS_TRUE;
+}
+
 
 JSBool
 Socket_static_getHostByName (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)

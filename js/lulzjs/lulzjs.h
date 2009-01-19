@@ -25,5 +25,5 @@
 #include <limits.h>
 #include <time.h>
 
-JSBool js_ObjectIs (JSContext* cx, JSObject* object, const char* name);
+extern JSBool js_ObjectIs (JSContext* cx, JSObject* object, const char* name);
 #define JS_OBJECT_IS(cx, obj, name) js_ObjectIs(cx, obj, name)

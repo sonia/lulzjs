@@ -84,10 +84,10 @@ System.Net.Protocol.HTTP.Request = Class.create({
 
         var content;
         if (headers["Content-Type"].match(/^text/)) {
-            content = this.socket.receive(headers["Content-Length"]);
+            content = this.socket.receive(headers["Content-Length"].toInt());
         }
         else {
-            content = this.socket.receiveBytes(headers["Content-Length"]);
+            content = this.socket.receiveBytes(headers["Content-Length"].toInt());
         }
 
         return new System.Net.Protocol.HTTP.Response(answer, headers, content);

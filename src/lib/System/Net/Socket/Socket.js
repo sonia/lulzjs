@@ -16,19 +16,18 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-require("System/Console");
-
 Object.extend(System.Net.Socket.prototype, {
     sendLine: function (str, options) {
         options = options || {};
-        var flags = options["flags"] || 0;
+        var flags     = options.flags || 0;
+        var separator = options.separator || "\r\n";
 
-        if (str.constructor.toString().indexOf("Array") == -1) {
+        if (!Object.is(str, Array)) {
             str = new Array(str);
         }
 
         for (var i = 0; i < str.length; i++) {
-            this.send(str[i]+"\r\n", flags)
+            this.send(str[i]+separator, flags)
         }
     },
 
