@@ -17,14 +17,17 @@
 ****************************************************************************/
 
 Program.Bytes = Class.create({
+    __type__: "Bytes",
+
     initialize: function (base) {
         if (!Object.is(base, Array)) {
             throw "You have to pass an array.";
         }
 
         this.__array = base;
+        this.length  = this.__array.length;
     },
-    
+
     byteAt: function (index) {
         if (index >= this.__array.length) {
             throw "Index out of range.";
@@ -37,6 +40,16 @@ Program.Bytes = Class.create({
         return this.__array;
     },
 
+    toText: function () {
+        var str = new String;
+
+        for (var i = 0; i < this.__array.length; i++) {
+            str += String.fromCharCode(this.__array[i]);
+        }
+
+        return str;
+    },
+    
     toString: function () {
         var str = new String;
 

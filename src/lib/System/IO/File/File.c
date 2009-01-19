@@ -147,8 +147,8 @@ File_writeBytes (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval
 
     FileInformation* data = JS_GetPrivate(cx, object);
 
-    jsval property; JS_GetProperty(cx, bytes, "__array", &property);
-    JSObject* array = JSVAL_TO_OBJECT(property);
+    jsval ret; JS_CallFunctionName(cx, bytes, "toArray", 0, NULL, &ret);
+    JSObject* array = JSVAL_TO_OBJECT(ret);
 
     jsuint length; JS_GetArrayLength(cx, array, &length);
     unsigned char* string = JS_malloc(cx, length*sizeof(char));

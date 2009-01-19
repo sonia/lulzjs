@@ -81,7 +81,14 @@ System.Net.Protocol.HTTP.Request = Class.create({
             headers += line+"\n";
         }
         headers = System.Net.Protocol.HTTP.parseHeaders(headers);
-        var content = this.socket.receive(headers["Content-Length"]);
+
+        var content;
+        if (headers["Content-Type"].match(/^text/)) {
+            content = this.socket.receive(headers["Content-Length"]);
+        }
+        else {
+            content = this.socket.receiveBytes(headers["Content-Length"]);
+        }
 
         return new System.Net.Protocol.HTTP.Response(answer, headers, content);
     },
@@ -102,7 +109,14 @@ System.Net.Protocol.HTTP.Request = Class.create({
             headers += line+"\n";
         }
         headers = System.Net.Protocol.HTTP.parseHeaders(headers);
-        var content = this.socket.receive(headers["Content-Length"]);
+
+        var content;
+        if (headers["Content-Type"].match(/^text/)) {
+            content = this.socket.receive(headers["Content-Length"]);
+        }
+        else {
+            content = this.socket.receiveBytes(headers["Content-Length"]);
+        }
 
         return new System.Net.Protocol.HTTP.Response(answer, headers, content);
 

@@ -16,23 +16,35 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
+require("System/Console");
+
 Object.is = function (obj, type) {
     var name;
 
     if (typeof(type) == "function") {
         var match = /^function (\w+)/.exec(type.toString());
         name = match[1];
+
+        if (name == "klass") {
+            name = type.prototype.__type__;
+        }
     }
     else if (typeof(type) == "object") {
         var match = /^function (\w+)/.exec(type.constructor.toString());
         name = match[1];
+
+        if (name == "klass") {
+            name = type.prototype.__type__;
+        }
     }
     else {
         name = type;
     }
 
-    return obj.constructor.toString().match(new RegExp("^.+"+name))
-        ? true
-        : false;
+    return (obj.constructor.toString().match(/function klass/)
+        ? obj.__proto__.__type__
+        : obj.constructor.toString()).match(new RegExp("^.*"+name))
+            ? true
+            : false;
 }
 
