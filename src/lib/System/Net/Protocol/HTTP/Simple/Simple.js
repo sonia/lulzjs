@@ -18,13 +18,15 @@
 
 System.Net.Protocol.HTTP.Simple = {
     Get: function (url) {
-        var http = new System.Net.Protocol.HTTP.Request(url);
-        return http.response.content;
+        return new System.Net.Protocol.HTTP.Request(url).response.content
     },
 
-    Post: function (url, params) {
-        var http = new System.Net.Protocol.HTTP.Request(url, {requestParams: params});
-        return http.response.content;
+    Post: function (url, params, options) {
+        options = options || { method: "POST" };
+
+        return new System.Net.Protocol.HTTP.Request(url, Object.extend({
+            params: params
+        }, options)).response.content;
     }
 };
 

@@ -33,7 +33,7 @@ Object.extend(System.Net.Protocol.HTTP, {
 
         var header;
         while (header = re.exec(text)) {
-            headers[header[1]] = header[2];
+            headers[header[1].capitalizeAll()] = header[2];
         }
 
         return headers;

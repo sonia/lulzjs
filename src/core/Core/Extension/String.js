@@ -17,6 +17,28 @@
 ****************************************************************************/
 
 Object.extend(String.prototype, {
+    capitalizeAll: function (options) {
+        options       = options || {}
+        var separator = (options.separator || "-_+/\\").split("");
+
+        var str = this.split('');
+
+        var capitalize;
+        for (var i = 0; i < str.length; i++) {
+            if (separator.indexOf(str[i]) != -1) {
+                capitalize = true;
+                continue;
+            }
+
+            if (capitalize) {
+                str[i] = str[i].toUpperCase();
+                capitalize = false;
+            }
+        }
+
+        return str.join('');
+    },
+
     format: function(template) {
         var formatted = this;
         

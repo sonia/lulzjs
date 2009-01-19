@@ -24,6 +24,7 @@ System.Net.Protocol.HTTP.Request = Class.create({
 
         this.options = Object.extend({
             method : "GET",
+            contentType: "application/x-www-form-urlencoded",
             port   : System.Net.Ports.HTTP,
             timeout: 10,
             ssl    : false,
@@ -35,7 +36,7 @@ System.Net.Protocol.HTTP.Request = Class.create({
         // Implement sockopts for the timeout also ssl stuff.
 
         var port;
-        if (port = /^[^:]:(\d+)\//.exec(url)) {
+        if (port = /^[^:]*:(\d+)(\/|$)/.exec(url)) {
             this.options.port = port[1];
         }
         else {
@@ -72,7 +73,7 @@ System.Net.Protocol.HTTP.Request = Class.create({
             "GET {0} HTTP/1.1".format([this.options.page]),
             "Host: {0}".format([this.options.host]),
         ].concat(this.getRequestHeadersArray()).concat([""]));
-
+        
         var answer = System.Net.Protocol.HTTP.parseResponse(this.socket.receiveLine());
 
         var headers = '';
@@ -83,11 +84,18 @@ System.Net.Protocol.HTTP.Request = Class.create({
         headers = System.Net.Protocol.HTTP.parseHeaders(headers);
 
         var content;
-        if (headers["Content-Type"].match(/^text/)) {
-            content = this.socket.receive(headers["Content-Length"].toInt());
+        if (headers["Content-Length"]) {
+            if (headers["Content-Type"].match(/^text/)) {
+                content = this.socket.receive(headers["Content-Length"].toInt());
+            }
+            else {
+                content = this.socket.receiveBytes(headers["Content-Length"].toInt());
+            }
         }
         else {
-            content = this.socket.receiveBytes(headers["Content-Length"].toInt());
+            if (headers["Transfer-Encoding"] == "chunked") {
+                content = this.readChunked();
+            }
         }
 
         return new System.Net.Protocol.HTTP.Response(answer, headers, content);
@@ -111,11 +119,18 @@ System.Net.Protocol.HTTP.Request = Class.create({
         headers = System.Net.Protocol.HTTP.parseHeaders(headers);
 
         var content;
-        if (headers["Content-Type"].match(/^text/)) {
-            content = this.socket.receive(headers["Content-Length"]);
+        if (headers["Content-Length"]) {
+            if (headers["Content-Type"].match(/^text/)) {
+                content = this.socket.receive(headers["Content-Length"].toInt());
+            }
+            else {
+                content = this.socket.receiveBytes(headers["Content-Length"].toInt());
+            }
         }
         else {
-            content = this.socket.receiveBytes(headers["Content-Length"]);
+            if (headers["Transfer-Encoding"]) {
+                content = this.readChunked();
+            }
         }
 
         return new System.Net.Protocol.HTTP.Response(answer, headers, content);
@@ -155,8 +170,9 @@ System.Net.Protocol.HTTP.Request = Class.create({
         }
 
         this.options.requestHeaders = {
-            'Connection': 'close',
-            'User-Agent': 'lulzJS/'+__VERSION__
+            'Connection'  : 'close',
+            'User-Agent'  : 'lulzJS/'+__VERSION__,
+            'Content-Type': this.options.contentType
         };
 
         Object.extend(this.options.requestHeaders, headers);
@@ -174,4 +190,15 @@ System.Net.Protocol.HTTP.Request = Class.create({
 
         return headerz;
     },
+
+    readChunked: function () {
+        var ret = new String;
+
+        var length;
+        while (length = this.socket.receiveLine().toInt()) {
+            ret += this.socket.receive(length);
+        }
+
+        return ret;
+    }
 });

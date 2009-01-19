@@ -19,8 +19,11 @@
 require("System/Console");
 
 Object.is = function (obj, type) {
-    var name;
+    if (!obj) {
+        return !type;
+    }
 
+    var name;
     if (typeof(type) == "function") {
         var match = /^function (\w+)/.exec(type.toString());
         name = match[1];
