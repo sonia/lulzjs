@@ -34,7 +34,7 @@ Object.is = function (obj, type) {
         name = match[1];
 
         if (name == "klass") {
-            name = type.prototype.__type__;
+            name = type.__proto__.__type__;
         }
     }
     else {
