@@ -26,7 +26,7 @@ js_ObjectIs (JSContext* cx, JSObject* obj, const char* name)
 
     jsval newArgv[] = {
         OBJECT_TO_JSVAL(obj),
-        STRING_TO_JSVAL(JS_NewString(cx, JS_strdup(cx, "Bytes"), strlen("Bytes")))
+        STRING_TO_JSVAL(JS_NewString(cx, JS_strdup(cx, name), strlen(name)))
     };
     jsval ret; JS_CallFunctionName(cx, Obj, "is", 2, newArgv, &ret);
 

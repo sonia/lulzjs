@@ -164,8 +164,8 @@ Socket_listen (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
     }
 
     switch (argc) {
-        case 3: JS_ValueToInt32(cx, argv[2], &maxconn); break;
-        case 2: JS_ValueToInt32(cx, argv[1], &port); break;
+        case 3: JS_ValueToInt32(cx, argv[2], &maxconn);
+        case 2: JS_ValueToInt32(cx, argv[1], &port);
     }
 
     SocketInformation* data = JS_GetPrivate(cx, object);
@@ -226,7 +226,7 @@ Socket_accept (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
 JSBool
 Socket_send (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
-    unsigned char* string;
+    JSObject* obj;
     unsigned flags = 0;
 
     if (argc < 1) {
@@ -236,7 +236,7 @@ Socket_send (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
 
     switch (argc) {
         case 2: JS_ValueToInt32(cx, argv[1], &flags);
-        case 1: string = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+        case 1: obj = JSVAL_TO_OBJECT(argv[0]);
     }
 
     SocketInformation* data = JS_GetPrivate(cx, object);
@@ -244,6 +244,26 @@ Socket_send (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
     if (!data->connected) {
         JS_ReportError(cx, "The socket isn't connected.");
         return JS_FALSE;
+    }
+
+    unsigned char* string;
+    if (JS_OBJECT_IS(cx, obj, "Bytes")) {
+        jsval ret; JS_CallFunctionName(cx, obj, "toArray", 0, NULL, &ret);
+        JSObject* array = JSVAL_TO_OBJECT(ret);
+
+        jsuint length; JS_GetArrayLength(cx, array, &length);
+        string = JS_malloc(cx, (length+1)*sizeof(char));
+
+        jsuint i;
+        for (i = 0; i < length; i++) {
+            jsval val; JS_GetElement(cx, array, i, &val);
+            string[i] = (unsigned char) JSVAL_TO_INT(val);
+        }
+        string[length] = '\0';
+    }
+    else {
+        jsval jsObj = OBJECT_TO_JSVAL(obj);
+        string = JS_GetStringBytes(JS_ValueToString(cx, jsObj));
     }
     
     *rval = INT_TO_JSVAL(send(data->socket, string, sizeof(char)*strlen(string), flags));
@@ -255,6 +275,7 @@ JSBool
 Socket_receive (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval *rval)
 {
     unsigned size;
+    JSBool   inBytes = JS_FALSE;
     unsigned flags = 0;
 
     if (argc < 1) {
@@ -263,7 +284,8 @@ Socket_receive (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval 
     }
 
     switch (argc) {
-        case 2: JS_ValueToInt32(cx, argv[1], &flags);
+        case 3: JS_ValueToInt32(cx, argv[2], &flags);
+        case 2: inBytes = JSVAL_TO_BOOLEAN(argv[1]);
         case 1: JS_ValueToInt32(cx, argv[0], &size);
     }
 
@@ -283,108 +305,32 @@ Socket_receive (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval 
     }
     string[size] = '\0';
 
-    *rval = STRING_TO_JSVAL(JS_NewString(cx, string, sizeof(char)*strlen(string)));
-
-    return JS_TRUE;
-}
-
-JSBool
-Socket_sendBytes (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
-{
-    JSObject* bytes;
-    unsigned flags = 0;
-
-    if (argc < 1) {
-        JS_ReportError(cx, "Not enough parameters.");
-        return JS_FALSE;
+    if (inBytes) {
+        JSObject* array = JS_NewArrayObject(cx, 0, NULL);
+    
+        unsigned i;
+        for (i = 0; i < size; i++) {
+            jsval val = INT_TO_JSVAL(string[i]);
+            JS_SetElement(cx, array, i, &val);
+        }
+    
+        jsval newArgv[] = {OBJECT_TO_JSVAL(array)};
+    
+        jsval property; JS_GetProperty(cx, JS_GetGlobalObject(cx), "Bytes", &property);
+        JSObject* Bytes = JSVAL_TO_OBJECT(property);
+    
+        jsval jsProto; JS_GetProperty(cx, Bytes, "prototype", &jsProto);
+        JSObject* proto = JSVAL_TO_OBJECT(jsProto);
+    
+        JSObject* bytes = JS_ConstructObject(cx, NULL, proto, NULL);
+        jsval ret;
+        JS_CallFunctionValue(cx, bytes, OBJECT_TO_JSVAL(Bytes), 1, newArgv, &ret);
+    
+        *rval = OBJECT_TO_JSVAL(bytes);
     }
-
-    switch (argc) {
-        case 2: JS_ValueToInt32(cx, argv[1], &flags);
-        case 1: bytes = JSVAL_TO_OBJECT(argv[0]);
+    else {
+        *rval = STRING_TO_JSVAL(JS_NewString(cx, string, sizeof(char)*strlen(string)));
     }
-
-    SocketInformation* data = JS_GetPrivate(cx, object);
-
-    if (!data->connected) {
-        JS_ReportError(cx, "The socket isn't connected.");
-        return JS_FALSE;
-    }
-
-    if (!JS_OBJECT_IS(cx, bytes, "Bytes")) {
-        JS_ReportError(cx, "You have to pass a Bytes object.");
-        return JS_FALSE;
-    }
-
-    jsval property; JS_GetProperty(cx, bytes, "__array", &property);
-    JSObject* array = JSVAL_TO_OBJECT(property);
-
-    jsuint length; JS_GetArrayLength(cx, array, &length);
-    unsigned char* string = JS_malloc(cx, length*sizeof(char));
-
-    jsuint i;
-    for (i = 0; i < length; i++) {
-        jsval val; JS_GetElement(cx, array, i, &val);
-        string[i] = (unsigned char) JSVAL_TO_INT(val);
-    }
-
-    *rval = INT_TO_JSVAL(send(data->socket, string, sizeof(char)*length, flags));
-
-    return JS_TRUE;
-}
-
-JSBool
-Socket_receiveBytes (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval *rval)
-{
-    unsigned size;
-    unsigned flags = 0;
-
-    if (argc < 1) {
-        JS_ReportError(cx, "Not enough parameters.");
-        return JS_FALSE;
-    }
-
-    switch (argc) {
-        case 2: JS_ValueToInt32(cx, argv[1], &flags);
-        case 1: JS_ValueToInt32(cx, argv[0], &size);
-    }
-
-    SocketInformation* data = JS_GetPrivate(cx, object);
-
-    if (!data->connected) {
-        JS_ReportError(cx, "The socket isn't connected.");
-        return JS_FALSE;
-    }
-
-    unsigned char* string = JS_malloc(cx, size*sizeof(char));
-
-    unsigned offset = 0;
-
-    while (offset != size) {
-        offset += recv(data->socket, (string+offset), sizeof(char)*size, flags);
-    }
-
-    JSObject* array = JS_NewArrayObject(cx, 0, NULL);
-
-    unsigned i;
-    for (i = 0; i < size; i++) {
-        jsval val = INT_TO_JSVAL(string[i]);
-        JS_SetElement(cx, array, i, &val);
-    }
-
-    jsval newArgv[] = {OBJECT_TO_JSVAL(array)};
-
-    jsval property; JS_GetProperty(cx, JS_GetGlobalObject(cx), "Bytes", &property);
-    JSObject* Bytes = JSVAL_TO_OBJECT(property);
-
-    jsval jsProto; JS_GetProperty(cx, Bytes, "prototype", &jsProto);
-    JSObject* proto = JSVAL_TO_OBJECT(jsProto);
-
-    JSObject* bytes = JS_ConstructObject(cx, NULL, proto, NULL);
-    jsval ret;
-    JS_CallFunctionValue(cx, bytes, OBJECT_TO_JSVAL(Bytes), 1, newArgv, &ret);
-
-    *rval = OBJECT_TO_JSVAL(bytes);
 
     return JS_TRUE;
 }

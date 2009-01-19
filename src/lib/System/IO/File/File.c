@@ -92,27 +92,54 @@ File_finalize (JSContext* cx, JSObject* object)
 JSBool
 File_write (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
-    char* string;
+    JSObject* obj;
 
-    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "s", &string)) {
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "o", &obj)) {
         JS_ReportError(cx, "Not enough parameters.");
         return JS_FALSE;
     }
 
     FileInformation* data = JS_GetPrivate(cx, object);
 
-    *rval = INT_TO_JSVAL(fwrite(string, sizeof(*string), strlen(string), data->stream->descriptor));
+    unsigned char* string;
+
+    if (JS_OBJECT_IS(cx, obj, "Bytes")) {
+        jsval ret; JS_CallFunctionName(cx, obj, "toArray", 0, NULL, &ret);
+        JSObject* array = JSVAL_TO_OBJECT(ret);
+
+        jsuint length; JS_GetArrayLength(cx, array, &length);
+        string = JS_malloc(cx, (length+1)*sizeof(char));
+
+        jsuint i;
+        for (i = 0; i < length; i++) {
+            jsval val; JS_GetElement(cx, array, i, &val);
+            string[i] = (unsigned char) JSVAL_TO_INT(val);
+        }
+        string[length] = '\0';
+    }
+    else {
+        jsval jsObj = OBJECT_TO_JSVAL(obj);
+        string = JS_GetStringBytes(JS_ValueToString(cx, jsObj));
+    }
+
+    *rval = INT_TO_JSVAL(fwrite(string, sizeof(char), strlen(string), data->stream->descriptor));
+
     return JS_TRUE;
 }
 
 JSBool
 File_read (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval *rval)
 {
-    const unsigned int size;
+    const unsigned size;
+    JSBool             inBytes = JS_FALSE;
 
     if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "u", &size)) {
         JS_ReportError(cx, "Not enough parameters.");
         return JS_FALSE;
+    }
+
+    if (argc > 1) {
+        inBytes = JSVAL_TO_BOOLEAN(argv[1]);
     }
 
     FileInformation* data = JS_GetPrivate(cx, object);
@@ -126,65 +153,33 @@ File_read (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval *rval
     memset(string, 0, size+1);
     fread(string, sizeof(char), size, data->stream->descriptor);
 
-    *rval = STRING_TO_JSVAL(JS_NewString(cx, string, size));
-    return JS_TRUE;
-}
-
-JSBool
-File_writeBytes (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
-{
-    JSObject* bytes;
-
-    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "o", &bytes)) {
-        JS_ReportError(cx, "Not enough parameters.");
-        return JS_FALSE;
+    if (inBytes) {
+        JSObject* array = JS_NewArrayObject(cx, 0, NULL);
+    
+        unsigned i;
+        for (i = 0; i < size; i++) {
+            jsval val = INT_TO_JSVAL(string[i]);
+            JS_SetElement(cx, array, i, &val);
+        }
+    
+        jsval newArgv[] = {OBJECT_TO_JSVAL(array)};
+    
+        jsval property; JS_GetProperty(cx, JS_GetGlobalObject(cx), "Bytes", &property);
+        JSObject* Bytes = JSVAL_TO_OBJECT(property);
+    
+        jsval jsProto; JS_GetProperty(cx, Bytes, "prototype", &jsProto);
+        JSObject* proto = JSVAL_TO_OBJECT(jsProto);
+    
+        JSObject* bytes = JS_ConstructObject(cx, NULL, proto, NULL);
+        jsval ret;
+        JS_CallFunctionValue(cx, bytes, OBJECT_TO_JSVAL(Bytes), 1, newArgv, &ret);
+    
+        *rval = OBJECT_TO_JSVAL(bytes);
+    }
+    else {
+        *rval = STRING_TO_JSVAL(JS_NewString(cx, string, size));
     }
 
-    if (!JS_OBJECT_IS(cx, bytes, "Bytes")) {
-        JS_ReportError(cx, "You have to pass a Bytes object.");
-        return JS_FALSE;
-    }
-
-    FileInformation* data = JS_GetPrivate(cx, object);
-
-    jsval ret; JS_CallFunctionName(cx, bytes, "toArray", 0, NULL, &ret);
-    JSObject* array = JSVAL_TO_OBJECT(ret);
-
-    jsuint length; JS_GetArrayLength(cx, array, &length);
-    unsigned char* string = JS_malloc(cx, length*sizeof(char));
-
-    jsuint i;
-    for (i = 0; i < length; i++) {
-        jsval val; JS_GetElement(cx, array, i, &val);
-        string[i] = (unsigned char) JSVAL_TO_INT(val);
-    }
-
-    *rval = INT_TO_JSVAL(fwrite(string, sizeof(*string), strlen(string), data->stream->descriptor));
-    return JS_TRUE;
-}
-
-JSBool
-File_readBytes (JSContext *cx, JSObject *object, uintN argc, jsval *argv, jsval *rval)
-{
-    const unsigned int size;
-
-    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "u", &size)) {
-        JS_ReportError(cx, "Not enough parameters.");
-        return JS_FALSE;
-    }
-
-    FileInformation* data = JS_GetPrivate(cx, object);
-
-    if (feof(data->stream->descriptor)) {
-        *rval = JSVAL_FALSE;
-        return JS_TRUE;
-    }
-
-    unsigned char* string = JS_malloc(cx, (size+1)*sizeof(char));
-    memset(string, 0, size+1);
-    fread(string, sizeof(char), size, data->stream->descriptor);
-
-    *rval = STRING_TO_JSVAL(JS_NewString(cx, string, size));
     return JS_TRUE;
 }
 
