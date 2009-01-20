@@ -16,12 +16,10 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-require("System/System.so");
-
-require("IO.so");
-
-require(["Stream/Stream.so", "Stream/Stream.js"]);
-require(["File/File.so", "File/File.js"]);
-
-Program.IO = Program.System.IO;
+typedef struct {
+         int computed;
+    uint32_t H[5];
+    uint32_t count[2];
+     uint8_t buffer[64];
+} SHA1_ctx;
 

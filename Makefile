@@ -36,7 +36,8 @@ LIB_SYSTEM = \
 	${LIB_SYSTEM_DIR}/System.o \
 	${LIB_SYSTEM_DIR}/IO/IO.o ${LIB_SYSTEM_DIR}/IO/Stream/Stream.o ${LIB_SYSTEM_DIR}/IO/File/File.o \
 	${LIB_SYSTEM_DIR}/Net/Net.o ${LIB_SYSTEM_DIR}/Net/Socket/Socket.o ${LIB_SYSTEM_DIR}/Net/Protocol/Protocol.o \
-	${LIB_SYSTEM_DIR}/Net/Protocol/HTTP/HTTP.o
+	${LIB_SYSTEM_DIR}/Net/Protocol/HTTP/HTTP.o \
+	${LIB_SYSTEM_DIR}/Crypt/Crypt.o ${LIB_SYSTEM_DIR}/Crypt/SHA1/SHA1.o
 
 LIB_SYSTEM_CFLAGS  = ${CFLAGS}
 LIB_SYSTEM_LDFLAGS = ${LDFLAGS}
@@ -98,6 +99,8 @@ libsystem_install: libsystem
 	mkdir -p ${LJS_LIBDIR}/System/Net/Protocol
 	mkdir -p ${LJS_LIBDIR}/System/Net/Protocol/HTTP
 	mkdir -p ${LJS_LIBDIR}/System/Net/Protocol/HTTP/Simple
+	mkdir -p ${LJS_LIBDIR}/System/Crypt
+	mkdir -p ${LJS_LIBDIR}/System/Crypt/SHA1
 ########
 	cp -f ${LIB_SYSTEM_DIR}/init.js								${LJS_LIBDIR}/System/init.js
 	cp -f ${LIB_SYSTEM_DIR}/System.o							${LJS_LIBDIR}/System/System.so
@@ -138,6 +141,12 @@ libsystem_install: libsystem
 #######
 	cp -f ${LIB_SYSTEM_DIR}/Net/Protocol/HTTP/Simple/init.js	${LJS_LIBDIR}/System/Net/Protocol/HTTP/Simple/init.js
 	cp -f ${LIB_SYSTEM_DIR}/Net/Protocol/HTTP/Simple/Simple.js	${LJS_LIBDIR}/System/Net/Protocol/HTTP/Simple/Simple.js
+#######
+	cp -f ${LIB_SYSTEM_DIR}/Crypt/init.js						${LJS_LIBDIR}/System/Crypt/init.js
+	cp -f ${LIB_SYSTEM_DIR}/Crypt/Crypt.o						${LJS_LIBDIR}/System/Crypt/Crypt.so
+#######
+	cp -f ${LIB_SYSTEM_DIR}/Crypt/SHA1/init.js					${LJS_LIBDIR}/System/Crypt/SHA1/init.js
+	cp -f ${LIB_SYSTEM_DIR}/Crypt/SHA1/SHA1.o					${LJS_LIBDIR}/System/Crypt/SHA1/SHA1.so
 
 libsystem_uninstall:
 

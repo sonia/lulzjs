@@ -35,4 +35,4 @@ if (!Program.HTTP) {
     Program.HTTP = new Object;
 }
 
-Object.extend(Program.HTTP, System.Net.Protocol.HTTP);
+Object.extend(Program.HTTP, Program.System.Net.Protocol.HTTP);

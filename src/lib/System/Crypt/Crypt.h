@@ -16,12 +16,22 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-require("System/System.so");
+#ifndef _SYSTEM_NET_H
+#define _SYSTEM_NET_H
 
-require("IO.so");
+#include "lulzjs.h"
 
-require(["Stream/Stream.so", "Stream/Stream.js"]);
-require(["File/File.so", "File/File.js"]);
+extern JSBool exec (JSContext* cx);
+extern JSBool Crypt_initialize (JSContext* cx);
 
-Program.IO = Program.System.IO;
+static JSClass Crypt_class = {
+    "Crypt", 0,
+    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
+};
 
+static JSFunctionSpec Crypt_methods[] = {
+    {NULL}
+};
+
+#endif

@@ -22,4 +22,5 @@ require("System/Net/Net.so");
 
 require("Ports.js");
 
-var Ports = System.Net.Ports;
+Program.Ports = Program.System.Net.Ports;
+

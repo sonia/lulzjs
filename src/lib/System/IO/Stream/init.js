@@ -22,8 +22,8 @@ require("System/IO/IO.so");
 
 require(["Stream.so", "Stream.js"]);
 
-var Stream = System.IO.Stream;
-var STDIN  = System.IO.STDIN;
-var STDOUT = System.IO.STDOUT;
-var STDERR = System.IO.STDERR;
+Program.Stream = Program.System.IO.Stream;
+Program.STDIN  = Program.System.IO.STDIN;
+Program.STDOUT = Program.System.IO.STDOUT;
+Program.STDERR = Program.System.IO.STDERR;
 

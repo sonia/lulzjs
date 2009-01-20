@@ -18,10 +18,9 @@
 
 require("System/System.so");
 
-require("IO.so");
+require("Crypt.so");
 
-require(["Stream/Stream.so", "Stream/Stream.js"]);
-require(["File/File.so", "File/File.js"]);
+require("SHA1/SHA1.so");
 
-Program.IO = Program.System.IO;
+Program.Crypt = Program.System.Crypt;
 

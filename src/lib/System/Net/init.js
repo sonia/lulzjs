@@ -24,4 +24,5 @@ require(["Socket/Socket.so", "Socket/Socket.js"]);
 
 require("Ports/Ports.js");
 
-var Net = System.Net;
+Program.Net = Program.System.Net;
+

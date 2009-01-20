@@ -24,4 +24,5 @@ require(["System/IO/Stream/Stream.so", "System/IO/Stream/Stream.js"]);
 
 require(["File.so", "File.js"]);
 
-var File = System.IO.File;
+Program.File = Program.System.IO.File;
+

@@ -41,6 +41,11 @@ require([
     "Net/Protocol/HTTP/Client.js", "Net/Protocol/HTTP/Simple/Simple.js"
 ]);
 
+// Crypt modules
+require("Crypt/Crypt.so");
+
+require("Crypt/SHA1/SHA1.so");
+
 // Console module
 require("Console/Console.js")
 

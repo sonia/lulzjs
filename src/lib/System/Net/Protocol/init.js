@@ -30,4 +30,5 @@ require([
     "HTTP/Client.js"
 ]);
 
-var Protocol = System.Net.Protocol;
+Program.Protocol = Program.System.Net.Protocol;
+
