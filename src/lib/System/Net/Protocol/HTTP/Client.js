@@ -17,6 +17,8 @@
 ****************************************************************************/
 
 System.Net.Protocol.HTTP.Client = Class.create({
+    __type__: "HTTPClient",
+
     initialize: function (options) {
         this.options = Object.extend({
             timeout: 10,

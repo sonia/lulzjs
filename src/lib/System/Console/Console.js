@@ -17,6 +17,8 @@
 ****************************************************************************/
 
 System.Console = {
+    __type__: "Console",
+
     write: function (text) {
         System.IO.STDOUT.write(text);
     },

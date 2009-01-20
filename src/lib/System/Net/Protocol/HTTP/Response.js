@@ -17,6 +17,8 @@
 ****************************************************************************/
 
 System.Net.Protocol.HTTP.Response = Class.create({
+    __type__: "HTTPResponse",
+
     initialize: function (answer, headers, content) {
         this.answer  = answer;
         this.headers = headers;

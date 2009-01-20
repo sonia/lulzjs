@@ -17,6 +17,8 @@
 ****************************************************************************/
 
 System.Net.Protocol.HTTP.Request = Class.create({
+    __type__: "HTTPRequest",
+
     initialize: function (url, options) {
         if (!url) {
             throw "You have to pass at least a url.";
