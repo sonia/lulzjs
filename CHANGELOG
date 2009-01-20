@@ -1,3 +1,10 @@
+0.1.7:
+  - Added Bytes object to store bytes.
+  - Added System.Net.Socket
+  - Added System.Net.Protocol.HTTP
+  - Added System.Crypt.SHA1
+  - Tryed to add Threads but still failing, it needs some work.
+
 0.1.6:
   - Added the check for already included files, so the inclusion is avoided.
   - Added the var __VERSION__ that contains the lulzJS version being used.
