@@ -101,6 +101,13 @@ Thread_start (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* r
     jsval property; JS_GetProperty(cx, object, "__detach", &property);
     JSBool detach = JSVAL_TO_BOOLEAN(property);
 
+    #if !defined(DEBUG)
+    if (detach) {
+        JS_ReportError(cx, "Detached threads still have some problems.");
+        return JS_FALSE;
+    }
+    #endif
+
     pthread_create(thread, NULL, __Thread_start, data);
 
     char id[26]; memset(id, 0, 26);
@@ -110,11 +117,6 @@ Thread_start (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* r
 
     // TODO: Make this work.
     if (detach) {
-        #if !defined(DEBUG)
-        JS_ReportError(cx, "Detached threads still have some problems.");
-        return JS_FALSE;
-        #endif
-
         pthread_detach(*thread);
     }
 
