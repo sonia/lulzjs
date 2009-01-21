@@ -55,7 +55,7 @@ Program.Bytes = Class.create({
         var str = new String;
 
         for (var i = 0; i < this.array.length; i++) {
-            str += "\\x"+this.array[i].toText(2, 16);
+            str += "\\x"+this.array[i].toPaddedString(2, 16);
         }
 
         return str;

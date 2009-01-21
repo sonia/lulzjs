@@ -60,12 +60,16 @@ $(LIB_CORE): $(LIB_CORE:.o=.c)
 libcore_install: libcore
 	mkdir -p ${LJS_LIBDIR}
 	mkdir -p ${LJS_LIBDIR}/Core
-	mkdir -p ${LJS_LIBDIR}/Core/Base
-	mkdir -p ${LJS_LIBDIR}/Core/Base/Thread
 	mkdir -p ${LJS_LIBDIR}/Core/Prototype
 	mkdir -p ${LJS_LIBDIR}/Core/Extension
+	mkdir -p ${LJS_LIBDIR}/Core/Base
+	mkdir -p ${LJS_LIBDIR}/Core/Base/Thread
 ########
 	cp -f  ${LIB_CORE_DIR}/init.js					${LJS_LIBDIR}/Core/init.js
+########
+	cp -rf ${LIB_CORE_DIR}/Prototype/*				${LJS_LIBDIR}/Core/Prototype/
+########
+	cp -rf ${LIB_CORE_DIR}/Extension/*				${LJS_LIBDIR}/Core/Extension/
 ########
 	cp -f  ${LIB_CORE_DIR}/Base/init.js				${LJS_LIBDIR}/Core/Base/init.js
 ########
@@ -73,10 +77,6 @@ libcore_install: libcore
 ########
 	cp -f  ${LIB_CORE_DIR}/Base/Thread/init.js		${LJS_LIBDIR}/Core/Base/Thread/init.js
 	cp -f  ${LIB_CORE_DIR}/Base/Thread/Thread.o		${LJS_LIBDIR}/Core/Base/Thread/Thread.so
-########
-	cp -rf ${LIB_CORE_DIR}/Prototype/*				${LJS_LIBDIR}/Core/Prototype/
-########
-	cp -f  ${LIB_CORE_DIR}/Extension/*				${LJS_LIBDIR}/Core/Extension/
 	
 libsystem: $(LIB_SYSTEM)
 

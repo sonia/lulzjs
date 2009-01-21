@@ -189,6 +189,9 @@ Socket_listen (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
         addrin->sin_addr.s_addr = inet_addr(ip);
     }
 
+    int on = 1;
+    setsockopt(data->socket, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
+
     if (bind(data->socket, (struct sockaddr*) addrin, sizeof(struct sockaddr_in)) < 0) {
         JS_ReportError(cx, "Bind failed, probably the port is already in use.");
         return JS_FALSE;

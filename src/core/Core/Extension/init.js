@@ -18,8 +18,4 @@
 
 require("Object.js");
 require("Function.js");
-require("Class.js");
 require("String.js");
-require("Number.js");
-require("Array.js");
-

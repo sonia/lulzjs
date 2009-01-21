@@ -16,7 +16,7 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-[System.IO.Stream, System.IO.STDOUT, System.IO.STDIN, System.IO.STDERR].each(function(obj){
+[System.IO.Stream, System.IO.STDOUT, System.IO.STDIN, System.IO.STDERR].forEach(function(obj){
     Object.extend(obj, {
         writeLine: function (str) {
             this.write(str+"\n");

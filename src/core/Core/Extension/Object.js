@@ -16,23 +16,7 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-Object.extend = function (to, from) {
-    for (var name in from) {
-        to[name] = from[name];
-    }
-
-    return to;
-};
-
 Object.extend(Object, {
-    is: function (obj, type) {
-        if (typeof type == 'string') {
-            type = eval(type);;
-        }
-
-        return obj instanceof type;
-    },
-
     inspect: function (obj) {
         try {
             if (typeof obj == 'undefined') {
@@ -41,29 +25,36 @@ Object.extend(Object, {
             else if (obj === null) {
                 return 'null';
             }
-        
+            else if (Object.is(obj, Array)) {
+                return obj.toSource();
+            }
+            
             return (obj.inspect) ? obj.inspect() : obj.toString();
         }
         catch (e) {
             return e;
+        }    
+    },
+
+    is: function (obj, type) {
+        try {
+            if (typeof type == 'string') {
+                if (parse.trim().match(/;|\(.*\)$/)) {
+                    throw "LOL HAX";
+                }
+
+                type = eval(parse);
+            }
+
+            return obj instanceof type;
+        }
+        catch (e) {
+            return false;
         }
     },
 
     toArray: function (obj) {
-        if (!obj) {
-            return new Array;
-        }
-
-        if (obj.toArray) {
-            return obj.toArray();
-        }
-
-        var result = new Array;
-        for (let i = 0; i < obj.length; i++) {
-            result[i] = obj[i];
-        }
-
-        return result;
+        return $A(obj);
     }
 });
 
