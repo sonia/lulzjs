@@ -39,16 +39,16 @@ static JSClass Core_class = {
     JSCLASS_NO_OPTIONAL_MEMBERS
 };
 
-extern JSObject* Core_initialize (JSContext *cx, const char* script);
+extern JSObject* Core_initialize (JSContext* cx, const char* script);
 
-extern JSBool Core_include (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval); 
-extern JSBool Core_require (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-extern JSBool Core_GC (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+extern JSBool Core_include (JSContext* cx, JSObject* obj, uintN argc, jsval* argv, jsval* rval); 
+extern JSBool Core_require (JSContext* cx, JSObject* obj, uintN argc, jsval* argv, jsval* rval);
+extern JSBool Core_GC (JSContext* cx, JSObject* obj, uintN argc, jsval* argv, jsval* rval);
 
-extern JSBool Core_die (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-extern JSBool Core_exit (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+extern JSBool Core_die (JSContext* cx, JSObject* obj, uintN argc, jsval* argv, jsval* rval);
+extern JSBool Core_exit (JSContext* cx, JSObject* obj, uintN argc, jsval* argv, jsval* rval);
 
-extern JSBool Core_ENV (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+extern JSBool Core_ENV (JSContext* cx, JSObject* obj, uintN argc, jsval* argv, jsval* rval);
 
 /*
  * Execute a system command and return the output.
@@ -59,9 +59,11 @@ extern JSBool Core_ENV (JSContext* cx, JSObject *obj, uintN argc, jsval *argv, j
  * RETURN:
  *     String < The command's output.
  */
-extern JSBool Core_exec (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+extern JSBool Core_exec (JSContext* cx, JSObject* obj, uintN argc, jsval* argv, jsval* rval);
 
-extern JSBool Core_sleep (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+extern JSBool Core_sleep (JSContext* cx, JSObject* obj, uintN argc, jsval* argv, jsval* rval);
+
+extern JSBool Core_print (JSContext* cx, JSObject* obj, uintN argc, jsval* argv, jsval* rval);
 
 const char* __Core_getScriptName (JSContext* cx);
 char*       __Core_getRootPath (JSContext* cx, const char* fileName);
@@ -80,6 +82,8 @@ static JSFunctionSpec Core_methods[] = {
     {"ENV",   Core_ENV,  0, 0, 0},
     {"exec",  Core_exec, 0, 0, 0},
     {"sleep", Core_sleep, 0, 0, 0},
+
+    {"print", Core_print, 0, 0, 0},
     {NULL}
 };
 

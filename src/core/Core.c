@@ -265,6 +265,18 @@ Core_sleep (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
     return JS_TRUE;
 }
 
+JSBool
+Core_print (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+    uintN i;
+    for (i = 0; i < argc; i++) {
+        printf("%s", JS_GetStringBytes(JS_ValueToString(cx, argv[i])));
+    }
+    puts("");
+
+    return JS_TRUE;
+}
+
 char*
 __Core_getRootPath (JSContext* cx, const char* fileName)
 {
@@ -444,3 +456,4 @@ __Core_isIncluded (const char* path)
 
     return JS_FALSE;
 }
+

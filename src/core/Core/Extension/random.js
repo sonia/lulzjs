@@ -16,8 +16,7 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-require("Object.js");
-require("Function.js");
-require("String.js");
-require("random.js");
+function range(begin, end) {
+    return $R(begin, end).toArray();
+}
 
