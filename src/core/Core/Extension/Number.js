@@ -16,10 +16,8 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-require("Object.js");
-require("Function.js");
-require("Class.js");
-require("String.js");
-require("Number.js");
-require("Array.js");
-
+Object.extend(Number.prototype, {
+    toText: function (options) {
+        
+    }
+});

@@ -16,38 +16,54 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-require("System/Console");
-
-Object.is = function (obj, type) {
-    if (!obj) {
-        return !type;
+Object.extend = function (to, from) {
+    for (var name in from) {
+        to[name] = from[name];
     }
 
-    var name;
-    if (typeof(type) == "function") {
-        var match = /^function (\w+)/.exec(type.toString());
-        name = match[1];
+    return to;
+};
 
-        if (name == "klass") {
-            name = type.prototype.__type__;
+Object.extend(Object, {
+    is: function (obj, type) {
+        if (typeof type == 'string') {
+            type = eval(type);;
         }
-    }
-    else if (typeof(type) == "object") {
-        var match = /^function (\w+)/.exec(type.constructor.toString());
-        name = match[1];
 
-        if (name == "klass") {
-            name = type.__proto__.__type__;
+        return obj instanceof type;
+    },
+
+    inspect: function (obj) {
+        try {
+            if (typeof obj == 'undefined') {
+                return 'undefined'
+            }
+            else if (obj === null) {
+                return 'null';
+            }
+        
+            return (obj.inspect) ? obj.inspect() : obj.toString();
         }
-    }
-    else {
-        name = type;
-    }
+        catch (e) {
+            return e;
+        }
+    },
 
-    return (obj.constructor.toString().match(/function klass/)
-        ? obj.__proto__.__type__
-        : obj.constructor.toString()).match(new RegExp("^.*"+name))
-            ? true
-            : false;
-}
+    toArray: function (obj) {
+        if (!obj) {
+            return new Array;
+        }
+
+        if (obj.toArray) {
+            return obj.toArray();
+        }
+
+        var result = new Array;
+        for (let i = 0; i < obj.length; i++) {
+            result[i] = obj[i];
+        }
+
+        return result;
+    }
+});
 

@@ -17,6 +17,10 @@
 ****************************************************************************/
 
 Object.extend(String.prototype, {
+    inspect: function () {
+        return "'"+this+"'";
+    },
+
     capitalizeAll: function (options) {
         options       = options || {}
         var separator = (options.separator || "-_+/\\").split("");

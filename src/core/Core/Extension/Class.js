@@ -16,10 +16,39 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-require("Object.js");
-require("Function.js");
-require("Class.js");
-require("String.js");
-require("Number.js");
-require("Array.js");
+var Class = {
+    create: function () {
+        var parent = null;
+        arguments  = Object.toArray(arguments);
+
+        if (Object.is(arguments[0], Function)) {
+            parent = arguments.shift();
+        }
+
+        var init = function () {
+            this.initialize.apply(this, arguments);
+        }
+
+        init.superclass = parent;
+        init.subclasses = new Array;
+
+        if (parent) {
+            subclass           = Function.empty;
+            subclass.prototype = parent.prototype;
+            init.prototype     = new subclass;
+            parent.subclasses.push(init);
+        }
+
+        for (let [name, value] in arguments[0]) {
+            init.prototype[name] = value;
+        }
+
+        if (!init.prototype.initialize) {
+            init.prototype.initialize = Function.empty;
+        }
+
+        init.prototype.constructor = init;
+        return init;
+    }
+};
 

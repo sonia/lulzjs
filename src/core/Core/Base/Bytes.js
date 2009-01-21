@@ -17,34 +17,35 @@
 ****************************************************************************/
 
 Program.Bytes = Class.create({
-    __type__: "Bytes",
-
     initialize: function (base) {
         if (!Object.is(base, Array)) {
             throw "You have to pass an array.";
         }
 
-        this.__array = base;
-        this.length  = this.__array.length;
+        this.array = base;
+    },
+
+    get length() {
+        return (this.array) ? this.array.length : 0;
     },
 
     byteAt: function (index) {
-        if (index >= this.__array.length) {
+        if (index >= this.array.length) {
             throw "Index out of range.";
         }
 
-        return this.__array[index];
+        return this.array[index];
     },
 
     toArray: function () {
-        return this.__array;
+        return this.array;
     },
 
     toText: function () {
         var str = new String;
 
-        for (var i = 0; i < this.__array.length; i++) {
-            str += String.fromCharCode(this.__array[i]);
+        for (var i = 0; i < this.array.length; i++) {
+            str += String.fromCharCode(this.array[i]);
         }
 
         return str;
@@ -53,8 +54,8 @@ Program.Bytes = Class.create({
     toString: function () {
         var str = new String;
 
-        for (var i = 0; i < this.__array.length; i++) {
-            str += "\\x"+this.__array[i].toPaddedString(2, 16);
+        for (var i = 0; i < this.array.length; i++) {
+            str += "\\x"+this.array[i].toText(2, 16);
         }
 
         return str;

@@ -16,20 +16,19 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-require("Prototype");
-require("Base");
 require("Extension");
+require("Base");
 
-Program.GCExecution = new PeriodicalExecuter(function(){Program.GC()}, 60);
+//Program.GCExecution = new PeriodicalExecuter(function(){Program.GC()}, 60);
 
 // Isolate the used variables.
 (function(){
     // Include the environment paths in the current script.
     var PATH = ENV("JSPATH");
     if (PATH) {
-        var re = /([^:])+/g;
+        let re = /([^:])+/g;
     
-        var path;
+        let path;
         while (path = re.exec(PATH)) {
             __PATH__.push(path[0]);
         }
@@ -38,9 +37,9 @@ Program.GCExecution = new PeriodicalExecuter(function(){Program.GC()}, 60);
     // Include the standards include following the environment variable.
     var INCLUDE = ENV("JSINCLUDE");
     if (INCLUDE) {
-        var re = /([^:])+/g;
+        let re = /([^:])+/g;
     
-        var file;
+        let file;
         while (file = re.exec(INCLUDE)) {
             include(file[0]);
         }

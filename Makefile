@@ -1,4 +1,4 @@
-VERSION = 0.1.7
+VERSION = 0.1.8
 
 CC         = gcc
 CXX        = g++
@@ -69,16 +69,14 @@ libcore_install: libcore
 ########
 	cp -f  ${LIB_CORE_DIR}/Base/init.js				${LJS_LIBDIR}/Core/Base/init.js
 ########
-	cp -f  ${LIB_CORE_DIR}/Base/Bytes.js		${LJS_LIBDIR}/Core/Base/Bytes.js
+	cp -f  ${LIB_CORE_DIR}/Base/Bytes.js			${LJS_LIBDIR}/Core/Base/Bytes.js
 ########
 	cp -f  ${LIB_CORE_DIR}/Base/Thread/init.js		${LJS_LIBDIR}/Core/Base/Thread/init.js
 	cp -f  ${LIB_CORE_DIR}/Base/Thread/Thread.o		${LJS_LIBDIR}/Core/Base/Thread/Thread.so
 ########
 	cp -rf ${LIB_CORE_DIR}/Prototype/*				${LJS_LIBDIR}/Core/Prototype/
 ########
-	cp -f  ${LIB_CORE_DIR}/Extension/init.js		${LJS_LIBDIR}/Core/Extension/init.js
-	cp -f  ${LIB_CORE_DIR}/Extension/String.js		${LJS_LIBDIR}/Core/Extension/String.js
-	cp -f  ${LIB_CORE_DIR}/Extension/Object.js		${LJS_LIBDIR}/Core/Extension/Object.js
+	cp -f  ${LIB_CORE_DIR}/Extension/*				${LJS_LIBDIR}/Core/Extension/
 	
 libsystem: $(LIB_SYSTEM)
 
