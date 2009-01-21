@@ -21,6 +21,8 @@
 JSObject*
 Core_initialize (JSContext *cx, const char* script)
 {
+    JS_SetVersion(cx, 180);
+
     srand((unsigned) time(NULL));
 
     JSObject* object = JS_NewObject(cx, &Core_class, NULL, NULL);
