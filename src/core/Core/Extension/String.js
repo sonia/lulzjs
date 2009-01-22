@@ -17,6 +17,10 @@
 ****************************************************************************/
 
 Object.extend(String.prototype, {
+    trim: function () {
+        return this.replace(/^\s*/,'').replace(/\s*$/,'');
+    },
+
     capitalizeAll: function (options) {
         options       = options || {}
         var separator = (options.separator || "-_+/\\").toArray();

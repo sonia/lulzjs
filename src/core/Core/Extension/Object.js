@@ -39,11 +39,11 @@ Object.extend(Object, {
     is: function (obj, type) {
         try {
             if (typeof type == 'string') {
-                if (parse.trim().match(/;|\(.*\)$/)) {
+                if (type.trim().match(/;|\(.*\)$/)) {
                     throw "LOL HAX";
                 }
 
-                type = eval(parse);
+                type = eval(type);
             }
 
             return obj instanceof type;
