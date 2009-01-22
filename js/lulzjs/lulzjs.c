@@ -19,17 +19,55 @@
 #include "lulzjs.h"
 
 JSBool
-js_ObjectIs (JSContext* cx, JSObject* obj, const char* name)
+js_ObjectIs (JSContext* cx, jsval check, const char* name)
 {
     jsval jsObj; JS_GetProperty(cx, JS_GetGlobalObject(cx), "Object", &jsObj);
     JSObject* Obj = JSVAL_TO_OBJECT(jsObj);
 
     jsval newArgv[] = {
-        OBJECT_TO_JSVAL(obj),
+        check,
         STRING_TO_JSVAL(JS_NewString(cx, JS_strdup(cx, name), strlen(name)))
     };
     jsval ret; JS_CallFunctionName(cx, Obj, "is", 2, newArgv, &ret);
 
     return JSVAL_TO_BOOLEAN(ret);
+}
+
+jsint
+js_parseInt (JSContext* cx, jsval number, int base)
+{
+    jsval ret;
+
+    if (base >= 2 && base <= 36) {
+        jsval argv[] = {number, INT_TO_JSVAL(base)};
+        JS_CallFunctionName(cx, JS_GetGlobalObject(cx), "parseInt", 2, argv, &ret);
+    }
+    else {
+        jsval argv[] = {number};
+        JS_CallFunctionName(cx, JS_GetGlobalObject(cx), "parseInt", 1, argv, &ret);
+    }
+
+    if (strcmp(JS_GetStringBytes(JS_ValueToString(cx, ret)), "NaN") == 0) {
+        return 0;
+    }
+
+    jsint nret; JS_ValueToInt32(cx, ret, &nret);
+    return nret;
+}
+
+jsdouble
+js_parseFloat (JSContext* cx, jsval number)
+{
+    jsval ret;
+
+    jsval argv[] = {number};
+    JS_CallFunctionName(cx, JS_GetGlobalObject(cx), "parseFloat", 1, argv, &ret);
+
+    if (strcmp(JS_GetStringBytes(JS_ValueToString(cx, ret)), "NaN") == 0) {
+        return 0;
+    }
+    
+    jsdouble nret; JS_ValueToNumber(cx, ret, &nret);
+    return nret;
 }
 

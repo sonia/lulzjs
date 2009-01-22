@@ -25,5 +25,12 @@
 #include <limits.h>
 #include <time.h>
 
-extern JSBool js_ObjectIs (JSContext* cx, JSObject* object, const char* name);
-#define JS_OBJECT_IS(cx, obj, name) js_ObjectIs(cx, obj, name)
+extern JSBool js_ObjectIs (JSContext* cx, jsval check, const char* name);
+#define JS_OBJECT_IS(cx, check, name) js_ObjectIs(cx, check, name)
+
+extern jsint js_parseInt (JSContext* cx, jsval number, int base);
+#define JS_ParseInt(cx, number, base) js_parseInt(cx, number, base)
+
+extern jsdouble js_parseFloat (JSContext* cx, jsval number);
+#define JS_ParseFloat(cx, number, base) js_parseInt(cx, number)
+
