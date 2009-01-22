@@ -63,6 +63,12 @@ Screen_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     signal(SIGWINCH, __Screen_resize);
 
     initscr();
+
+    if (has_colors()) {
+        start_color();
+        use_default_colors();
+    }
+
     ScreenInformation* data = JS_malloc(cx, sizeof(ScreenInformation));
     JS_SetPrivate(cx, object, data);
 
@@ -155,20 +161,33 @@ Screen_getChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval*
 JSBool
 Screen_print (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
-    if (argc != 1 && argc != 3) {
-        JS_ReportError(cx, "Wrong parameters number.");
+    if (argc < 1) {
+        JS_ReportError(cx, "Not enough parameters.");
         return JS_FALSE;
     }
 
-    if (argc == 1) {
+    switch (argc) {
+        case 1: {
         printw(JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
-    }
-    else {
+        } break;
+
+        case 2: {
+        char* string = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+        JSObject* options; JS_ValueToObject(cx, argv[1], &options);
+
+
+        } break;
+
+        case 3: {
         char* string = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
         jsint x; JS_ValueToInt32(cx, argv[1], &x);
         jsint y; JS_ValueToInt32(cx, argv[2], &y);
 
         mvprintw(y, x, string);
+        } break;
+
+        case 4: {
+        } break;
     }
 
     return JS_TRUE;

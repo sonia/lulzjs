@@ -37,13 +37,56 @@ ncurses_initialize (JSContext* cx)
         JSObject* Buffering   = JS_NewObject(cx, NULL, NULL, NULL);
         jsval     jsBuffering = OBJECT_TO_JSVAL(Buffering);
         JS_SetProperty(cx, object, "Buffering", &jsBuffering);
+            property = INT_TO_JSVAL(Normal);
+            JS_SetProperty(cx, Buffering, "Normal", &property);
+            property = INT_TO_JSVAL(Raw);
+            JS_SetProperty(cx, Buffering, "Raw", &property);
+            property = INT_TO_JSVAL(CBreak);
+            JS_SetProperty(cx, Buffering, "CBreak", &property);
 
-        property = INT_TO_JSVAL(Normal);
-        JS_SetProperty(cx, Buffering, "Normal", &property);
-        property = INT_TO_JSVAL(Raw);
-        JS_SetProperty(cx, Buffering, "Raw", &property);
-        property = INT_TO_JSVAL(CBreak);
-        JS_SetProperty(cx, Buffering, "CBreak", &property);
+        JSObject* Colors   = JS_NewObject(cx, NULL, NULL, NULL);
+        jsval     jsColors = OBJECT_TO_JSVAL(Colors);
+        JS_SetProperty(cx, object, "Colors", &jsColors);
+            property = INT_TO_JSVAL(-1);
+            JS_SetProperty(cx, Colors, "Normal", &property);
+            property = INT_TO_JSVAL(COLOR_BLACK);
+            JS_SetProperty(cx, Colors, "Black", &property);
+            property = INT_TO_JSVAL(COLOR_RED);
+            JS_SetProperty(cx, Colors, "Red", &property);
+            property = INT_TO_JSVAL(COLOR_GREEN);
+            JS_SetProperty(cx, Colors, "Green", &property);
+            property = INT_TO_JSVAL(COLOR_YELLOW);
+            JS_SetProperty(cx, Colors, "Yellow", &property);
+            property = INT_TO_JSVAL(COLOR_BLUE);
+            JS_SetProperty(cx, Colors, "Blue", &property);
+            property = INT_TO_JSVAL(COLOR_MAGENTA);
+            JS_SetProperty(cx, Colors, "Magenta", &property);
+            property = INT_TO_JSVAL(COLOR_CYAN);
+            JS_SetProperty(cx, Colors, "Cyan", &property);
+            property = INT_TO_JSVAL(COLOR_WHITE);
+            JS_SetProperty(cx, Colors, "White", &property);
+
+        JSObject* Attributes   = JS_NewObject(cx, NULL, NULL, NULL);
+        jsval     jsAttributes = OBJECT_TO_JSVAL(Attributes);
+        JS_SetProperty(cx, object, "Attributes", &jsAttributes);
+            property = INT_TO_JSVAL(A_NORMAL); // Normal display (no highlight)
+            JS_SetProperty(cx, Attributes, "Normal", &property);
+            property = INT_TO_JSVAL(A_BLINK); // Blinking
+            JS_SetProperty(cx, Attributes, "Blink", &property);
+            property = INT_TO_JSVAL(A_BOLD); // Extra bright or bold
+            JS_SetProperty(cx, Attributes, "Bold", &property);
+            property = INT_TO_JSVAL(A_DIM); // Half bright
+            JS_SetProperty(cx, Attributes, "Dim", &property);
+            property = INT_TO_JSVAL(A_REVERSE); // Reverse video
+            JS_SetProperty(cx, Attributes, "Reverse", &property);
+            property = INT_TO_JSVAL(A_STANDOUT); // Best highlighting mode of the terminal.
+            JS_SetProperty(cx, Attributes, "Standout", &property);
+            property = INT_TO_JSVAL(A_UNDERLINE); // Underlining
+            JS_SetProperty(cx, Attributes, "Underline", &property);
+            property = INT_TO_JSVAL(A_PROTECT); // Protected mode
+            JS_SetProperty(cx, Attributes, "Protect", &property);
+            property = INT_TO_JSVAL(A_INVIS);
+            JS_SetProperty(cx, Attributes, "Invisible", &property);
 
         return JS_TRUE;
     }
