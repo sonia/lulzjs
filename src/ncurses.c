@@ -32,6 +32,19 @@ ncurses_initialize (JSContext* cx)
     if (object) {
         JS_DefineFunctions(cx, object, ncurses_methods);
 
+        jsval property;
+
+        JSObject* Buffering   = JS_NewObject(cx, NULL, NULL, NULL);
+        jsval     jsBuffering = OBJECT_TO_JSVAL(Buffering);
+        JS_SetProperty(cx, object, "Buffering", &jsBuffering);
+
+        property = INT_TO_JSVAL(Normal);
+        JS_SetProperty(cx, Buffering, "Normal", &property);
+        property = INT_TO_JSVAL(Raw);
+        JS_SetProperty(cx, Buffering, "Raw", &property);
+        property = INT_TO_JSVAL(CBreak);
+        JS_SetProperty(cx, Buffering, "CBreak", &property);
+
         return JS_TRUE;
     }
 

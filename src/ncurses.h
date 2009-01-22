@@ -20,6 +20,7 @@
 #define _LULZJS_NCURSES_H
 
 #include "common.h"
+#include "Screen.h"
 
 extern JSBool exec (JSContext* cx);
 extern JSBool ncurses_initialize (JSContext* cx);

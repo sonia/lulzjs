@@ -30,12 +30,14 @@ $(LIB) : $(LIB:.o=.c)
 
 install: lib_install
 
-lib_install:
+lib_install: lib
 	mkdir -p ${LJS_LIBDIR}/ncurses
 ########
 	cp -f  ${LIB_DIR}/init.js		${LJS_LIBDIR}/ncurses/init.js
 	cp -f  ${LIB_DIR}/ncurses.o		${LJS_LIBDIR}/ncurses/ncurses.so
+	cp -f  ${LIB_DIR}/ncurses.js	${LJS_LIBDIR}/ncurses/ncurses.js
 	cp -f  ${LIB_DIR}/Screen.o		${LJS_LIBDIR}/ncurses/Screen.so
+	cp -f  ${LIB_DIR}/Screen.js		${LJS_LIBDIR}/ncurses/Screen.js
 #######
 	chmod -R a+rx ${LJS_LIBDIR}/ncurses
 

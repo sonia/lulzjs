@@ -16,6 +16,7 @@
 * along with lulzJS-ncurses.  If not, see <http://www.gnu.org/licenses/>.   *
 ****************************************************************************/
 
-require("ncurses.so");
-require("Screen.so");
+require(["ncurses.so", "ncurses.js"]);
+
+require(["Screen.so", "Screen.js"]);
 

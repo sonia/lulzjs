@@ -16,19 +16,6 @@
 * along with lulzJS-ncurses.  If not, see <http://www.gnu.org/licenses/>.   *
 ****************************************************************************/
 
-#ifndef _LULZJS_NCURSES_SCREEN_PRIVATE
-#define _LULZJS_NCURSES_SCREEN_PRIVATE
+Object.extend(ncurses, {
 
-typedef enum {
-    Normal,
-    Raw,
-    CBreak
-} Buffering;
-
-typedef struct {
-       JSBool  echo;
-    Buffering  buffering;
-       JSBool  keypad;
-} ScreenInformation;
-
-#endif
+});
