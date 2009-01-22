@@ -123,6 +123,10 @@ Screen_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
         data->keypad = JS_FALSE;
     }
 
+    // Cursor state
+    JS_GetProperty(cx, options, "cursor", &option);
+    curs_set(JS_ParseInt(cx, option, 0));
+
     return JS_TRUE;
 }
 
@@ -168,27 +172,97 @@ Screen_print (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* r
 
     switch (argc) {
         case 1: {
-        printw(JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
+            printw(JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
         } break;
 
         case 2: {
-        char* string = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-        JSObject* options; JS_ValueToObject(cx, argv[1], &options);
+            JSObject* options; JS_ValueToObject(cx, argv[1], &options);
 
-
+            __Screen_options(cx, options, JS_TRUE);
+            printw(JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
+            __Screen_options(cx, options, JS_FALSE);
         } break;
 
         case 3: {
-        char* string = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-        jsint x; JS_ValueToInt32(cx, argv[1], &x);
-        jsint y; JS_ValueToInt32(cx, argv[2], &y);
+            jsint x; JS_ValueToInt32(cx, argv[1], &x);
+            jsint y; JS_ValueToInt32(cx, argv[2], &y);
 
-        mvprintw(y, x, string);
+            mvprintw(y, x, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
         } break;
 
         case 4: {
+            JSObject* options; JS_ValueToObject(cx, argv[3], &options);
+            jsint x; JS_ValueToInt32(cx, argv[1], &x);
+            jsint y; JS_ValueToInt32(cx, argv[2], &y);
+
+            __Screen_options(cx, options, JS_TRUE);
+            mvprintw(y, x, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
+            __Screen_options(cx, options, JS_FALSE);
         } break;
     }
+
+    return JS_TRUE;
+}
+
+void
+__Screen_options (JSContext* cx, JSObject* options, JSBool apply)
+{
+    jsval jsAttrs; JS_GetProperty(cx, options, "at", &jsAttrs);
+    if (!JSVAL_IS_INT(jsAttrs)) {
+        JS_GetProperty(cx, options, "attribute", &jsAttrs);
+
+        if (!JSVAL_IS_INT(jsAttrs)) {
+            JS_GetProperty(cx, options, "attributes", &jsAttrs);
+        }
+    }
+
+    if (JSVAL_IS_INT(jsAttrs)) {
+        if (apply) {
+            attron(JSVAL_TO_INT(jsAttrs));
+        }
+        else {
+            attroff(JSVAL_TO_INT(jsAttrs));
+        }
+    }
+
+    jsval jsForeground; JS_GetProperty(cx, options, "fg", &jsForeground);
+    if (!JSVAL_IS_INT(jsForeground)) {
+        JS_GetProperty(cx, options, "foreground", &jsForeground);
+    }
+
+    jsval jsBackground; JS_GetProperty(cx, options, "bg", &jsBackground);
+    if (!JSVAL_IS_INT(jsBackground)) {
+        JS_GetProperty(cx, options, "background", &jsBackground);
+    }
+
+    short fg = JSVAL_IS_INT(jsForeground) ? JSVAL_TO_INT(jsForeground) : -1;
+    short bg = JSVAL_IS_INT(jsBackground) ? JSVAL_TO_INT(jsBackground) : -1;
+
+    char pair[3] = {0};
+    sprintf(&pair[0], "%1d", (fg<0?0:fg)); // I've to give 0 if it's using the default
+    sprintf(&pair[1], "%1d", (bg<0?0:bg)); // value because it fucks up with -1
+
+    short c_pair = atoi(pair);
+    if (apply) {
+        init_pair(c_pair, fg, bg);
+        attron(COLOR_PAIR(c_pair));
+    }
+    else {
+        attroff(COLOR_PAIR(c_pair));
+    }
+}
+
+JSBool
+Screen_cursorMode (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    jsint val;
+
+    if (argc < 1 || !JS_ConvertArguments(cx, argc, argv, "i", &val)) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    curs_set(val);
 
     return JS_TRUE;
 }

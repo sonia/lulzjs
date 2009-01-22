@@ -17,12 +17,12 @@
 ****************************************************************************/
 
 Object.extend(ncurses.Screen.prototype, {
-    printLine: function (str, x, y) {
-        if (str && x && y) {
-            this.print(str+"\n", x, y);
-        }
-        else {
-            this.print(str+"\n");
+    printLine: function () {
+        switch (arguments.length) {
+            case 1: this.print(arguments[0]+"\n"); break;
+            case 2: this.print(arguments[0]+"\n", arguments[1]); break;
+            case 3: this.print(arguments[0]+"\n", arguments[1], arguments[2]); break;
+            case 4: this.print(arguments[0]+"\n", arguments[1], arguments[2], arguments[3]); break;
         }
     }
 });

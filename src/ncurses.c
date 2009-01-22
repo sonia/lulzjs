@@ -88,6 +88,16 @@ ncurses_initialize (JSContext* cx)
             property = INT_TO_JSVAL(A_INVIS);
             JS_SetProperty(cx, Attributes, "Invisible", &property);
 
+        JSObject* Cursor   = JS_NewObject(cx, NULL, NULL, NULL);
+        jsval     jsCursor = OBJECT_TO_JSVAL(Cursor);
+        JS_SetProperty(cx, object, "Cursor", &jsCursor);
+            property = INT_TO_JSVAL(0);
+            JS_SetProperty(cx, Cursor, "Invisible", &property);
+            property = INT_TO_JSVAL(1);
+            JS_SetProperty(cx, Cursor, "Normal", &property);
+            property = INT_TO_JSVAL(2);
+            JS_SetProperty(cx, Cursor, "Visible", &property);
+
         return JS_TRUE;
     }
 

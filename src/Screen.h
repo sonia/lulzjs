@@ -39,11 +39,17 @@ static JSClass Screen_class = {
 #include "Screen_private.h"
 
 extern JSBool Screen_getChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
 extern JSBool Screen_print (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+void __Screen_options (JSContext* cx, JSObject* options, JSBool apply);
+
+extern JSBool Screen_cursorMode (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 static JSFunctionSpec Screen_methods[] = {
     {"getChar", Screen_getChar, 0, 0, 0},
     {"print", Screen_print, 0, 0, 0},
+
+    {"cursorMode", Screen_cursorMode, 0, 0, 0},
     {NULL}
 };
 

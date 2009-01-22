@@ -18,7 +18,7 @@ endif
 LIB_DIR     = src
 LIB         = ${LIB_DIR}/ncurses.o ${LIB_DIR}/Screen.o
 LIB_CFLAGS  = ${CFLAGS}
-LIB_LDFLAGS = ${LDFLAGS} -lncurses
+LIB_LDFLAGS = ${LDFLAGS} -lncurses -lpanel -lform -lmenu
 
 all: lib
 
@@ -27,8 +27,6 @@ lib: $(LIB)
 $(LIB) : $(LIB:.o=.c)
 	${CC} ${LIB_CFLAGS} -fPIC -c $*.c -o $*.lo
 	${CC} ${LIB_LDFLAGS} -shared -Wl,-soname,`basename $*`.so -o $*.o $*.lo -lc
-
-install: lib_install
 
 lib_install: lib
 	mkdir -p ${LJS_LIBDIR}/ncurses
@@ -40,6 +38,13 @@ lib_install: lib
 	cp -f  ${LIB_DIR}/Screen.js		${LJS_LIBDIR}/ncurses/Screen.js
 #######
 	chmod -R a+rx ${LJS_LIBDIR}/ncurses
+
+lib_uninstall:
+	rm -rf ${LJS_LIBDIR}/ncurses
+
+
+install: lib_install
+uninstall: lib_uninstall
 
 clean:
 	find src|egrep "\.l?o"|xargs rm -f
