@@ -21,7 +21,9 @@
 static JSContext* signalCx;
 static JSObject*  signalObject;
 void __Screen_resize (int signum) {
+    endwin(); initscr(); __Screen_updateSize(signalCx, signalObject);
     jsval ret; JS_CallFunctionName(signalCx, signalObject, "onResize", 0, NULL, &ret);
+    refresh();
 }
 
 JSBool exec (JSContext* cx) { return Screen_initialize(cx); }
@@ -63,6 +65,11 @@ Screen_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     signal(SIGWINCH, __Screen_resize);
 
     initscr();
+
+    JSObject* Size   = JS_NewObject(cx, NULL, NULL, NULL);
+    jsval     jsSize = OBJECT_TO_JSVAL(Size);
+    JS_SetProperty(cx, object, "Size", &jsSize);
+    __Screen_updateSize(cx, object);
 
     if (has_colors()) {
         start_color();
@@ -153,6 +160,13 @@ Screen_finalize (JSContext* cx, JSObject* object)
 
         JS_free(cx, data);
     }
+}
+
+JSBool
+Screen_refresh (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    refresh();
+    return JS_TRUE;
 }
 
 JSBool
@@ -250,6 +264,22 @@ __Screen_options (JSContext* cx, JSObject* options, JSBool apply)
     else {
         attroff(COLOR_PAIR(c_pair));
     }
+}
+
+void
+__Screen_updateSize (JSContext* cx, JSObject* object)
+{
+    int height, width;
+    getmaxyx(stdscr, height, width);
+
+    jsval jsSize; JS_GetProperty(cx, object, "Size", &jsSize);
+    JSObject* Size = JSVAL_TO_OBJECT(jsSize);
+
+    jsval property;
+    property = INT_TO_JSVAL(height);
+    JS_SetProperty(cx, Size, "Height", &property);
+    property = INT_TO_JSVAL(width);
+    JS_SetProperty(cx, Size, "Width", &property);
 }
 
 JSBool
