@@ -16,6 +16,12 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
+Object.extend(String, {
+    toCharCode: function (str) {
+        return str.charCodeAt(0);
+    }
+});
+
 Object.extend(String.prototype, {
     trim: function () {
         return this.replace(/^\s*/,'').replace(/\s*$/,'');
