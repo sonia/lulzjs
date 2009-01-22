@@ -10,5 +10,4 @@ var screen = new ncurses.Screen({buffering: ncurses.Buffering.Raw});
     );
 })();
 
-
 while (screen.getChar() != ord('q'));

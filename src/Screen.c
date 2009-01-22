@@ -21,7 +21,8 @@
 static JSContext* signalCx;
 static JSObject*  signalObject;
 void __Screen_resize (int signum) {
-    endwin(); initscr(); __Screen_updateSize(signalCx, signalObject);
+    endwin(); initscr(); refresh();
+    __Screen_updateSize(signalCx, signalObject);
     jsval ret; JS_CallFunctionName(signalCx, signalObject, "onResize", 0, NULL, &ret);
     refresh();
 }
