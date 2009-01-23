@@ -98,9 +98,59 @@ ncurses_initialize (JSContext* cx)
             property = INT_TO_JSVAL(2);
             JS_SetProperty(cx, Cursor, "Visible", &property);
 
+        JSObject* Keys   = JS_NewObject(cx, NULL, NULL, NULL);
+        jsval     jsKeys = OBJECT_TO_JSVAL(Keys);
+        JS_SetProperty(cx, object, "Keys", &jsKeys);
+            property = INT_TO_JSVAL(KEY_BREAK);
+            JS_SetProperty(cx, Keys, "Break", &property);
+            property = INT_TO_JSVAL(KEY_DOWN);
+            JS_SetProperty(cx, Keys, "Down", &property);
+            property = INT_TO_JSVAL(KEY_UP);
+            JS_SetProperty(cx, Keys, "Up", &property);
+            property = INT_TO_JSVAL(KEY_LEFT);
+            JS_SetProperty(cx, Keys, "Left", &property);
+            property = INT_TO_JSVAL(KEY_RIGHT);
+            JS_SetProperty(cx, Keys, "Right", &property);
+            property = INT_TO_JSVAL(KEY_HOME);
+            JS_SetProperty(cx, Keys, "Home", &property);
+            property = INT_TO_JSVAL(KEY_BACKSPACE);
+            JS_SetProperty(cx, Keys, "Backspace", &property);
+            property = OBJECT_TO_JSVAL(JS_GetFunctionObject(
+                JS_NewFunction(cx, ncurses_KEY_F, 1, 0, NULL, "KEY_F")
+            ));
+            JS_SetProperty(cx, Keys, "F", &property);
+            property = INT_TO_JSVAL(KEY_DL);
+            JS_SetProperty(cx, Keys, "DL", &property);
+            property = INT_TO_JSVAL(KEY_IL);
+            JS_SetProperty(cx, Keys, "IL", &property);
+            property = INT_TO_JSVAL(KEY_DC);
+            JS_SetProperty(cx, Keys, "DC", &property);
+            property = INT_TO_JSVAL(KEY_IC);
+            JS_SetProperty(cx, Keys, "IC", &property);
+            property = INT_TO_JSVAL(KEY_EIC);
+            JS_SetProperty(cx, Keys, "EIC", &property);
+            property = INT_TO_JSVAL(KEY_CLEAR);
+            JS_SetProperty(cx, Keys, "Clear", &property);
+            property = INT_TO_JSVAL(KEY_EOS);
+            JS_SetProperty(cx, Keys, "EOS", &property);
+
         return JS_TRUE;
     }
 
     return JS_FALSE;
+}
+
+JSBool
+ncurses_KEY_F (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    if (argc < 1) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    jsint n; JS_ValueToInt32(cx, argv[0], &n);
+    *rval = INT_TO_JSVAL(KEY_F(n));
+
+    return JS_TRUE;
 }
 

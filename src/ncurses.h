@@ -31,6 +31,8 @@ static JSClass ncurses_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
 };
 
+extern JSBool ncurses_KEY_F (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
 static JSFunctionSpec ncurses_methods[] = {
     {NULL}
 };

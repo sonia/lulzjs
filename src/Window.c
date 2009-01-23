@@ -104,6 +104,12 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     JS_SetProperty(cx, object, "Position", &jsPosition);
     __Window_updatePosition(cx, object);
 
+    jsval jsBorder; JS_GetProperty(cx, options, "border", &jsBorder);
+    JSBool border; JS_ValueToBoolean(cx, jsBorder, &border);
+    if (border) {
+        box(win, 0, 0);
+    }
+
     wrefresh(win);
 
     return JS_TRUE;
