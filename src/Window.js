@@ -16,8 +16,6 @@
 * along with lulzJS-ncurses.  If not, see <http://www.gnu.org/licenses/>.   *
 ****************************************************************************/
 
-require(["ncurses.so", "ncurses.js"]);
+Object.extend(Window.prototype, {
 
-require(["Window.so", "Window.js"]);
-require(["Screen.so", "Screen.js"]);
-
+});
