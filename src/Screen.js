@@ -17,12 +17,19 @@
 ****************************************************************************/
 
 Object.extend(ncurses.Screen.prototype, {
-    printLine: function () {
-        switch (arguments.length) {
-            case 1: this.print(arguments[0]+"\n"); break;
-            case 2: this.print(arguments[0]+"\n", arguments[1]); break;
-            case 3: this.print(arguments[0]+"\n", arguments[1], arguments[2]); break;
-            case 4: this.print(arguments[0]+"\n", arguments[1], arguments[2], arguments[3]); break;
-        }
+    printChar: function (ch, options) {
+        if (options) this.__window.printChar(ch, options);
+        else         this.__window.printChar(ch);
+    },
+
+    getChar: function (options) {
+        return (options 
+            ? this.__window.getChar(options)
+            : this.__window.getChar());
+    },
+
+    printString: function (str, options) {
+        if (options) this.__window.printString(str, options);
+        else         this.__window.printString(str);
     }
 });

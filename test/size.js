@@ -4,10 +4,10 @@ require("ncurses");
 var screen = new ncurses.Screen({buffering: ncurses.Buffering.Raw});
 
 (screen.onResize = function () {
-    screen.printLine("Width: {0}\nHeight: {1}".format([
-        screen.Size.Width, screen.Size.Height]), 0, 0,
-        {fg: ncurses.Colors.Red, at: ncurses.Attributes.Reverse}
-    );
+    screen.printString("Width", {x: 0, y: 0, fg: ncurses.Colors.Red, at: ncurses.Attributes.Underline});
+    screen.printString(" : "+screen.Size.Width+"   ");
+    screen.printString("Height", {x: 0, y: 1, fg: ncurses.Colors.Red, at: ncurses.Attributes.Underline});
+    screen.printString(": "+screen.Size.Height+"   ");
 })();
 
 while (screen.getChar() != ord('q'));

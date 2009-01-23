@@ -38,7 +38,7 @@ Screen_initialize (JSContext* cx)
 
     JSObject* object = JS_InitClass(
         cx, parent, NULL, &Screen_class,
-        Screen_constructor, 1, NULL, Screen_methods, NULL, Screen_static_methods
+        Screen_constructor, 1, NULL, Screen_methods, NULL, NULL
     );
 
     if (object) {
@@ -57,7 +57,7 @@ Screen_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     JSObject* options;
 
     if (stdscr) {
-        JS_ReportError(cx, "You can have only one Screen per program.");
+        JS_ReportError(cx, "You can have only one Screen per program. (At the moment :3)");
         return JS_FALSE;
     }
 
@@ -79,6 +79,18 @@ Screen_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
 
     ScreenInformation* data = JS_malloc(cx, sizeof(ScreenInformation));
     JS_SetPrivate(cx, object, data);
+
+    jsval property;
+    JS_GetProperty(cx, JS_GetGlobalObject(cx), "ncurses", &property);
+    JS_GetProperty(cx, JSVAL_TO_OBJECT(property), "Window",&property);
+    JSClass*  class  = JS_GET_CLASS(cx, JSVAL_TO_OBJECT(property));
+    JS_GetProperty(cx, JSVAL_TO_OBJECT(property), "prototype", &property);
+    JSObject* proto  = JSVAL_TO_OBJECT(property);
+
+    JSObject* Window = JS_NewObject(cx, class, proto, NULL); 
+    JS_SetPrivate(cx, Window, stdscr);
+    property = OBJECT_TO_JSVAL(Window);
+    JS_SetProperty(cx, object, "__window", &property);
 
     if (argc > 0) {
         JS_ValueToObject(cx, argv[0], &options);
@@ -157,113 +169,10 @@ Screen_finalize (JSContext* cx, JSObject* object)
             echo();
         }
 
+        curs_set(1);
         endwin();
 
         JS_free(cx, data);
-    }
-}
-
-JSBool
-Screen_refresh (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
-{
-    refresh();
-    return JS_TRUE;
-}
-
-JSBool
-Screen_getChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
-{
-    *rval = INT_TO_JSVAL(getch());
-    return JS_TRUE;
-}
-
-JSBool
-Screen_print (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
-{
-    if (argc < 1) {
-        JS_ReportError(cx, "Not enough parameters.");
-        return JS_FALSE;
-    }
-
-    switch (argc) {
-        case 1: {
-            printw(JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
-        } break;
-
-        case 2: {
-            JSObject* options; JS_ValueToObject(cx, argv[1], &options);
-
-            __Screen_options(cx, options, JS_TRUE);
-            printw(JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
-            __Screen_options(cx, options, JS_FALSE);
-        } break;
-
-        case 3: {
-            jsint x; JS_ValueToInt32(cx, argv[1], &x);
-            jsint y; JS_ValueToInt32(cx, argv[2], &y);
-
-            mvprintw(y, x, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
-        } break;
-
-        case 4: {
-            JSObject* options; JS_ValueToObject(cx, argv[3], &options);
-            jsint x; JS_ValueToInt32(cx, argv[1], &x);
-            jsint y; JS_ValueToInt32(cx, argv[2], &y);
-
-            __Screen_options(cx, options, JS_TRUE);
-            mvprintw(y, x, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
-            __Screen_options(cx, options, JS_FALSE);
-        } break;
-    }
-
-    return JS_TRUE;
-}
-
-void
-__Screen_options (JSContext* cx, JSObject* options, JSBool apply)
-{
-    jsval jsAttrs; JS_GetProperty(cx, options, "at", &jsAttrs);
-    if (!JSVAL_IS_INT(jsAttrs)) {
-        JS_GetProperty(cx, options, "attribute", &jsAttrs);
-
-        if (!JSVAL_IS_INT(jsAttrs)) {
-            JS_GetProperty(cx, options, "attributes", &jsAttrs);
-        }
-    }
-
-    if (JSVAL_IS_INT(jsAttrs)) {
-        if (apply) {
-            attron(JSVAL_TO_INT(jsAttrs));
-        }
-        else {
-            attroff(JSVAL_TO_INT(jsAttrs));
-        }
-    }
-
-    jsval jsForeground; JS_GetProperty(cx, options, "fg", &jsForeground);
-    if (!JSVAL_IS_INT(jsForeground)) {
-        JS_GetProperty(cx, options, "foreground", &jsForeground);
-    }
-
-    jsval jsBackground; JS_GetProperty(cx, options, "bg", &jsBackground);
-    if (!JSVAL_IS_INT(jsBackground)) {
-        JS_GetProperty(cx, options, "background", &jsBackground);
-    }
-
-    short fg = JSVAL_IS_INT(jsForeground) ? JSVAL_TO_INT(jsForeground) : -1;
-    short bg = JSVAL_IS_INT(jsBackground) ? JSVAL_TO_INT(jsBackground) : -1;
-
-    char pair[3] = {0};
-    sprintf(&pair[0], "%1d", (fg<0?0:fg)); // I've to give 0 if it's using the default
-    sprintf(&pair[1], "%1d", (bg<0?0:bg)); // value because it fucks up with -1
-
-    short c_pair = atoi(pair);
-    if (apply) {
-        init_pair(c_pair, fg, bg);
-        attron(COLOR_PAIR(c_pair));
-    }
-    else {
-        attroff(COLOR_PAIR(c_pair));
     }
 }
 
