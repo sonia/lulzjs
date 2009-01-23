@@ -162,8 +162,8 @@ __Thread_start (void* arg)
     JS_SetProperty(cx, object, "__object", &property);
 
     // Execute the actual javascript constructor
-    jsval* ret = JS_malloc(cx, sizeof(jsval));
-    JS_CallFunctionValue(cx, threadObj, OBJECT_TO_JSVAL(class), argc, argv, ret);
+    jsval ret;
+    JS_CallFunctionValue(cx, threadObj, OBJECT_TO_JSVAL(class), argc, argv, &ret);
 
     property = JSVAL_FALSE;
     JS_SetProperty(cx, object, "__going", &property);
