@@ -120,19 +120,57 @@ ncurses_initialize (JSContext* cx)
             ));
             JS_SetProperty(cx, Keys, "F", &property);
             property = INT_TO_JSVAL(KEY_DL);
-            JS_SetProperty(cx, Keys, "DL", &property);
+            JS_SetProperty(cx, Keys, "DeleteLine", &property);
             property = INT_TO_JSVAL(KEY_IL);
-            JS_SetProperty(cx, Keys, "IL", &property);
+            JS_SetProperty(cx, Keys, "InsertLine", &property);
             property = INT_TO_JSVAL(KEY_DC);
-            JS_SetProperty(cx, Keys, "DC", &property);
+            JS_SetProperty(cx, Keys, "DeleteChar", &property);
             property = INT_TO_JSVAL(KEY_IC);
-            JS_SetProperty(cx, Keys, "IC", &property);
+            JS_SetProperty(cx, Keys, "EnterInsertMode", &property);
             property = INT_TO_JSVAL(KEY_EIC);
-            JS_SetProperty(cx, Keys, "EIC", &property);
+            JS_SetProperty(cx, Keys, "EndInsertMode", &property);
             property = INT_TO_JSVAL(KEY_CLEAR);
             JS_SetProperty(cx, Keys, "Clear", &property);
             property = INT_TO_JSVAL(KEY_EOS);
-            JS_SetProperty(cx, Keys, "EOS", &property);
+            JS_SetProperty(cx, Keys, "EndOfScreen", &property);
+            property = INT_TO_JSVAL(KEY_EOL);
+            JS_SetProperty(cx, Keys, "EndOfLine", &property);
+            property = INT_TO_JSVAL(KEY_SF);
+            JS_SetProperty(cx, Keys, "ScrollForward", &property);
+            property = INT_TO_JSVAL(KEY_SR);
+            JS_SetProperty(cx, Keys, "ScrollBackward", &property);
+            property = INT_TO_JSVAL(KEY_NPAGE);
+            JS_SetProperty(cx, Keys, "NextPage", &property);
+            property = INT_TO_JSVAL(KEY_PPAGE);
+            JS_SetProperty(cx, Keys, "PreviousPage", &property);
+            property = INT_TO_JSVAL(KEY_STAB);
+            JS_SetProperty(cx, Keys, "SetTab", &property);
+            property = INT_TO_JSVAL(KEY_CTAB);
+            JS_SetProperty(cx, Keys, "ClearTab", &property);
+            property = INT_TO_JSVAL(KEY_CATAB);
+            JS_SetProperty(cx, Keys, "ClearAllTabs", &property);
+            property = INT_TO_JSVAL(KEY_ENTER);
+            JS_SetProperty(cx, Keys, "Enter", &property);
+            property = INT_TO_JSVAL(KEY_SRESET);
+            JS_SetProperty(cx, Keys, "SoftReset", &property);
+            property = INT_TO_JSVAL(KEY_RESET);
+            JS_SetProperty(cx, Keys, "Reset", &property);
+            property = INT_TO_JSVAL(KEY_PRINT);
+            JS_SetProperty(cx, Keys, "Print", &property);
+            property = INT_TO_JSVAL(KEY_LL);
+            JS_SetProperty(cx, Keys, "Bottom", &property);
+            property = INT_TO_JSVAL(KEY_A1);
+            JS_SetProperty(cx, Keys, "UpperLeft", &property);
+            property = INT_TO_JSVAL(KEY_A3);
+            JS_SetProperty(cx, Keys, "UpperRight", &property);
+            property = INT_TO_JSVAL(KEY_B2);
+            JS_SetProperty(cx, Keys, "Center", &property);
+            property = INT_TO_JSVAL(KEY_C1);
+            JS_SetProperty(cx, Keys, "LowerLeft", &property);
+            property = INT_TO_JSVAL(KEY_C3);
+            JS_SetProperty(cx, Keys, "LowerRight", &property);
+            property = INT_TO_JSVAL(KEY_BTAB);
+            JS_SetProperty(cx, Keys, "BackTab", &property);
 
         return JS_TRUE;
     }
@@ -149,6 +187,12 @@ ncurses_KEY_F (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
     }
 
     jsint n; JS_ValueToInt32(cx, argv[0], &n);
+
+    if (n < 0 || n > 63) {
+        JS_ReportError(cx, "Out of range.");
+        return JS_FALSE;
+    }
+
     *rval = INT_TO_JSVAL(KEY_F(n));
 
     return JS_TRUE;
