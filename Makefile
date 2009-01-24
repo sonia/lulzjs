@@ -145,6 +145,7 @@ libsystem_install: libsystem
 #######
 	cp -f ${LIB_SYSTEM_DIR}/Crypt/SHA1/init.js					${LJS_LIBDIR}/System/Crypt/SHA1/init.js
 	cp -f ${LIB_SYSTEM_DIR}/Crypt/SHA1/SHA1.o					${LJS_LIBDIR}/System/Crypt/SHA1/SHA1.so
+	cp -f ${LIB_SYSTEM_DIR}/Crypt/SHA1/SHA1.js					${LJS_LIBDIR}/System/Crypt/SHA1/SHA1.js
 
 libsystem_uninstall:
 

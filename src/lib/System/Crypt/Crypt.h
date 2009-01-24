@@ -16,8 +16,8 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-#ifndef _SYSTEM_NET_H
-#define _SYSTEM_NET_H
+#ifndef _SYSTEM_CRYPT_H
+#define _SYSTEM_CRYPT_H
 
 #include "lulzjs.h"
 

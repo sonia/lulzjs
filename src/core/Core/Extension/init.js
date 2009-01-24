@@ -17,6 +17,7 @@
 ****************************************************************************/
 
 require("Object.js");
+require("Class.js");
 require("Function.js");
 require("String.js");
 require("random.js");

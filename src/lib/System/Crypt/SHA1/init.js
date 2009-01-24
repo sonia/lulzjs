@@ -20,7 +20,7 @@ require("System/System.so");
 
 require("System/Crypt/Crypt.so");
 
-require("SHA1.so");
+require(["SHA1.so", "SHA1.js"]);
 
 Program.SHA1 = Program.System.Crypt.SHA1;
 

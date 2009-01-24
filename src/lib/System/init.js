@@ -44,7 +44,7 @@ require([
 // Crypt modules
 require("Crypt/Crypt.so");
 
-require("Crypt/SHA1/SHA1.so");
+require(["Crypt/SHA1/SHA1.so", "Crypt/SHA1/SHA1.js"]);
 
 // Console module
 require("Console/Console.js")

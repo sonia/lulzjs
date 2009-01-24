@@ -16,57 +16,16 @@
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
 
-Object.extend(Object, {
-    inspect: function (obj) {
-        try {
-            if (typeof obj == 'undefined') {
-                return 'undefined'
-            }
-            else if (obj === null) {
-                return 'null';
-            }
-            else if (Object.is(obj, Array)) {
-                return obj.toSource();
-            }
-            
-            return (obj.inspect) ? obj.inspect() : obj.toString();
-        }
-        catch (e) {
-            return e;
-        }    
-    },
-
-    addGetters: function (to, obj) {
+Object.extend(Class.Methods, {
+    addGetters: function (obj) {
         for (let [name, getter] in obj) {
-            to.prototype.__defineGetter__(name, getter);
+            this.prototype.__defineGetter__(name, getter);
         }
     },
 
     addSetters: function (obj) {
         for (let [name, setter] in obj) {
-            to.prototype.__defineSetter__(name, setter);
+            this.prototype.__defineSetter__(name, setter);
         }
-    },
-
-    is: function (obj, type) {
-        try {
-            if (typeof type == 'string') {
-                if (type.trim().match(/;|\(.*\)$/)) {
-                    throw "LOL HAX";
-                }
-
-                type = eval(type);
-            }
-
-            return obj instanceof type;
-        }
-        catch (e) {
-            return false;
-        }
-    },
-
-    toArray: function (obj) {
-        return $A(obj);
     }
 });
-
