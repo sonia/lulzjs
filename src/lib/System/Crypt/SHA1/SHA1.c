@@ -15,7 +15,7 @@
 * You should have received a copy of the GNU General Public License         *
 * along with lulzJS.  If not, see <http://www.gnu.org/licenses/>.           *
 ****************************************************************************/
-// Thanks to Smith for this piece of OMG WTF IS THAT? :O
+// Thanks to Sonia for this piece of OMG WTF IS THAT? :O
 
 #include "SHA1.h"
 
