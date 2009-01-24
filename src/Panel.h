@@ -21,6 +21,9 @@
 
 #include "common.h"
 
+JSObject** panels     = NULL;
+int        panelsSize = 0;
+
 extern JSBool exec (JSContext* cx);
 extern JSBool Panel_initialize (JSContext* cx);
 
@@ -38,6 +41,9 @@ extern JSBool Panel_show (JSContext* cx, JSObject* object, uintN argc, jsval* ar
 
 extern JSBool Panel_toTop (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 extern JSBool Panel_toBottom (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
+extern JSBool Panel_above (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool Panel_below (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 extern JSBool Panel_static_update (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
