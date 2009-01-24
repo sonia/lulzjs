@@ -16,9 +16,9 @@ CFLAGS += -DDEBUG -g
 endif
 
 LIB_DIR     = src
-LIB         = ${LIB_DIR}/ncurses.o ${LIB_DIR}/Screen.o ${LIB_DIR}/Window.o
+LIB         = ${LIB_DIR}/ncurses.o ${LIB_DIR}/Screen.o ${LIB_DIR}/Window.o ${LIB_DIR}/Panel.o
 LIB_CFLAGS  = ${CFLAGS}
-LIB_LDFLAGS = ${LDFLAGS} -lncurses -lpanel -lform -lmenu
+LIB_LDFLAGS = ${LDFLAGS} -lpanel -lform -lmenu -lncurses
 
 all: lib
 
@@ -35,8 +35,11 @@ lib_install: lib
 	cp -f  ${LIB_DIR}/ncurses.o		${LJS_LIBDIR}/ncurses/ncurses.so
 	cp -f  ${LIB_DIR}/ncurses.js	${LJS_LIBDIR}/ncurses/ncurses.js
 	cp -f  ${LIB_DIR}/Window.o		${LJS_LIBDIR}/ncurses/Window.so
+	cp -f  ${LIB_DIR}/Window.js		${LJS_LIBDIR}/ncurses/Window.js
 	cp -f  ${LIB_DIR}/Screen.o		${LJS_LIBDIR}/ncurses/Screen.so
 	cp -f  ${LIB_DIR}/Screen.js		${LJS_LIBDIR}/ncurses/Screen.js
+	cp -f  ${LIB_DIR}/Panel.o		${LJS_LIBDIR}/ncurses/Panel.so
+	cp -f  ${LIB_DIR}/Panel.js		${LJS_LIBDIR}/ncurses/Panel.js
 #######
 	chmod -R a+rx ${LJS_LIBDIR}/ncurses
 

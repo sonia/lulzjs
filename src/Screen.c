@@ -66,6 +66,7 @@ Screen_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     signal(SIGWINCH, __Screen_resize);
 
     initscr();
+    __updateACS(cx);
 
     JSObject* Size   = JS_NewObject(cx, NULL, NULL, NULL);
     jsval     jsSize = OBJECT_TO_JSVAL(Size);

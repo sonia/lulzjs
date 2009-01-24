@@ -17,6 +17,10 @@
 ****************************************************************************/
 
 Object.extend(ncurses.Panel.prototype, {
+    refresh: function () {
+        this.__window.refresh();
+    },
+
     printChar: function (ch, options) {
         if (options) this.__window.printChar(ch, options);
         else         this.__window.printChar(ch);

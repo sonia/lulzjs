@@ -33,9 +33,20 @@ static JSClass Panel_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, Panel_finalize
 };
 
+extern JSBool Panel_hide (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool Panel_show (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
+extern JSBool Panel_toTop (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool Panel_toBottom (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
 extern JSBool Panel_static_update (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 static JSFunctionSpec Panel_methods[] = {
+    {"hide", Panel_hide, 0, 0, 0},
+    {"show", Panel_show, 0, 0, 0},
+
+    {"toTop",    Panel_toTop,    0, 0, 0},
+    {"toBottom", Panel_toBottom, 0, 0, 0},
     {NULL}
 };
 

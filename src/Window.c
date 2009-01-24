@@ -78,7 +78,7 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
         return JS_FALSE;
     }
     
-    WINDOW* win = JS_malloc(cx, sizeof(WINDOW));
+    WINDOW* win;
     if (argc == 2) {
         WINDOW* parentWin = JS_GetPrivate(cx, parent);
         win = subwin(parentWin,
@@ -121,7 +121,7 @@ Window_finalize (JSContext* cx, JSObject* object)
     WINDOW* win = JS_GetPrivate(cx, object);
 
     if (win) {
-        JS_free(cx, win);
+        delwin(win);
     }
 }
 

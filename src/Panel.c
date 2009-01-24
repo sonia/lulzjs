@@ -33,7 +33,6 @@ Panel_initialize (JSContext* cx)
     );
 
     if (object) {
-        // Default properties
         jsval property;
 
         return JS_TRUE;
@@ -58,7 +57,7 @@ Panel_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsv
     JS_GetProperty(cx, class, "prototype", &property);
     JSObject* proto = JSVAL_TO_OBJECT(property);
     
-    JSObject* Window = JS_ConstructObject(cx, NULL, proto, NULL);
+    JSObject* Window = JS_ConstructObject(cx, JS_GET_CLASS(cx, class), proto, NULL);
     JS_CallFunctionValue(cx, Window, OBJECT_TO_JSVAL(class), argc, argv, &property);
     
     property = OBJECT_TO_JSVAL(Window);
@@ -80,6 +79,48 @@ Panel_finalize (JSContext* cx, JSObject* object)
     if (panel) {
         del_panel(panel);
     }
+}
+
+JSBool
+Panel_hide (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    PANEL* panel = JS_GetPrivate(cx, object);
+    hide_panel(panel);
+
+    jsval val = JSVAL_TRUE;
+    JS_SetProperty(cx, object, "hidden", &val);
+
+    return JS_TRUE;
+}
+
+JSBool
+Panel_show (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    PANEL* panel = JS_GetPrivate(cx, object);
+    show_panel(panel);
+
+    jsval val = JSVAL_FALSE;
+    JS_SetProperty(cx, object, "hidden", &val);
+
+    return JS_TRUE;
+}
+
+JSBool
+Panel_toTop (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    PANEL* panel = JS_GetPrivate(cx, object);
+    top_panel(panel);
+
+    return JS_TRUE;
+}
+
+JSBool
+Panel_toBottom (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    PANEL* panel = JS_GetPrivate(cx, object);
+    bottom_panel(panel);
+
+    return JS_TRUE;
 }
 
 JSBool

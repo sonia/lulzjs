@@ -16,6 +16,6 @@
 * along with lulzJS-ncurses.  If not, see <http://www.gnu.org/licenses/>.   *
 ****************************************************************************/
 
-Object.extend(Window.prototype, {
+Object.extend(ncurses.Window.prototype, {
 
 });

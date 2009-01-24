@@ -20,4 +20,5 @@ require(["ncurses.so", "ncurses.js"]);
 
 require(["Window.so", "Window.js"]);
 require(["Screen.so", "Screen.js"]);
+require(["Panel.so",  "Panel.js"]);
 
