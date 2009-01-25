@@ -20,6 +20,7 @@
 #define _LULZJS_NCURSES_SCREEN_H
 
 #include "common.h"
+#include "Window_private.h"
 
 JSObject** panels     = NULL;
 int        panelsSize = 0;

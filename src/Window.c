@@ -50,11 +50,6 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     jsval x, y, width, height;
     jsint offset = 0;
 
-    if (argc < 1) {
-        JS_ReportError(cx, "Not enough parameters.");
-        return JS_FALSE;
-    }
-
     if (argc == 2) {
         JS_ValueToObject(cx, argv[0], &parent);
 
@@ -66,7 +61,6 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
         offset = 1;
     }
 
-    jsval val;
     JS_ValueToObject(cx, argv[offset], &options);
     JS_GetProperty(cx, options, "width", &width);
     JS_GetProperty(cx, options, "height", &height);
@@ -74,25 +68,31 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     JS_GetProperty(cx, options, "y", &y);
 
     if (!JSVAL_IS_INT(width) || !JSVAL_IS_INT(height) || !JSVAL_IS_INT(x) || !JSVAL_IS_INT(y)) {
-        JS_ReportError(cx, "An option is missing or isn't an int.");
-        return JS_FALSE;
+        width  = INT_TO_JSVAL(0);
+        height = INT_TO_JSVAL(0);
+        x      = INT_TO_JSVAL(0);
+        y      = INT_TO_JSVAL(0);
     }
     
-    WINDOW* win;
-    if (argc == 2) {
-        WINDOW* parentWin = JS_GetPrivate(cx, parent);
-        win = subwin(parentWin,
-            JSVAL_TO_INT(height), JSVAL_TO_INT(width),
-            JSVAL_TO_INT(y), JSVAL_TO_INT(x)
-        );
+    WindowInformation* data = JS_malloc(cx, sizeof(WindowInformation));
+    switch (argc) {
+        case 0:
+        case 1: {
+            data->win = newwin(
+                JSVAL_TO_INT(height), JSVAL_TO_INT(width),
+                JSVAL_TO_INT(y), JSVAL_TO_INT(x)
+            );
+        } break;
+
+        case 2: {
+            WINDOW* parentWin = ((WindowInformation*)JS_GetPrivate(cx, parent))->win;
+            data->win = subwin(parentWin,
+                JSVAL_TO_INT(height), JSVAL_TO_INT(width),
+                JSVAL_TO_INT(y), JSVAL_TO_INT(x)
+            );
+        } break;
     }
-    else {
-        win = newwin(
-            JSVAL_TO_INT(height), JSVAL_TO_INT(width),
-            JSVAL_TO_INT(y), JSVAL_TO_INT(x)
-        );
-    }
-    JS_SetPrivate(cx, object, win);
+    JS_SetPrivate(cx, object, data);
 
     JSObject* Size   = JS_NewObject(cx, NULL, NULL, NULL);
     jsval     jsSize = OBJECT_TO_JSVAL(Size);
@@ -107,10 +107,14 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     jsval jsBorder; JS_GetProperty(cx, options, "border", &jsBorder);
     JSBool border; JS_ValueToBoolean(cx, jsBorder, &border);
     if (border) {
-        box(win, 0, 0);
+        box(data->win, 0, 0);
+        data->border = JS_TRUE;
+    }
+    else {
+        data->border = JS_FALSE;
     }
 
-    wrefresh(win);
+    wrefresh(data->win);
 
     return JS_TRUE;
 }
@@ -118,17 +122,19 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
 void
 Window_finalize (JSContext* cx, JSObject* object)
 {
-    WINDOW* win = JS_GetPrivate(cx, object);
+    WindowInformation* data = JS_GetPrivate(cx, object);
 
-    if (win) {
-        delwin(win);
+    if (data) {
+        if (data->win && data->win != stdscr) {
+            delwin(data->win);
+        }
     }
 }
 
 JSBool
 Window_refresh (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
-    WINDOW* win = JS_GetPrivate(cx, object);
+    WINDOW* win = ((WindowInformation*)JS_GetPrivate(cx, object))->win;
 
     wrefresh(win);
     return JS_TRUE;
@@ -142,7 +148,7 @@ Window_redraw (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
         return JS_FALSE;
     }
 
-    WINDOW* win = JS_GetPrivate(cx, object);
+    WINDOW* win = ((WindowInformation*)JS_GetPrivate(cx, object))->win;
 
     switch (argc) {
         case 0: {
@@ -162,6 +168,39 @@ Window_redraw (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
 }
 
 JSBool
+Window_resize (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    JSObject* options;
+
+    if (argc < 1) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    JS_ValueToObject(cx, argv[0], &options);
+    jsval width; JS_GetProperty(cx, options, "width", &width);
+    jsval height; JS_GetProperty(cx, options, "height", &height);
+
+    if (!JSVAL_IS_INT(width) && !JSVAL_IS_INT(height)) {
+        JS_ReportError(cx, "An option isn't an int.");
+        return JS_FALSE;
+    }
+
+    WindowInformation* data = JS_GetPrivate(cx, object);
+    wresize(data->win, height, width);
+    if (data->border) {
+        box(data->win, 0, 0);
+    }
+    wrefresh(data->win);
+
+
+    __Window_updateSize(cx, object);
+
+    return JS_TRUE;
+
+}
+
+JSBool
 Window_printChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     if (argc < 1) {
@@ -169,7 +208,7 @@ Window_printChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsva
         return JS_FALSE;
     }
 
-    WINDOW* win = JS_GetPrivate(cx, object);
+    WINDOW* win = ((WindowInformation*)JS_GetPrivate(cx, object))->win;
 
     jsint ch; JS_ValueToInt32(cx, argv[0], &ch);
 
@@ -186,7 +225,7 @@ Window_printChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsva
         jsval jsEcho; JS_GetProperty(cx, options, "echo", &jsEcho);
         JSBool echo; JS_ValueToBoolean(cx, jsEcho, &echo);
 
-        __options(cx, win, options, JS_TRUE);
+        __Window_options(cx, win, options, JS_TRUE);
         if (echo) {
             wechochar(win, ch);
         }
@@ -200,7 +239,7 @@ Window_printChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsva
                 ch
             );
         }
-        __options(cx, win, options, JS_FALSE);
+        __Window_options(cx, win, options, JS_FALSE);
     }
 
     return JS_TRUE;
@@ -211,7 +250,7 @@ Window_getChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval*
 {
     JSObject* options;
 
-    WINDOW* win = JS_GetPrivate(cx, object);
+    WINDOW* win = ((WindowInformation*)JS_GetPrivate(cx, object))->win;
 
     if (argc == 0) {
         *rval = INT_TO_JSVAL(wgetch(win));
@@ -247,7 +286,7 @@ Window_printString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
         return JS_FALSE;
     }
 
-    WINDOW* win = JS_GetPrivate(cx, object);
+    WINDOW* win = ((WindowInformation*)JS_GetPrivate(cx, object))->win;
 
     if (argc == 1){
         wprintw(win, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
@@ -259,7 +298,7 @@ Window_printString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
         JS_GetProperty(cx, options, "x", &x);
         JS_GetProperty(cx, options, "y", &y);
 
-        __options(cx, win, options, JS_TRUE);
+        __Window_options(cx, win, options, JS_TRUE);
         if (!JSVAL_IS_INT(x) && !JSVAL_IS_INT(y)) {
             wprintw(win, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
         }
@@ -270,17 +309,69 @@ Window_printString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
                 JS_GetStringBytes(JS_ValueToString(cx, argv[0]))
             );
         }
-        __options(cx, win, options, JS_FALSE);
+        __Window_options(cx, win, options, JS_FALSE);
     }
 
     return JS_TRUE;
 }
 
 void
+__Window_options (JSContext* cx, WINDOW* win, JSObject* options, JSBool apply)
+{
+    jsval jsAttrs; JS_GetProperty(cx, options, "at", &jsAttrs);
+    if (!JSVAL_IS_INT(jsAttrs)) {
+        JS_GetProperty(cx, options, "attribute", &jsAttrs);
+
+        if (!JSVAL_IS_INT(jsAttrs)) {
+            JS_GetProperty(cx, options, "attributes", &jsAttrs);
+        }
+    }
+
+    if (JSVAL_IS_INT(jsAttrs)) {
+        if (apply) {
+            wattron(win, JSVAL_TO_INT(jsAttrs));
+        }
+        else {
+            wattroff(win, JSVAL_TO_INT(jsAttrs));
+        }
+    }
+
+    jsval jsForeground; JS_GetProperty(cx, options, "fg", &jsForeground);
+    if (!JSVAL_IS_INT(jsForeground)) {
+        JS_GetProperty(cx, options, "foreground", &jsForeground);
+    }
+
+    jsval jsBackground; JS_GetProperty(cx, options, "bg", &jsBackground);
+    if (!JSVAL_IS_INT(jsBackground)) {
+        JS_GetProperty(cx, options, "background", &jsBackground);
+    }
+
+    short fg = JSVAL_IS_INT(jsForeground) ? JSVAL_TO_INT(jsForeground) : -1;
+    short bg = JSVAL_IS_INT(jsBackground) ? JSVAL_TO_INT(jsBackground) : -1;
+
+    if (fg == -1 && bg == -1) {
+        return;
+    }
+
+    char pair[3] = {0};
+    sprintf(&pair[0], "%1d", (fg<0?0:fg)); // I've to give 0 if it's using the default
+    sprintf(&pair[1], "%1d", (bg<0?0:bg)); // value because it fucks up with -1
+
+    short c_pair = atoi(pair);
+    if (apply) {
+        init_pair(c_pair, fg, bg);
+        wattron(win, COLOR_PAIR(c_pair));
+    }
+    else {
+        wattroff(win, COLOR_PAIR(c_pair));
+    }
+}
+
+void
 __Window_updateSize (JSContext* cx, JSObject* object)
 {
     int height, width;
-    WINDOW* win = JS_GetPrivate(cx, object);
+    WINDOW* win = ((WindowInformation*)JS_GetPrivate(cx, object))->win;
     getmaxyx(win, height, width);
 
     jsval jsSize; JS_GetProperty(cx, object, "Size", &jsSize);
@@ -297,7 +388,7 @@ void
 __Window_updatePosition (JSContext* cx, JSObject* object)
 {
     int y, x;
-    WINDOW* win = JS_GetPrivate(cx, object);
+    WINDOW* win = ((WindowInformation*)JS_GetPrivate(cx, object))->win;
     getbegyx(win, y, x);
 
     jsval jsPosition; JS_GetProperty(cx, object, "Position", &jsPosition);

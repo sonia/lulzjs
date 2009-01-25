@@ -33,20 +33,25 @@ static JSClass Window_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, Window_finalize
 };
 
+#include "Window_private.h"
+
 extern JSBool Window_refresh (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 extern JSBool Window_redraw (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool Window_resize (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 extern JSBool Window_getChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 extern JSBool Window_printChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 extern JSBool Window_printString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
+void __Window_options (JSContext* cx, WINDOW* win, JSObject* options, JSBool apply);
 void __Window_updateSize (JSContext* cx, JSObject* object);
 void __Window_updatePosition (JSContext* cx, JSObject* object);
 
 static JSFunctionSpec Window_methods[] = {
     {"refresh", Window_refresh, 0, 0, 0},
     {"redraw",  Window_redraw,  0, 0, 0},
+    {"resize",  Window_resize,  0, 0, 0},
 
     {"printChar", Window_printChar, 0, 0, 0},
     {"getChar",   Window_getChar,   0, 0, 0},

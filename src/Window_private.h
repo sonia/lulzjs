@@ -16,38 +16,12 @@
 * along with lulzJS-ncurses.  If not, see <http://www.gnu.org/licenses/>.   *
 ****************************************************************************/
 
-Object.extend(ncurses.Panel.prototype, {
-    refresh: function () {
-        this.__window.refresh();
-    },
+#ifndef _LULZJS_NCURSES_WINDOW_PRIVATE
+#define _LULZJS_NCURSES_WINDOW_PRIVATE
 
-    resize: function (obj) {
-        this.__window.resize(obj);
-    },
+typedef struct {
+    WINDOW* win;
+    JSBool border;
+} WindowInformation;
 
-    printChar: function (ch, options) {
-        if (options) this.__window.printChar(ch, options);
-        else         this.__window.printChar(ch);
-    },
-
-    getChar: function (options) {
-        return (options 
-            ? this.__window.getChar(options)
-            : this.__window.getChar());
-    },
-
-    printString: function (str, options) {
-        if (options) this.__window.printString(str, options);
-        else         this.__window.printString(str);
-    }
-});
-
-Object.addGetters(ncurses.Panel, {
-    Size: function () {
-        this.__window.Size;
-    },
-
-    Position: function () {
-        this.__window.Position;
-    }
-});
+#endif

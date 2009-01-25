@@ -20,6 +20,7 @@
 #define _LULZJS_NCURSES_SCREEN_H
 
 #include "common.h"
+#include "Window_private.h"
 #include <signal.h>
 
 void __Screen_resize (int signum);
@@ -41,6 +42,7 @@ static JSClass Screen_class = {
 extern JSBool Screen_cursorMode (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 void __Screen_updateSize (JSContext* cx, JSObject* object);
+void __Screen_updateACS (JSContext* cx);
 
 static JSFunctionSpec Screen_methods[] = {
     {"cursorMode", Screen_cursorMode, 0, 0, 0},

@@ -66,7 +66,7 @@ Screen_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     signal(SIGWINCH, __Screen_resize);
 
     initscr();
-    __updateACS(cx);
+    __Screen_updateACS(cx);
 
     JSObject* Size   = JS_NewObject(cx, NULL, NULL, NULL);
     jsval     jsSize = OBJECT_TO_JSVAL(Size);
@@ -83,15 +83,19 @@ Screen_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
 
     jsval property;
     JS_GetProperty(cx, JS_GetGlobalObject(cx), "ncurses", &property);
-    JS_GetProperty(cx, JSVAL_TO_OBJECT(property), "Window",&property);
+    JS_GetProperty(cx, JSVAL_TO_OBJECT(property), "Window", &property);
     JSClass*  class  = JS_GET_CLASS(cx, JSVAL_TO_OBJECT(property));
     JS_GetProperty(cx, JSVAL_TO_OBJECT(property), "prototype", &property);
     JSObject* proto  = JSVAL_TO_OBJECT(property);
 
     JSObject* Window = JS_NewObject(cx, class, proto, NULL); 
-    JS_SetPrivate(cx, Window, stdscr);
     property = OBJECT_TO_JSVAL(Window);
     JS_SetProperty(cx, object, "__window", &property);
+
+    WindowInformation* windowData = JS_malloc(cx, sizeof(WindowInformation));
+    windowData->win    = stdscr;
+    windowData->border = JS_FALSE;
+    JS_SetPrivate(cx, Window, windowData);
 
     if (argc > 0) {
         JS_ValueToObject(cx, argv[0], &options);
@@ -177,6 +181,21 @@ Screen_finalize (JSContext* cx, JSObject* object)
     }
 }
 
+JSBool
+Screen_cursorMode (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    jsint val;
+
+    if (argc < 1 || !JS_ConvertArguments(cx, argc, argv, "i", &val)) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    curs_set(val);
+
+    return JS_TRUE;
+}
+
 void
 __Screen_updateSize (JSContext* cx, JSObject* object)
 {
@@ -193,18 +212,90 @@ __Screen_updateSize (JSContext* cx, JSObject* object)
     JS_SetProperty(cx, Size, "Width", &property);
 }
 
-JSBool
-Screen_cursorMode (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+void
+__Screen_updateACS (JSContext* cx)
 {
-    jsint val;
+    jsval property;
 
-    if (argc < 1 || !JS_ConvertArguments(cx, argc, argv, "i", &val)) {
-        JS_ReportError(cx, "Not enough parameters.");
-        return JS_FALSE;
-    }
-
-    curs_set(val);
-
-    return JS_TRUE;
+    JS_GetProperty(cx, JS_GetGlobalObject(cx), "ncurses", &property);
+    JSObject* AlternativeChars   = JS_NewObject(cx, NULL, NULL, NULL);
+    jsval     jsAlternativeChars = OBJECT_TO_JSVAL(AlternativeChars);
+    JS_SetProperty(cx, JSVAL_TO_OBJECT(property), "AlternativeChars", &jsAlternativeChars);
+        property = INT_TO_JSVAL(ACS_BLOCK);
+        JS_SetProperty(cx, AlternativeChars, "Block", &property);
+        property = INT_TO_JSVAL(ACS_BOARD);
+        JS_SetProperty(cx, AlternativeChars, "Board", &property);
+        property = INT_TO_JSVAL(ACS_BTEE);
+        JS_SetProperty(cx, AlternativeChars, "BottomT", &property);
+        property = INT_TO_JSVAL(ACS_BULLET);
+        JS_SetProperty(cx, AlternativeChars, "Bullet", &property);
+        property = INT_TO_JSVAL(ACS_CKBOARD);
+        JS_SetProperty(cx, AlternativeChars, "CheckerBoard", &property);
+        property = INT_TO_JSVAL(ACS_DARROW);
+        JS_SetProperty(cx, AlternativeChars, "DownArrow", &property);
+        property = INT_TO_JSVAL(ACS_DEGREE);
+        JS_SetProperty(cx, AlternativeChars, "Degree", &property);
+        property = INT_TO_JSVAL(ACS_DIAMOND);
+        JS_SetProperty(cx, AlternativeChars, "Diamond", &property);
+        property = INT_TO_JSVAL(ACS_GEQUAL);
+        JS_SetProperty(cx, AlternativeChars, "GreaterEqual", &property);
+        property = INT_TO_JSVAL(ACS_HLINE);
+        JS_SetProperty(cx, AlternativeChars, "HorizontalLine", &property);
+        property = INT_TO_JSVAL(ACS_LANTERN);
+        JS_SetProperty(cx, AlternativeChars, "Lantern", &property);
+        property = INT_TO_JSVAL(ACS_LARROW);
+        JS_SetProperty(cx, AlternativeChars, "LeftArrow", &property);
+        property = INT_TO_JSVAL(ACS_LEQUAL);
+        JS_SetProperty(cx, AlternativeChars, "LessEqual", &property);
+        property = INT_TO_JSVAL(ACS_LLCORNER);
+        JS_SetProperty(cx, AlternativeChars, "LowerLeftCorner", &property);
+        property = INT_TO_JSVAL(ACS_LRCORNER);
+        JS_SetProperty(cx, AlternativeChars, "LowerRightCorner", &property);
+        property = INT_TO_JSVAL(ACS_LTEE);
+        JS_SetProperty(cx, AlternativeChars, "LeftT", &property);
+        property = INT_TO_JSVAL(ACS_NEQUAL);
+        JS_SetProperty(cx, AlternativeChars, "NotEqual", &property);
+        property = INT_TO_JSVAL(ACS_PI);
+        JS_SetProperty(cx, AlternativeChars, "GreekPi", &property);
+        property = INT_TO_JSVAL(ACS_PLMINUS);
+        JS_SetProperty(cx, AlternativeChars, "PlusMinus", &property);
+        property = INT_TO_JSVAL(ACS_PLUS);
+        JS_SetProperty(cx, AlternativeChars, "Plus", &property);
+        property = INT_TO_JSVAL(ACS_RARROW);
+        JS_SetProperty(cx, AlternativeChars, "RightArrow", &property);
+        property = INT_TO_JSVAL(ACS_RTEE);
+        JS_SetProperty(cx, AlternativeChars, "RightT", &property);
+        property = INT_TO_JSVAL(ACS_S1);
+        JS_SetProperty(cx, AlternativeChars, "Scan1", &property);
+        property = INT_TO_JSVAL(ACS_S3);
+        JS_SetProperty(cx, AlternativeChars, "Scan3", &property);
+        property = INT_TO_JSVAL(ACS_S7);
+        JS_SetProperty(cx, AlternativeChars, "Scan7", &property);
+        property = INT_TO_JSVAL(ACS_S9);
+        JS_SetProperty(cx, AlternativeChars, "Scan9", &property);
+        property = INT_TO_JSVAL(ACS_STERLING);
+        JS_SetProperty(cx, AlternativeChars, "Pound", &property);
+        property = INT_TO_JSVAL(ACS_TTEE);
+        JS_SetProperty(cx, AlternativeChars, "TopT", &property);
+        property = INT_TO_JSVAL(ACS_UARROW);
+        JS_SetProperty(cx, AlternativeChars, "UpperArrow", &property);
+        property = INT_TO_JSVAL(ACS_ULCORNER);
+        JS_SetProperty(cx, AlternativeChars, "UpperLeftCorner", &property);
+        property = INT_TO_JSVAL(ACS_URCORNER);
+        JS_SetProperty(cx, AlternativeChars, "UpperRightCorner", &property);
+        property = INT_TO_JSVAL(ACS_VLINE);
+        JS_SetProperty(cx, AlternativeChars, "VerticalLine", &property);
+        property = INT_TO_JSVAL(ACS_STERLING);
+        JS_SetProperty(cx, AlternativeChars, "Pound", &property);
+        property = INT_TO_JSVAL(ACS_TTEE);
+        JS_SetProperty(cx, AlternativeChars, "TopT", &property);
+        property = INT_TO_JSVAL(ACS_UARROW);
+        JS_SetProperty(cx, AlternativeChars, "UpperArrow", &property);
+        property = INT_TO_JSVAL(ACS_ULCORNER);
+        JS_SetProperty(cx, AlternativeChars, "UpperLeftCorner", &property);
+        property = INT_TO_JSVAL(ACS_URCORNER);
+        JS_SetProperty(cx, AlternativeChars, "UpperRightCorner", &property);
+        property = INT_TO_JSVAL(ACS_VLINE);
+        JS_SetProperty(cx, AlternativeChars, "VerticalLine", &property);
 }
 
