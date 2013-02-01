@@ -5,5 +5,5 @@ require("System/Net/Socket");
 var socket = new Socket;
 socket.connect("localhost", 2707);
 
-socket.sendLine("NIGGER");
+socket.sendLine("lessbigotedword...");
 Console.writeLine("Server: "+(socket.receiveLine()));
